@@ -61,56 +61,91 @@ public class Main {
             helpFormatter.printHelp(">>>>>> test cli options", options);
             e.printStackTrace();
         } 
-
-        if (cli.hasOption("srcJavaDir")){
-        	FileUtil.srcJavaDir = cli.getOptionValue("srcJavaDir");
-//        	parameters.put("srcJavaDir", cli.getOptionValue("srcJavaDir"));
-        }
-        if(cli.hasOption("binJavaDir")){
-        	FileUtil.binJavaDir = cli.getOptionValue("binJavaDir");
-//        	parameters.put("binJavaDir", cli.getOptionValue("binJavaDir"));
-        }
-        if(cli.hasOption("binTestDir")){
-        	FileUtil.binTestDir = cli.getOptionValue("binTestDir");
-//        	parameters.put("binTestDir", cli.getOptionValue("binTestDir"));
-        }
-        if(cli.hasOption("dependences")){
-        	FileUtil.dependences = cli.getOptionValue("dependences");
-//        	parameters.put("dependences", cli.getOptionValue("dependences"));
-        }
-        if(cli.hasOption("buggylocDir")){
-        	String buggylocDir = cli.getOptionValue("buggylocDir");
-        	FileUtil.buggylocDir = buggylocDir;
-        	FileUtil.flPath = new File(buggylocDir).getAbsolutePath() + "/FL.txt";
-        	FileUtil.buggylocPath = new File(buggylocDir).getAbsolutePath() + "/buggyloc.txt";
-        	
-        	// to be written
-        	FileUtil.flLogPath = new File(buggylocDir).getAbsolutePath() + "/fl_log_" + FileUtil.toolName + ".txt";
-        	FileUtil.searchLogPath = new File(buggylocDir).getAbsolutePath() + "/search_log_" + FileUtil.toolName + ".txt";
-        	FileUtil.changedFLPath = new File(buggylocDir).getAbsolutePath() + "/changedFL_" + FileUtil.toolName + ".txt";
-        	FileUtil.positiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/allPosTests_" + FileUtil.toolName + ".txt";
-        	FileUtil.filteredPositiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/filteredPosTests_" + FileUtil.toolName + ".txt";
-        	
-        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
-        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
-        	
-//        	parameters.put("buggylocDir", cli.getOptionValue("buggylocDir"));
-        }
-        if(cli.hasOption("externalProjPath")){
-        	FileUtil.externalProjPath = cli.getOptionValue("externalProjPath");
-        }
-        if(cli.hasOption("jvmPath")){
-        	try {
-				FileUtil.jvmPath = new File(cli.getOptionValue("jvmPath")).getCanonicalPath() + "/java";
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-        if(cli.hasOption("failedTestsStr")){
-        	FileUtil.failedTestsStr = cli.getOptionValue("failedTestsStr");
-        	FileUtil.oriFailedTests = Arrays.asList(FileUtil.failedTestsStr.split(":"));
-        }
+        
+        try {
+	        if (cli.hasOption("srcJavaDir")){
+	        	String srcJavaDir = cli.getOptionValue("srcJavaDir");
+	        	
+	        	FileUtil.srcJavaDir = new File(srcJavaDir).getCanonicalPath();
+	//        	parameters.put("srcJavaDir", cli.getOptionValue("srcJavaDir"));
+	        }
+	        if(cli.hasOption("binJavaDir")){
+	        	String binJavaDir = cli.getOptionValue("binJavaDir");
+	        	
+	        	FileUtil.binJavaDir = new File(binJavaDir).getCanonicalPath();
+	//        	parameters.put("binJavaDir", cli.getOptionValue("binJavaDir"));
+	        }
+	        if(cli.hasOption("binTestDir")){
+	        	String binTestDir = cli.getOptionValue("binTestDir");
+	        	
+	        	FileUtil.binTestDir = new File(binTestDir).getCanonicalPath();
+	        	
+	//        	parameters.put("binTestDir", cli.getOptionValue("binTestDir"));
+	        }
+	        if(cli.hasOption("dependences")){
+	        	FileUtil.dependencies = cli.getOptionValue("dependences");
+	        	for(String dep : FileUtil.dependencies.split(":")){
+	        		if(! dep.isEmpty() && new File(dep).exists()){
+	        			
+	        				String path = new File(dep).getCanonicalPath();
+	        				if (FileUtil.depsList.contains(path)) continue;
+	        				
+							FileUtil.depsList.add(path);
+						
+	        		}else{
+	        			System.out.format("dependency: %s is empty or does not exist.", dep);
+	        		}
+	        	}
+	//        	parameters.put("dependences", cli.getOptionValue("dependences"));
+	        }
+	        if(cli.hasOption("buggylocDir")){
+	        	String buggylocDir = cli.getOptionValue("buggylocDir");
+	        	FileUtil.buggylocDir = buggylocDir;
+	        	FileUtil.flPath = new File(buggylocDir).getAbsolutePath() + "/FL.txt";
+	        	FileUtil.buggylocPath = new File(buggylocDir).getAbsolutePath() + "/buggyloc.txt";
+	        	
+	        	// to be written
+	        	FileUtil.flLogPath = new File(buggylocDir).getAbsolutePath() + "/fl_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.searchLogPath = new File(buggylocDir).getAbsolutePath() + "/search_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.changedFLPath = new File(buggylocDir).getAbsolutePath() + "/changedFL_" + FileUtil.toolName + ".txt";
+	        	FileUtil.positiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/allPosTests_" + FileUtil.toolName + ".txt";
+	        	FileUtil.filteredPositiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/filteredPosTests_" + FileUtil.toolName + ".txt";
+	        	
+	        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
+	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
+	        	
+	//        	parameters.put("buggylocDir", cli.getOptionValue("buggylocDir"));
+	        }
+	        if(cli.hasOption("externalProjPath")){
+	        	FileUtil.externalProjPath = cli.getOptionValue("externalProjPath");
+	        }
+	        if(cli.hasOption("jvmPath")){
+	        	try {
+					FileUtil.jvmPath = new File(cli.getOptionValue("jvmPath")).getCanonicalPath() + "/java";
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
+	        if(cli.hasOption("failedTestsStr")){
+	        	FileUtil.failedTestsStr = cli.getOptionValue("failedTestsStr");
+	        	FileUtil.oriFailedTests = Arrays.asList(FileUtil.failedTestsStr.split(":"));
+	        }
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        // make sure that src/ test-classes/ src-classes/ are contained
+     	if( ! FileUtil.depsList.contains(FileUtil.srcJavaDir)){
+     		FileUtil.depsList.add(FileUtil.srcJavaDir);
+     	}
+     	if( ! FileUtil.depsList.contains(FileUtil.binJavaDir)){
+     		FileUtil.depsList.add(FileUtil.binJavaDir);
+     	}
+     	if( ! FileUtil.depsList.contains(FileUtil.binTestDir)){
+     		FileUtil.depsList.add(FileUtil.binTestDir);
+     	}
         
 //		return parameters;
     }

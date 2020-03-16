@@ -19,12 +19,14 @@ public class FileUtil {
 	public static String srcJavaDir;
 	public static String binJavaDir;
 	public static String binTestDir;
-	public static String dependences;
+	public static String dependencies;
 	public static String buggylocDir;
 	public static String changedFLPath;
 	public static String externalProjPath;
 	public static String jvmPath;
 	public static String failedTestsStr;
+	
+	public static ArrayList<String> depsList = new ArrayList<>();
 	
 //	public static List<String> oriFailedTestMethods;
 	public static List<String> oriFailedTests;
