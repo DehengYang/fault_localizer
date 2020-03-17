@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gzoltar.core.GZoltar;
 import com.gzoltar.core.instr.testing.TestResult;
@@ -16,7 +17,7 @@ import apr.apr.repair.utils.FileUtil;
 
 public class FaultLocalizer  {
 	private static String workDir = System.getProperty("user.dir");
-	final static Logger logger = Logger.getLogger(FaultLocalizer.class);
+	final static Logger logger = LoggerFactory.getLogger(FaultLocalizer.class);
 	
 	public FaultLocalizer() {
 		logger.info("FL starts.");
@@ -53,7 +54,7 @@ public class FaultLocalizer  {
 	
 		// get test result
 		List<TestResult> testResults = spectra.getTestResults();
-		
+		logger.info("Total tests executed: {}", testResults.size());
 //		for ()
 	}
 	
