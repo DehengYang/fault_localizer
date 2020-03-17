@@ -115,11 +115,16 @@ public class Main {
 	        	FileUtil.flLogPath = new File(buggylocDir).getAbsolutePath() + "/fl_log_" + FileUtil.toolName + ".txt";
 	        	FileUtil.searchLogPath = new File(buggylocDir).getAbsolutePath() + "/search_log_" + FileUtil.toolName + ".txt";
 	        	FileUtil.changedFLPath = new File(buggylocDir).getAbsolutePath() + "/changedFL_" + FileUtil.toolName + ".txt";
+	        	FileUtil.oriFLPath = new File(buggylocDir).getAbsolutePath() + "/oriFL_" + FileUtil.toolName + ".txt";
 	        	FileUtil.positiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/allPosTests_" + FileUtil.toolName + ".txt";
 	        	FileUtil.filteredPositiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/filteredPosTests_" + FileUtil.toolName + ".txt";
 	        	
 	        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
 	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.changedFLPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.oriFLPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.positiveTestsPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.filteredPositiveTestsPath, "", false); // init
 	        	
 	//        	parameters.put("buggylocDir", cli.getOptionValue("buggylocDir"));
 	        }

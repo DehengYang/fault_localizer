@@ -1,4 +1,4 @@
 /target/
 
 #for log
-execution.log
+execution.log*

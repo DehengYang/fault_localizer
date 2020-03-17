@@ -63,9 +63,11 @@ public class FileUtil {
 	
 	public static String flPath;
 	public static String flLogPath;
+	public static String oriFLPath;
+	public static String filteredFLPath;
 	public static String buggylocPath;
 	public static String mpPath;
-	public static String toolName = "SimFix";
+	public static String toolName = "Dale_APR";
 	// for simfix code search
 	public static String searchLogPath;
 	
