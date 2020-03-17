@@ -2,7 +2,10 @@ package apr.apr.repair.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -10,21 +13,45 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import apr.apr.repair.localization.FaultLocalizer;
 import apr.apr.repair.utils.FileUtil;
 
 public class Main {
+	final static Logger logger = LoggerFactory.getLogger(Main.class);
+	
 	public static void main(String[] args){
 		// get parameters
 		setParameters(args);
 		
 		// fault localization
-		FaultLocalizer fl = new FaultLocalizer();
+		faultLocalize();
+		
 		
 		
 	}
 	
+	/** @Description fault localization & re-fl if extra failed tests found
+	 * @author apr
+	 * @version Mar 17, 2020
+	 *
+	 */
+	private static void faultLocalize() {
+		FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath);
+		Set<String> extraFailedTests = fl.getExtraFailedTests(FileUtil.oriFailedTests);
+		if (! extraFailedTests.isEmpty()){
+			logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
+			FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, new ArrayList<>(extraFailedTests));
+			Set<String> reExtraFailedTests = flSecond.getExtraFailedTests(FileUtil.oriFailedTests);
+		
+			if (! reExtraFailedTests.isEmpty()){
+				logger.warn("After re-running fl, there still exists {} extra failed test(s) in current FL.", reExtraFailedTests.size());
+			}
+		}
+	}
+
 	/*
 	 * receive parameters
 	 */
@@ -116,12 +143,14 @@ public class Main {
 	        	FileUtil.searchLogPath = new File(buggylocDir).getAbsolutePath() + "/search_log_" + FileUtil.toolName + ".txt";
 	        	FileUtil.changedFLPath = new File(buggylocDir).getAbsolutePath() + "/changedFL_" + FileUtil.toolName + ".txt";
 	        	FileUtil.oriFLPath = new File(buggylocDir).getAbsolutePath() + "/oriFL_" + FileUtil.toolName + ".txt";
+	        	FileUtil.filteredFLPath = new File(buggylocDir).getAbsolutePath() + "/filteredFL_" + FileUtil.toolName + ".txt";
 	        	FileUtil.positiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/allPosTests_" + FileUtil.toolName + ".txt";
 	        	FileUtil.filteredPositiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/filteredPosTests_" + FileUtil.toolName + ".txt";
 	        	
 	        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
 	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.changedFLPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.filteredFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.oriFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.positiveTestsPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.filteredPositiveTestsPath, "", false); // init
