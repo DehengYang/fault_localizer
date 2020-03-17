@@ -34,13 +34,27 @@ public class ClassFinder {
 	}
 	
 	public Set<String> getJavaClasses(String path){
+		return getJavaClasses(path, "class");
+	}
+	
+	/**
+	 * 
+	 * @Description: get java classes to intrument
+	 * @author apr
+	 * @version Mar 17, 2020
+	 *
+	 * @param path
+	 * @param filter
+	 * @return
+	 */
+	public Set<String> getJavaClasses(String path, String filter){
 		// refer to: https://www.geeksforgeeks.org/set-in-java/
 		Set<String> classes = new HashSet<>();
 		
 		// get all files
 		File directory = new File(path);
 		// refer to: https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FileUtils.html#listFiles(java.io.File,%20java.lang.String[],%20boolean)
-		Collection<File> files = FileUtils.listFiles(directory, new String[]{"class"}, true);
+		Collection<File> files = FileUtils.listFiles(directory, new String[]{filter}, true);
 		
 		// get all classes
 		for (File file : files){
@@ -54,6 +68,16 @@ public class ClassFinder {
 		return classes;
 	}
 	
+	/**
+	 * @Description: get all test classes & methods
+	 * @author apr
+	 * @version Mar 16, 2020
+	 *
+	 * @param testPath
+	 * @param srcPath
+	 * @param deps
+	 * @return
+	 */
 	public Set<String> getTestClasses(String testPath, String srcPath, List<String> deps){
 		Set<String> classes = new HashSet<>();
 		
@@ -105,8 +129,6 @@ public class ClassFinder {
 			if (isTest(clazz)){
 				classes.add(className);
 			}
-		
-//			System.out.println();
 		}
 		try {
 			classLoader.close();
@@ -118,6 +140,18 @@ public class ClassFinder {
 		return classes;
 	}
 
+	/**
+	 * @Description: judge if the class is a test class
+	 * refer to: 
+	 * + http://asjava.com/junit/junit-3-vs-junit-4-comparison/
+	 * + https://stackoverflow.com/questions/6685730/the-differences-between-junit-3-and-junit-4
+	 * + https://www.vogella.com/tutorials/JUnit/article.html
+	 * @author apr
+	 * @version Mar 16, 2020
+	 *
+	 * @param clazz
+	 * @return
+	 */
 	private boolean isTest(Class<?> clazz) {
 		// refer to: https://stackoverflow.com/questions/16658031/getmethod-avoiding-parent-classes
 		Method[] methods = clazz.getDeclaredMethods();

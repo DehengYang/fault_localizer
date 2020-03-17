@@ -26,8 +26,11 @@ public class FaultLocalizer  {
 		
 		// test classes to execute
 		ClassFinder cf = new ClassFinder();
-		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir);
+		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
+//		Set<String> testMethods = cf.getTestMethods();
 		
+		// src classes to instrument
+		Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir);
 		
 		
 	}
