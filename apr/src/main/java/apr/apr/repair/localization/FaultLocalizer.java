@@ -2,9 +2,13 @@ package apr.apr.repair.localization;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.gzoltar.core.GZoltar;
+import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
 
 import apr.apr.repair.utils.ClassFinder;
@@ -12,9 +16,10 @@ import apr.apr.repair.utils.FileUtil;
 
 public class FaultLocalizer  {
 	private static String workDir = System.getProperty("user.dir");
-
+	final static Logger logger = Logger.getLogger(FaultLocalizer.class);
+	
 	public FaultLocalizer() {
-		
+		logger.info("FL starts.");
 		
 		GZoltar gz = null;
 		try {
@@ -43,10 +48,13 @@ public class FaultLocalizer  {
 		}
 		
 		gz.run();
-		
 		Spectra spectra = gz.getSpectra();
+//		System.out.println(spectra.toString());
+	
+		// get test result
+		List<TestResult> testResults = spectra.getTestResults();
 		
-		System.out.println(spectra.toString());
+//		for ()
 	}
 	
 }
