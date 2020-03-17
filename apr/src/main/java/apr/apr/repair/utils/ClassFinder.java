@@ -60,7 +60,7 @@ public class ClassFinder {
 		for (File file : files){
 			//refer to : https://stackoverflow.com/questions/204784/how-to-construct-a-relative-path-in-java-from-two-absolute-paths-or-urls
 			String relativePath = directory.toURI().relativize(file.toURI()).getPath();
-			String className = relativePath.replace("/", ".").substring(0, relativePath.length() - ".class".length()); // .class len = 6
+			String className = relativePath.replace("/", ".").substring(0, relativePath.length() - filter.length() - 1 ); // .class len = 6
 			
 			classes.add(className);
 		}
