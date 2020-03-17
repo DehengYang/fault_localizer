@@ -13,8 +13,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class FileUtil {
+	// java/test classes
+	public static List<String> srcClasses = new ArrayList<>();
+	public static List<String> testClasses = new ArrayList<>();
+	public static List<String> testMethods = new ArrayList<>();
+	
 	// parameter
 	public static String srcJavaDir;
 	public static String binJavaDir;
@@ -117,6 +123,16 @@ public class FileUtil {
 	
 	public static void writeLinesToFile(String path, List<String> lines){
 		writeLinesToFile(path, lines, false);
+	}
+	
+	public static void writeLinesToFile(String path, Set<String> lines){
+		writeLinesToFile(path, lines, false);
+	}
+	
+	public static void writeLinesToFile(String path, Set<String> lines,  boolean append){
+		List<String> linesList = new ArrayList<>();
+		linesList.addAll(lines);
+		writeLinesToFile(path, linesList, append);
 	}
 	
 	public static void writeLinesToFile(String path, List<String> lines, boolean append){

@@ -11,11 +11,18 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import apr.apr.repair.localization.FaultLocalizer;
 import apr.apr.repair.utils.FileUtil;
 
 public class Main {
 	public static void main(String[] args){
+		// get parameters
 		setParameters(args);
+		
+		// fault localization
+		FaultLocalizer fl = new FaultLocalizer();
+		
+		
 	}
 	
 	/*
