@@ -38,26 +38,70 @@
             <version>2.4</version>
         </dependency>
 
-		<!-- <scope>test</scope> https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
+		<!-- For logging (remove <scope>test</scope>) -->
 		<dependency>
 		    <groupId>org.slf4j</groupId>
 		    <artifactId>slf4j-log4j12</artifactId>
 		    <version>1.7.25</version>
 		</dependency>
-	
-		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
 		<dependency>
 		    <groupId>org.slf4j</groupId>
 		    <artifactId>slf4j-api</artifactId>
 		    <version>1.7.25</version>
 		</dependency>
 			
-		<!-- https://mvnrepository.com/artifact/log4j/log4j 
+		<!-- ast parser: refer to: https://www.programcreek.com/2011/01/a-complete-standalone-example-of-astparser/-->
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>-->
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.contenttype</artifactId>
+		    <version>3.4.100</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.core/jobs <scope>provided</scope> -->
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>jobs</artifactId>
+		    <version>3.6.0-v20140424-0053</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.core/resources -->
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>resources</artifactId>
+		    <version>3.3.0-v20070604</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.core/runtime -->
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>runtime</artifactId>
+		    <version>3.10.0-v20140318-2214</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.equinox/common -->
+		<dependency>
+		    <groupId>org.eclipse.equinox</groupId>
+		    <artifactId>common</artifactId>
+		    <version>3.6.200-v20130402-1505</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.equinox/preferences  <scope>provided</scope> -->
+		<dependency>
+		    <groupId>org.eclipse.equinox</groupId>
+		    <artifactId>preferences</artifactId>
+		    <version>3.5.200-v20140224-1527</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core -->
+		<dependency>
+		    <groupId>org.eclipse.jdt</groupId>
+		    <artifactId>org.eclipse.jdt.core</artifactId>
+		    <version>3.20.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse/osgi  <scope>provided</scope> -->
+		<dependency>
+		    <groupId>org.eclipse</groupId>
+		    <artifactId>osgi</artifactId>
+		    <version>3.10.0-v20140606-1445</version>
+		</dependency>
+		
+				
+		
+		
 		
 
 		<dependency>

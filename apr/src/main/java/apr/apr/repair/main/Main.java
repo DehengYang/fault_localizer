@@ -29,7 +29,7 @@ public class Main {
 		// fault localization
 		faultLocalize();
 		
-		
+		// parse java files into ast
 		
 	}
 	
