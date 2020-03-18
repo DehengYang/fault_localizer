@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -13,6 +14,11 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +39,7 @@ public class Main {
 		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
 		
 		// fault localization
-		faultLocalize(testClasses, srcClasses);
+//		faultLocalize(testClasses, srcClasses);
 		
 		// parse java files into ast
 		parse(srcClasses, FileUtil.srcJavaDir);
@@ -53,6 +59,33 @@ public class Main {
 		for(String srcClass : srcClasses){
 			String srcPath = directory + srcClass.replace(".", "/") + ".java";
 			
+			// refer to: https://www.programcreek.com/java-api-examples/?api=org.eclipse.jdt.core.dom.ASTParser
+			// 
+			ASTParser parser = ASTParser.newParser(AST.JLS8); // according to the javadoc
+			
+			Map<String, String> options = JavaCore.getOptions();
+			//TODO: change compiliance level?
+			JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+			
+			parser.setCompilerOptions(options);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setResolveBindings(true);
+			parser.setBindingsRecovery(true);
+			// refer to: https://bbs.csdn.net/topics/390691501?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
+			parser.setEnvironment(FileUtil.depsList.toArray(new String[FileUtil.depsList.size()]), null, null, true);
+			
+			String source = null;
+			try {
+				source = FileUtils.readFileToString(new File(srcPath), "UTF-8");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			parser.setSource(source.toCharArray());
+			
+			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+			
+			System.out.println(srcPath); 
+			System.out.println(cu);  
 			
 		}
 		
@@ -189,7 +222,6 @@ public class Main {
 	        	try {
 					FileUtil.jvmPath = new File(cli.getOptionValue("jvmPath")).getCanonicalPath() + "/java";
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	        }
@@ -198,7 +230,6 @@ public class Main {
 	        	FileUtil.oriFailedTests = Arrays.asList(FileUtil.failedTestsStr.split(":"));
 	        }
         } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         

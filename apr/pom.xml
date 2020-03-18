@@ -50,12 +50,20 @@
 		    <version>1.7.25</version>
 		</dependency>
 			
+		<!-- Error: class "org.eclipse.core.runtime.Plugin"'s signer information does not match signer information of other classes in the same package
+		
+		SOLUTION: change versions ( to these versions released around 2014)
+		Refer to: https://github.com/xtext/xtext-gradle-plugin/issues/121
+		https://github.com/eclipse/xtext-core/commit/0d30f428674337236d594a01ea06d0d4d3cf0737
+		 -->
 		<!-- ast parser: refer to: https://www.programcreek.com/2011/01/a-complete-standalone-example-of-astparser/-->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.core/contenttype -->
 		<dependency>
 		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>org.eclipse.core.contenttype</artifactId>
-		    <version>3.4.100</version>
+		    <artifactId>contenttype</artifactId>
+		    <version>3.4.200-v20140207-1251</version>
 		</dependency>
+				
 		<!-- https://mvnrepository.com/artifact/org.eclipse.core/jobs <scope>provided</scope> -->
 		<dependency>
 		    <groupId>org.eclipse.core</groupId>
@@ -86,11 +94,11 @@
 		    <artifactId>preferences</artifactId>
 		    <version>3.5.200-v20140224-1527</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core -->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core  3.20.0  3.13.100  3.12.3 -->
 		<dependency>
 		    <groupId>org.eclipse.jdt</groupId>
 		    <artifactId>org.eclipse.jdt.core</artifactId>
-		    <version>3.20.0</version>
+		    <version>3.12.3</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.eclipse/osgi  <scope>provided</scope> -->
 		<dependency>

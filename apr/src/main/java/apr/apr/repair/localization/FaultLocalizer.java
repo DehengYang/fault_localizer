@@ -92,7 +92,6 @@ public class FaultLocalizer  {
 		try {
 			gz = new GZoltar(workDir);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

@@ -97,7 +97,6 @@ public class ClassFinder {
 			}
 //			url = new File(testPath).toURI().toURL();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -120,7 +119,6 @@ public class ClassFinder {
 			try {
 				clazz = classLoader.loadClass(className);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -133,7 +131,6 @@ public class ClassFinder {
 		try {
 			classLoader.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
