@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import apr.apr.repair.localization.FaultLocalizer;
+import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 
 public class Main {
@@ -26,24 +27,48 @@ public class Main {
 		// get parameters
 		setParameters(args);
 		
+		// get src & test clasess
+		ClassFinder cf = new ClassFinder();
+		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
+		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+		
 		// fault localization
-		faultLocalize();
+		faultLocalize(testClasses, srcClasses);
 		
 		// parse java files into ast
+		parse(srcClasses, FileUtil.srcJavaDir);
 		
 	}
 	
+	/** @Description 
+	 * @author apr
+	 * @version Mar 18, 2020
+	 *
+	 * @param srcClasses
+	 */
+	private static void parse(Set<String> srcClasses, String directory) {
+		if (! directory.endsWith("/")){ // make sure the src path (as below) is valid.
+			directory += "/";
+		}
+		for(String srcClass : srcClasses){
+			String srcPath = directory + srcClass.replace(".", "/") + ".java";
+			
+			
+		}
+		
+	}
+
 	/** @Description fault localization & re-fl if extra failed tests found
 	 * @author apr
 	 * @version Mar 17, 2020
 	 *
 	 */
-	private static void faultLocalize() {
-		FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath);
+	private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
+		FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath, testClasses, srcClasses);
 		Set<String> extraFailedTests = fl.getExtraFailedTests(FileUtil.oriFailedTests);
 		if (! extraFailedTests.isEmpty()){
 			logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
-			FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, new ArrayList<>(extraFailedTests));
+			FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, testClasses, srcClasses, new ArrayList<>(extraFailedTests));
 			Set<String> reExtraFailedTests = flSecond.getExtraFailedTests(FileUtil.oriFailedTests);
 		
 			if (! reExtraFailedTests.isEmpty()){

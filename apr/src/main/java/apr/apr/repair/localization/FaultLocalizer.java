@@ -34,13 +34,23 @@ public class FaultLocalizer  {
 	
 	private List<SuspiciousLocation> suspList = new ArrayList<>();
 	
-	public FaultLocalizer(String savePath) {
+	private Set<String> testClasses = new HashSet<>();
+	private Set<String> srcClasses = new HashSet<>();
+	private String savePath;
+	
+	public FaultLocalizer(String savePath, Set<String> testClasses, Set<String> srcClasses) {
 //		this(null, null);
-		localize(savePath, null);
+		this.savePath = savePath;
+		this.testClasses.addAll(testClasses);
+		this.srcClasses.addAll(srcClasses);
+		localize(null);
 	}
 	
-	public FaultLocalizer(String savePath, List<String> extraFailedTests) {
-		localize(savePath, extraFailedTests);
+	public FaultLocalizer(String savePath,  Set<String> testClasses, Set<String> srcClasses, List<String> extraFailedTests) {
+		this.savePath = savePath;
+		this.testClasses.addAll(testClasses);
+		this.srcClasses.addAll(srcClasses);
+		localize(extraFailedTests);
 	}
 	
 //	public FaultLocalizer(List<String> oriFailedTests, List<String> extraFailedTests) {
@@ -75,7 +85,7 @@ public class FaultLocalizer  {
 		return extraFailedTests;
 	}
 	
-	public void localize(String savePath, List<String> extraFailedTests){
+	public void localize(List<String> extraFailedTests){
 		logger.info("FL starts.");
 		
 		GZoltar gz = null;
@@ -98,8 +108,8 @@ public class FaultLocalizer  {
 		gz.addTestPackageNotToExecute("junit.framework.TestSuite$1");
 		gz.addTestPackageNotToExecute("junit.framework.TestSuite");
 		// test classes to execute
-		ClassFinder cf = new ClassFinder();
-		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
+//		ClassFinder cf = new ClassFinder();
+//		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
 //		Set<String> testMethods = cf.getTestMethods();
 		for(String testClass : testClasses){
 			// filter extra failed tests
@@ -124,7 +134,7 @@ public class FaultLocalizer  {
 		gz.addPackageNotToInstrument("org.easymock");
 		// src classes to instrument
 //		Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir);
-		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+//		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
 		for(String srcClass : srcClasses){
 			gz.addClassToInstrument(srcClass);
 		}
