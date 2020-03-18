@@ -46,7 +46,11 @@ public class Main {
 		
 		// parse java files into ast
 		CodeFinder codeFinder = new CodeFinder();
-		codeFinder.parse(srcClasses, FileUtil.srcJavaDir);
+		for(String srcClass : srcClasses){
+			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 60); //70, 215, 214, 64, 59
+			break;
+		}
+		
 		
 	}
 	
