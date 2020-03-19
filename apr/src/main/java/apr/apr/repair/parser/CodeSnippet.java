@@ -21,9 +21,17 @@ public class CodeSnippet {
 	int startLineNo;
 	int endLineNo;
 	
+	List<ASTNode> variables = new ArrayList<>();
+	
 	final static Logger logger = LoggerFactory.getLogger(CodeSnippet.class);
 	
 	public void addNode(ASTNode node){
 		nodes.add(node);
+	}
+	
+	public void getVariables(){
+		for(ASTNode node : nodes){
+			
+		}
 	}
 }

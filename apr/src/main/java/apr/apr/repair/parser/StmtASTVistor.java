@@ -64,6 +64,13 @@ public class StmtASTVistor extends ASTVisitor {
 		this.cu = cu;
 	}
 	
+	/**
+	 * @Description sometimes the stmtNode can be Declaration rather than Statement node. 
+	 * @author apr
+	 * @version Mar 18, 2020
+	 *
+	 * @return
+	 */
 	public ASTNode getStatementNode(){
 		return stmtNode;
 	}
@@ -114,7 +121,7 @@ public class StmtASTVistor extends ASTVisitor {
 		// get node info
 //		System.out.println(node.toString());
 //		System.out.println(node.getClass());
-		logger.info("node str:\n{}node class:\n{}\n\n", node.toString(), node.getClass());
+//		logger.info("node str:\n{}node class:\n{}\nnode parent:{}\n\n", node.toString(), node.getClass(), node.getParent());
 		
 		int startLineNo = cu.getLineNumber(node.getStartPosition()); // returns 1-based line number
 		int endLineNo = cu.getLineNumber(node.getStartPosition() + node.getLength());
@@ -151,8 +158,17 @@ public class StmtASTVistor extends ASTVisitor {
 	//MethodDeclaration method
 	//TypeDeclaration   class    //Javadoc
 	
+	// to get children nodes of an AST node
+	// refer to: https://stackoverflow.com/questions/11841789/children-of-org-eclipse-jdt-core-dom-astnode/11853270#11853270
+	// wget http://archive.eclipse.org/jdt/ui/update-site/plugins/org.eclipse.jdt.astview_1.1.9.201406161921.jar
+	// https://www.eclipse.org/jdt/ui/astview/index.php
+	
 	@Override
 	public void preVisit(ASTNode node){
+		// get info
+		if (node instanceof CompilationUnit) return;
+		logger.debug("--node str:\n{}\n--node class:\n{}\n--node parent:\n{}\n\n", node.toString(), node.getClass(), node.getParent());
+		
 //		if(node.toString().contains("import java.util.Set;")){
 //			System.out.println();
 //		}
