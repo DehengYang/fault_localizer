@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.SimpleName;
@@ -61,7 +62,8 @@ public class FileParser {
 		logger.debug("cu type: {}, {}", cu.getPrimaryType(), cu.getPrimaryTypeName() );
 		
 		WhileStmt ws = cu.findFirst(WhileStmt.class).get();
-		logger.debug("while stmt: {}", ws.findAll(SimpleName.class));
+		Range range = ws.getRange().get();
+		logger.debug("while stmt: {}, vars: {}, range: {}, {}", ws.toString(), ws.findAll(SimpleName.class), range.begin, range.end);
 		
 	}
 }
