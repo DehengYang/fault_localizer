@@ -50,65 +50,12 @@
 		    <version>1.7.25</version>
 		</dependency>
 			
-		<!-- Error: class "org.eclipse.core.runtime.Plugin"'s signer information does not match signer information of other classes in the same package
-		
-		SOLUTION: change versions ( to these versions released around 2014)
-		Refer to: https://github.com/xtext/xtext-gradle-plugin/issues/121
-		https://github.com/eclipse/xtext-core/commit/0d30f428674337236d594a01ea06d0d4d3cf0737
-		 -->
-		<!-- ast parser: refer to: https://www.programcreek.com/2011/01/a-complete-standalone-example-of-astparser/-->
-		<!-- https://mvnrepository.com/artifact/org.eclipse.core/contenttype -->
+		<!-- embrace JavaParser, as I did not find enought document support from JDT.dom, and I find it much more difficult to parse (including getting variable) & modify than I thought -->
 		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>contenttype</artifactId>
-		    <version>3.4.200-v20140207-1251</version>
+		    <groupId>com.github.javaparser</groupId>
+		    <artifactId>javaparser-symbol-solver-core</artifactId>
+		    <version>3.15.14</version>
 		</dependency>
-				
-		<!-- https://mvnrepository.com/artifact/org.eclipse.core/jobs <scope>provided</scope> -->
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>jobs</artifactId>
-		    <version>3.6.0-v20140424-0053</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.core/resources -->
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>resources</artifactId>
-		    <version>3.3.0-v20070604</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.core/runtime -->
-		<dependency>
-		    <groupId>org.eclipse.core</groupId>
-		    <artifactId>runtime</artifactId>
-		    <version>3.10.0-v20140318-2214</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.equinox/common -->
-		<dependency>
-		    <groupId>org.eclipse.equinox</groupId>
-		    <artifactId>common</artifactId>
-		    <version>3.6.200-v20130402-1505</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.equinox/preferences  <scope>provided</scope> -->
-		<dependency>
-		    <groupId>org.eclipse.equinox</groupId>
-		    <artifactId>preferences</artifactId>
-		    <version>3.5.200-v20140224-1527</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core  3.20.0  3.13.100  3.12.3 -->
-		<dependency>
-		    <groupId>org.eclipse.jdt</groupId>
-		    <artifactId>org.eclipse.jdt.core</artifactId>
-		    <version>3.12.3</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.eclipse/osgi  <scope>provided</scope> -->
-		<dependency>
-		    <groupId>org.eclipse</groupId>
-		    <artifactId>osgi</artifactId>
-		    <version>3.10.0-v20140606-1445</version>
-		</dependency>
-		
-				
-		
 		
 		
 

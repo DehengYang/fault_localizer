@@ -15,17 +15,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import apr.apr.repair.localization.FaultLocalizer;
-import apr.apr.repair.parser.CodeFinder;
+import apr.apr.repair.parser.FileParser;
 import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 
@@ -45,9 +39,9 @@ public class Main {
 //		faultLocalize(testClasses, srcClasses);
 		
 		// parse java files into ast
-		CodeFinder codeFinder = new CodeFinder();
 		for(String srcClass : srcClasses){
-			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
+			FileParser fp = new FileParser(srcClass, FileUtil.srcJavaDir);
+//			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
 			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
 			break;
 		}
