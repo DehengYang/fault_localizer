@@ -34,14 +34,25 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** refer to: https://github.com/search?l=Java&q=%22extends+astvisitor%22&type=Code
  * https://github.com/dearzhaorui/vnf-modeling/blob/58cf016228db6a401c35ee40fc86cfbefe48385f/NFDev/src/it/polito/parser/ReturnStatementVisitor.java
+ * 
+ * refs:
+ * [Use JDT ASTParser to Parse Single .java files](https://www.programcreek.com/2011/11/use-jdt-astparser-to-parse-java-file/)
+ * [Class ASTVisitor](https://help.eclipse.org/2019-12/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fjdt%2Fcore%2Fdom%2FASTVisitor.html)
+ * https://www.vogella.com/tutorials/EclipseJDT/article.html#abstract-syntax-tree-ast
+ * https://www.eclipse.org/articles/Article-JavaCodeManipulation_AST/
+ * 
  * @author apr
  * @version Mar 18, 2020
  *
  */
 public class StmtASTVistor extends ASTVisitor {
+	final static Logger logger = LoggerFactory.getLogger(StmtASTVistor.class);
+	
 	private int lineNo;
 	private ASTNode stmtNode;
 	private CompilationUnit cu;
@@ -85,7 +96,26 @@ public class StmtASTVistor extends ASTVisitor {
 //    VariableDeclarationStatement,
 //    WhileStatement
 	
+	/**
+	 * @Description find the validLineNo & the corresponding node. 
+	 * 
+	 * refs:
+	 * [eclipse ASTNode to source code line number](https://stackoverflow.com/questions/11126857/eclipse-astnode-to-source-code-line-number)
+	 * https://stackoverflow.com/questions/28400127/get-line-number-of-a-methoddeclaration
+	 * & javadoc
+	 * 
+	 * @author apr
+	 * @version Mar 18, 2020
+	 *
+	 * @param node
+	 * @return
+	 */
 	public boolean findLineNo(ASTNode node){
+		// get node info
+//		System.out.println(node.toString());
+//		System.out.println(node.getClass());
+		logger.info("node str:\n{}node class:\n{}\n\n", node.toString(), node.getClass());
+		
 		int startLineNo = cu.getLineNumber(node.getStartPosition()); // returns 1-based line number
 		int endLineNo = cu.getLineNumber(node.getStartPosition() + node.getLength());
 		
@@ -94,7 +124,8 @@ public class StmtASTVistor extends ASTVisitor {
 			stmtNode = node; //(Statement) 
 			return true;
 		}else{
-			return false; // stop as the sub-nodes do not contain the target lineNo
+			return true;  //test
+//			return false; // stop as the sub-nodes do not contain the target lineNo
 		}
 	}
 	
@@ -118,11 +149,15 @@ public class StmtASTVistor extends ASTVisitor {
 	
 	//FieldDeclaration private var
 	//MethodDeclaration method
-	//TypeDeclaration   class
+	//TypeDeclaration   class    //Javadoc
 	
 	@Override
 	public void preVisit(ASTNode node){
-//		System.out.println("\nnode info:");
+//		if(node.toString().contains("import java.util.Set;")){
+//			System.out.println();
+//		}
+		
+//		System.out.println("\n---node info---");
 //		System.out.println(node.toString());
 //		System.out.println(node.getClass());
 	}
