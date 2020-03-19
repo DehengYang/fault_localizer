@@ -37,6 +37,7 @@ public class CodeFinder {
 	 * @param srcClasses
 	 */
 	public void parse(String srcClass, String directory, int lineNo) {
+		logger.debug("parse class: {}", srcClass);
 		CompilationUnit cu = getCompilationUnit(srcClass, directory);
 
 		StmtASTVistor stmtVistor = new StmtASTVistor(lineNo, cu);
@@ -58,6 +59,9 @@ public class CodeFinder {
 //				return false;
 //			}
 //		});
+		
+		CodeSnippet cs = new CodeSnippet(stmtNode);
+		cs.getVariables();
 	}
 	
 	/**

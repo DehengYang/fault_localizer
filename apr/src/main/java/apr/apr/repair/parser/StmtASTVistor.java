@@ -131,8 +131,8 @@ public class StmtASTVistor extends ASTVisitor {
 			stmtNode = node; //(Statement) 
 			return true;
 		}else{
-			return true;  //test
-//			return false; // stop as the sub-nodes do not contain the target lineNo
+//			return true;  //test
+			return false; // stop as the sub-nodes do not contain the target lineNo
 		}
 	}
 	
@@ -166,8 +166,8 @@ public class StmtASTVistor extends ASTVisitor {
 	@Override
 	public void preVisit(ASTNode node){
 		// get info
-		if (node instanceof CompilationUnit) return;
-		logger.debug("--node str:\n{}\n--node class:\n{}\n--node parent:\n{}\n\n", node.toString(), node.getClass(), node.getParent());
+//		if (node instanceof CompilationUnit) return;
+//		logger.debug("--node str:\n{}\n--node class:\n{}\n--node parent:\n{}\n\n", node.toString(), node.getClass(), node.getParent());
 		
 //		if(node.toString().contains("import java.util.Set;")){
 //			System.out.println();
