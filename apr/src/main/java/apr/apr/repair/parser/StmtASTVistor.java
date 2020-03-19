@@ -166,8 +166,9 @@ public class StmtASTVistor extends ASTVisitor {
 	@Override
 	public void preVisit(ASTNode node){
 		// get info
-//		if (node instanceof CompilationUnit) return;
+		if (node instanceof CompilationUnit) return;
 //		logger.debug("--node str:\n{}\n--node class:\n{}\n--node parent:\n{}\n\n", node.toString(), node.getClass(), node.getParent());
+		logger.debug("--node str:\n{}\n--node class:\n{}\n\n", node.toString(), node.getClass());
 		
 //		if(node.toString().contains("import java.util.Set;")){
 //			System.out.println();

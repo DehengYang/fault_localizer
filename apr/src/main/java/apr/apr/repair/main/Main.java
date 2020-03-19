@@ -47,7 +47,7 @@ public class Main {
 		// parse java files into ast
 		CodeFinder codeFinder = new CodeFinder();
 		for(String srcClass : srcClasses){
-			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 87); //70, 215, 214, 64, 59, 60, 312, 382, 87
+			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
 			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
 			break;
 		}
