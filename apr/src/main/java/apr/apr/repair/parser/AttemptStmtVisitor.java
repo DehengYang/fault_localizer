@@ -15,13 +15,13 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
  * @version Mar 20, 2020
  *
  */
-public class StmtVisitor extends VoidVisitorAdapter <Void> {
+public class AttemptStmtVisitor extends VoidVisitorAdapter <Void> {
 	//AssertStmt, BlockStmt, BreakStmt, ContinueStmt, DoStmt, EmptyStmt, ExplicitConstructorInvocationStmt, ExpressionStmt, ForEachStmt, ForStmt, IfStmt, LabeledStmt, LocalClassDeclarationStmt, ReturnStmt, SwitchStmt, SynchronizedStmt, ThrowStmt, TryStmt, UnparsableStmt, WhileStmt, YieldStmt
 	
 	private int lineNo;
 	private Node node;
 	
-	public StmtVisitor(int lineNo){
+	public AttemptStmtVisitor(int lineNo){
 		this.lineNo = lineNo;
 	}
 	

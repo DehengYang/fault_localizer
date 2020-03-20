@@ -48,13 +48,13 @@ import apr.apr.repair.utils.FileUtil;
  * @version Mar 19, 2020
  *
  */
-public class FileParser {
-	final static Logger logger = LoggerFactory.getLogger(FileParser.class);
+public class AttemptFileParser {
+	final static Logger logger = LoggerFactory.getLogger(AttemptFileParser.class);
 
 	private ParseResult<CompilationUnit> result;
 	private CompilationUnit cu;
 
-	public FileParser(String clazz, String directory){
+	public AttemptFileParser(String clazz, String directory){
 		// get src path
 		if (! directory.endsWith("/")){ // make sure the src path (as below) is valid.
 			directory += "/";
@@ -116,11 +116,11 @@ public class FileParser {
 //		         System.out.println(ae.toString() + " is a: " + resolvedType);
 //			}
 //			FieldDeclaration fieldDeclaration = Navigator.demandNodeOfGivenClass(cu2, FieldDeclaration.class);
-			List<FieldDeclaration> fds = cu2.findAll(FieldDeclaration.class);
-	        System.out.println("Field type: " + fds.get(1).getVariables().get(0).getType()
-	                .resolve().asReferenceType().getQualifiedName());
-			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
-					.resolve().asReferenceType().getQualifiedName());
+//			List<FieldDeclaration> fds = cu2.findAll(FieldDeclaration.class);
+//	        System.out.println("Field type: " + fds.get(1).getVariables().get(0).getType()
+//	                .resolve().asReferenceType().getQualifiedName());
+//			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
+//					.resolve().asReferenceType().getQualifiedName());
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

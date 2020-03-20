@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import apr.apr.repair.localization.FaultLocalizer;
-import apr.apr.repair.parser.FileParser;
+import apr.apr.repair.parser.AttemptFileParser;
 import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 
@@ -40,7 +40,7 @@ public class Main {
 		
 		// parse java files into ast
 		for(String srcClass : srcClasses){
-			FileParser fp = new FileParser(srcClass, FileUtil.srcJavaDir);
+			AttemptFileParser fp = new AttemptFileParser(srcClass, FileUtil.srcJavaDir);
 //			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
 			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
 			break;
