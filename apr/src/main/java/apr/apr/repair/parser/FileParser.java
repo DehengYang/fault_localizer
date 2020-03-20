@@ -28,6 +28,7 @@ import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.printer.YamlPrinter;
 //import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -85,6 +86,15 @@ public class FileParser {
         }
         
 
+        // details for symbolsolver:
+        // refer to: How to find the begin line and paramters's full name in some method simply? #2053 -> https://github.com/javaparser/javaparser/issues/2053 
+        // About the Symbol Solver -> https://github.com/javaparser/javaparser/wiki/About-the-Symbol-Solver
+        
+        
+        
+        // error will occur: com.github.javadocparser.ParseException: Encountered " <ENTER_JAVADOC_COMMENT> 
+        // refer to: https://github.com/javaparser/javaparser/issues/174
+        // https://github.com/javaparser/javaparser/issues/112
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         StaticJavaParser
                 .getConfiguration()
@@ -107,9 +117,10 @@ public class FileParser {
 //			}
 //			FieldDeclaration fieldDeclaration = Navigator.demandNodeOfGivenClass(cu2, FieldDeclaration.class);
 			List<FieldDeclaration> fds = cu2.findAll(FieldDeclaration.class);
-//	        System.out.println("Field type: " + fds.get(1).getVariables().get(0).getType()
-//	                .resolve().asReferenceType().getQualifiedName());
-			System.out.println("Field type: " + fds.get(1).getVariables().get(0).getTypeAsString()  );
+	        System.out.println("Field type: " + fds.get(1).getVariables().get(0).getType()
+	                .resolve().asReferenceType().getQualifiedName());
+			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
+					.resolve().asReferenceType().getQualifiedName());
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -119,13 +130,27 @@ public class FileParser {
 		operateCU(cu);
 	}
 
+	/**
+	 * @Description get formatted output of cu. 
+	 * @author apr
+	 * @version Mar 19, 2020
+	 *
+	 * @param cu
+	 */
+	private void printCU(CompilationUnit cu){
+		// refer to: Inspecting an AST -> http://javaparser.org/inspecting-an-ast/
+		// Now comes the inspection code:
+		YamlPrinter printer = new YamlPrinter(true);
+		logger.debug(printer.output(cu));
+	}
+	
 	/** @Description 
 	 * @author apr
 	 * @version Mar 19, 2020
 	 *
 	 * @param cu2
 	 */
-	private void operateCU(CompilationUnit cu) {
+	private void operateCU(CompilationUnit cu) {		
 //		logger.debug("cu type: {}, {}", cu.getPrimaryType(), cu.getPrimaryTypeName() );
 		
 		WhileStmt ws = cu.findFirst(WhileStmt.class).get();
@@ -140,20 +165,37 @@ public class FileParser {
 			
 			Consumer<Node> consumer = n -> {
 //				logger.debug("node traverse: {}, class: {}, node range: {}", n.toString().trim(), n.getClass().getTypeName(), n.getRange().toString());
-				if (n instanceof ForStmt){ //EnumDeclaration, FieldDeclaration
+//				if (n instanceof ForStmt){ //EnumDeclaration, FieldDeclaration
+//					n.findAll(VariableDeclarationExpr.class).forEach( expr -> {
+//						NodeList<VariableDeclarator> vars = expr.getVariables();
+//						for ( VariableDeclarator var : vars){
+//							logger.debug("variable: {}, {}, {}", var.getName(), var.getType(), var.getParentNode());
+//						}
+//					});
+//				}
+				
+				
+//				n.findAll(VariableDeclarationExpr.class).forEach( expr -> {
+//					NodeList<VariableDeclarator> vars = expr.getVariables();
+//					for ( VariableDeclarator var : vars){
+//						logger.debug("variable: {}, {}, {}", var.getName(), var.getType(), var.getParentNode());
+//					}
+//				});
+//				
+				if (n instanceof ExpressionStmt){ //EnumDeclaration, FieldDeclaration
+					
+					if (n.toString().contains("this.callback1 = callback1;")){
+						for(Node child : n.getChildNodes()){
+							logger.debug("child: {}", child.getClass());
+						}
+					}
+					
 					n.findAll(VariableDeclarationExpr.class).forEach( expr -> {
 						NodeList<VariableDeclarator> vars = expr.getVariables();
 						for ( VariableDeclarator var : vars){
-							logger.debug("variable: {}, {}, {}", var.getName(), var.getType(), var.getParentNode());
+							logger.debug("variable: {}, {}, {}", var.getName(), var.getType().resolve().asReferenceType().getQualifiedName(), var.getParentNode());
 						}
-//						vars.forEach( var -> logger.debug("variable: {}, {}, {}", var, var.getParentNode()););
-//						logger.debug("variable: {}, {}, {}", var.getVariables(), var.getParentNode());
 					});
-					
-//					((FieldDeclaration) n).getVariables().forEach( var -> {
-//						logger.debug("variable: {}, {}, {}", var.getName(), var.getType(), var.getParentNode());
-//					});
-//					logger.debug("variable: {}", ((FieldDeclaration) n).getVariables().toString());
 				}
 			};
 			node.walk(TreeTraversal.PREORDER, consumer);
