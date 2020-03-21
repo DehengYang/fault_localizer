@@ -131,38 +131,6 @@ public class NodeFinder {
 		}
 	}
 	
-	
-//	public void getBasicVariables(){
-//		// VariableDeclarator in InitializerDeclaration
-////		Consumer<Node> vdConsumer = n -> {
-////			if (n instanceof VariableDeclarator){
-////				Type type = ((VariableDeclarator) n).getType();
-////				String name = ((VariableDeclarator) n).getNameAsString();
-//////				variables.add(getVariable(n, name, type));
-////				getVariable(n, name, type, variables);
-////			}
-////		};
-//		
-//		Consumer<Node> consumer = n -> {
-//			if (n instanceof FieldDeclaration){
-//				NodeList<VariableDeclarator> vars = ((FieldDeclaration) n).getVariables();
-//				for (VariableDeclarator var : vars){
-//					Type type = var.getType();
-//					String name = var.getNameAsString();
-////					variables.add(getVariable(var, name, type));
-//					getVariable(var, name, type, fieldVariables);
-//				}
-//			}
-//			
-////			if (n instanceof InitializerDeclaration){
-////				logger.debug("find InitializerDeclaration");
-////				((InitializerDeclaration) n).walk(vdConsumer);
-////			}
-//		};
-//		
-//		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
-//	}
-	
 	public void getAllVariables(Map<String, ClassNode> classVarMap){
 
 		Consumer<Node> consumer = n -> {
@@ -231,26 +199,8 @@ public class NodeFinder {
 						
 						getVariable(n, scopeName + "." + sn.getIdentifier(), varTypeName, variables);
 					}
-					
-//					if (checkIn(instanceName, fieldVariables)){
-//						
-//					}
-
-					
 				}
 			}
-			
-//			if (n instanceof FieldAccessExpr){
-//				NodeList<Type> types = ((FieldAccessExpr) n).getTypeArguments().get();
-//				for (Type type : types){
-//					logger.debug("type: {}", type.resolve().asReferenceType().getQualifiedName());
-//				}
-//				((FieldAccessExpr) n).getName()
-//			}
-			
-//			if (n instanceof FieldAccessExpr){
-//				n.getL
-//			}
 		};
 		
 		cu.walk(TreeTraversal.PREORDER, consumer);
@@ -305,23 +255,6 @@ public class NodeFinder {
 			logger.error("The className: {} is not found in classVarMap.", className);
 			return null;
 		}
-	}
-
-	/** @Description 
-	 * @author apr
-	 * @version Mar 21, 2020
-	 *
-	 * @param instanceName
-	 * @param fieldVariables2
-	 * @return
-	 */
-	private boolean checkIn(String instanceName, List<VariableNode> vars) {
-		for (VariableNode var : vars){
-			if(var.getVarName().equals(instanceName)){
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private void getVariable(Node n, String name, String typeName, List<VariableNode> variables) {
