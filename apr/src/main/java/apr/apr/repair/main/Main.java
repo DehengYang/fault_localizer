@@ -18,10 +18,14 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.javaparser.ast.CompilationUnit;
+
 import apr.apr.repair.localization.FaultLocalizer;
 import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
+import apr.apr.repair.parser.ClassNode;
 import apr.apr.repair.parser.ClassVarParser;
+import apr.apr.repair.parser.NodeFinder;
 import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 
@@ -52,7 +56,16 @@ public class Main {
 //			break;
 //		}
 		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
+		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
 //		cvp.printClassVarMap();
+		
+		// get/list all variables for the given file
+		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 
+				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/", "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
+		sf.getAllVariables(classVarMap);
+		sf.printVars();
+		
+		
 		
 	}
 

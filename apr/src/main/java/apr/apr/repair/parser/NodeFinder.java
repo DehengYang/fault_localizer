@@ -35,6 +35,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
@@ -64,9 +65,9 @@ public class NodeFinder {
 	private String className;
 	private Node targetNode;
 	private CompilationUnit cu;
-	private CompilationUnit cuSymbol;
+//	private CompilationUnit cuSymbol;
 	
-	private List<VariableNode> fieldVariables = new ArrayList<>();
+//	private List<VariableNode> fieldVariables = new ArrayList<>();
 	private List<VariableNode> variables = new ArrayList<>();
 	
 	public static void main(String[] args){
@@ -85,9 +86,9 @@ public class NodeFinder {
 		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print", printer.output(cu), false);
 		
 		// get vars
-		sf.getBasicVariables();
-		sf.getAllVariables();
-		sf.printVars();
+//		sf.getBasicVariables();
+//		sf.getAllVariables();
+//		sf.printVars();
 	}
 	
 	/**
@@ -111,15 +112,15 @@ public class NodeFinder {
 			cu = StaticJavaParser.parse(new File(srcPath));
 			
 			// get cu with symbol solver
-			TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
-	        TypeSolver javaParserTypeSolver = new JavaParserTypeSolver(new File(srcJavaDir));
-			CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
-	        combinedSolver.add(reflectionTypeSolver);
-	        combinedSolver.add(javaParserTypeSolver);
-	        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
-	        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
-	        
-	        cuSymbol = StaticJavaParser.parse(new File(srcPath));
+//			TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
+//	        TypeSolver javaParserTypeSolver = new JavaParserTypeSolver(new File(srcJavaDir));
+//			CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+//	        combinedSolver.add(reflectionTypeSolver);
+//	        combinedSolver.add(javaParserTypeSolver);
+//	        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
+//	        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
+//	        
+//	        cuSymbol = StaticJavaParser.parse(new File(srcPath));
 //			List<FieldDeclaration> fds = cuSymbol.findAll(FieldDeclaration.class);
 //			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
 //					.resolve().asReferenceType().getQualifiedName());
@@ -130,39 +131,50 @@ public class NodeFinder {
 	}
 	
 	
-	public void getBasicVariables(){
-		// VariableDeclarator in InitializerDeclaration
-//		Consumer<Node> vdConsumer = n -> {
-//			if (n instanceof VariableDeclarator){
-//				Type type = ((VariableDeclarator) n).getType();
-//				String name = ((VariableDeclarator) n).getNameAsString();
-////				variables.add(getVariable(n, name, type));
-//				getVariable(n, name, type, variables);
+//	public void getBasicVariables(){
+//		// VariableDeclarator in InitializerDeclaration
+////		Consumer<Node> vdConsumer = n -> {
+////			if (n instanceof VariableDeclarator){
+////				Type type = ((VariableDeclarator) n).getType();
+////				String name = ((VariableDeclarator) n).getNameAsString();
+//////				variables.add(getVariable(n, name, type));
+////				getVariable(n, name, type, variables);
+////			}
+////		};
+//		
+//		Consumer<Node> consumer = n -> {
+//			if (n instanceof FieldDeclaration){
+//				NodeList<VariableDeclarator> vars = ((FieldDeclaration) n).getVariables();
+//				for (VariableDeclarator var : vars){
+//					Type type = var.getType();
+//					String name = var.getNameAsString();
+////					variables.add(getVariable(var, name, type));
+//					getVariable(var, name, type, fieldVariables);
+//				}
 //			}
+//			
+////			if (n instanceof InitializerDeclaration){
+////				logger.debug("find InitializerDeclaration");
+////				((InitializerDeclaration) n).walk(vdConsumer);
+////			}
 //		};
-		
+//		
+//		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
+//	}
+	
+	public void getAllVariables(Map<String, ClassNode> classVarMap){
+
 		Consumer<Node> consumer = n -> {
+			// get field declaration variables
 			if (n instanceof FieldDeclaration){
 				NodeList<VariableDeclarator> vars = ((FieldDeclaration) n).getVariables();
 				for (VariableDeclarator var : vars){
 					Type type = var.getType();
-					String name = var.getNameAsString();
-//					variables.add(getVariable(var, name, type));
-					getVariable(var, name, type, fieldVariables);
+					String varName = var.getNameAsString();
+					getVariable(var, varName, type, variables);
 				}
 			}
 			
-//			if (n instanceof InitializerDeclaration){
-//				logger.debug("find InitializerDeclaration");
-//				((InitializerDeclaration) n).walk(vdConsumer);
-//			}
-		};
-		
-		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
-	}
-	
-	public void getAllVariables(){
-		Consumer<Node> consumer = n -> {
 			if (n instanceof VariableDeclarator){
 				Type type = ((VariableDeclarator) n).getType();
 				String name = ((VariableDeclarator) n).getNameAsString();
@@ -186,11 +198,41 @@ public class NodeFinder {
 			if (n instanceof FieldAccessExpr){
 				SimpleName sn = ((FieldAccessExpr) n).getName();
 				Expression exp = ((FieldAccessExpr) n).getScope();
+				
+				// e.g.,
+//				target(Type=FieldAccessExpr): 
+//              name(Type=SimpleName): 
+//                  identifier: "compiler"
+//              scope(Type=ThisExpr): 		
+				if (exp instanceof ThisExpr){
+					String typeName = getTypeName(classVarMap, sn.getIdentifier(), this.className); //sn.getIdentifier() -> varName
+					getVariable(n, "this." + sn.getIdentifier(), typeName, variables);
+				}
+				
 				if (exp instanceof NameExpr){
-					String instanceName = ((NameExpr) exp).getNameAsString();
-					if (checkIn(instanceName, fieldVariables)){
+					String scopeName = ((NameExpr) exp).getNameAsString();
+					if (Character.isUpperCase(scopeName.charAt(0))){
+						logger.info("scopeName: {} is skipped as it is not a var", scopeName);
+					}else{
+						String scopeTypeName = getTypeName(classVarMap, scopeName, this.className);
+						if (scopeTypeName == null){
+							// find in current vars
+							for (VariableNode var : variables){
+								if (var.getVarName().equals(scopeTypeName)){
+									scopeTypeName = var.getVarOriType();
+								}
+							}
+						}
+						String varTypeName =  classVarMap.get(className).getVarMap().get(sn.getIdentifier());
 						
+						getVariable(n, scopeName + "." + sn.getIdentifier(), varTypeName, variables);
 					}
+					
+//					if (checkIn(instanceName, fieldVariables)){
+//						
+//					}
+
+					
 				}
 			}
 			
@@ -207,9 +249,37 @@ public class NodeFinder {
 //			}
 		};
 		
-		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
+		cu.walk(TreeTraversal.PREORDER, consumer);
 	}
 	
+	/**
+	 * @Description 
+	 * @author apr
+	 * @version Mar 21, 2020
+	 *
+	 * @param classVarMap
+	 * @param varName
+	 * @param className
+	 * @return
+	 */
+	private String getTypeName(Map<String, ClassNode> classVarMap, String varName, String className) {
+		ClassNode cn;
+		
+		if (classVarMap.containsKey(className)){
+			cn = classVarMap.get(className);
+			Map<String, String> varMap = cn.getVarMap();
+			if (varMap.containsKey(varName)){
+				return varMap.get(varName);
+			}else{
+				logger.error("The varName: {} in className: {} is not found in classVarMap.", varName, className);
+				return null;
+			}
+		}else{
+			logger.error("The className: {} is not found in classVarMap.", className);
+			return null;
+		}
+	}
+
 	/** @Description 
 	 * @author apr
 	 * @version Mar 21, 2020
@@ -227,6 +297,15 @@ public class NodeFinder {
 		return false;
 	}
 
+	private void getVariable(Node n, String name, String typeName, List<VariableNode> variables) {
+		VariableNode vn = new VariableNode(n, name, typeName);
+		if (!variables.contains(vn)){
+			variables.add(vn);
+		}else{
+			logger.debug("repeated node: {}", vn.getVarName());
+		}
+	}
+	
 	/** @Description  get a variable 
 	 * @author apr
 	 * @version Mar 20, 2020
@@ -237,9 +316,9 @@ public class NodeFinder {
 	private void getVariable(Node n, String name, Type type, List<VariableNode> variables) {
 		String typeName = type.asString();
 		VariableNode vn = new VariableNode(n, name, typeName);
-		if (type instanceof ReferenceType){
-			vn.setVarRefType(type.resolve().asReferenceType().getQualifiedName());
-		}
+//		if (type instanceof ReferenceType){
+//			vn.setVarRefType(type.resolve().asReferenceType().getQualifiedName());
+//		}
 		
 //		if (vn.toString().contains("Variable: coloringTieBreaker = new Co")){
 //			logger.debug("break point here");

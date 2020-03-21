@@ -21,6 +21,7 @@ public class ClassNode {
 	
 	private String className;
 	private String fullClassName; 
+	
 	private Map<String, String> varMap = new HashMap<>();  // varname, vartype
 	
 	public ClassNode(String className, String fullClassName, Map<String, String> varMap){
@@ -71,10 +72,5 @@ public class ClassNode {
 
 	public void setFullClassName(String fullClassName) {
 		this.fullClassName = fullClassName;
-	}
-	
-	
-
-	
-	
+	}	
 }
