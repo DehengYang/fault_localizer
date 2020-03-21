@@ -27,6 +27,11 @@ public class SuspiciousLocation {
 //		this.setSuspValue(suspValue);
 //	}
 
+	public SuspiciousLocation(String className, int lineNo, double suspValue){
+		this.className = className;
+		this.lineNo = lineNo;
+		this.suspValue = suspValue;
+	}
 	
 	/**
 	 * @param execPassed

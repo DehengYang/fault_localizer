@@ -38,6 +38,10 @@ public class FaultLocalizer  {
 	private Set<String> srcClasses = new HashSet<>();
 	private String savePath;
 	
+	public FaultLocalizer(){
+		
+	}
+	
 	public FaultLocalizer(String savePath, Set<String> testClasses, Set<String> srcClasses) {
 //		this(null, null);
 		this.savePath = savePath;
@@ -56,6 +60,24 @@ public class FaultLocalizer  {
 //	public FaultLocalizer(List<String> oriFailedTests, List<String> extraFailedTests) {
 //		localize();
 //	}
+	
+	/** @Description 
+	 * @author apr
+	 * @version Mar 21, 2020
+	 *
+	 */
+	public List<SuspiciousLocation> readFLResults() {
+		List<String> lines = FileUtil.readFile(FileUtil.flPath);
+		List<SuspiciousLocation> suspList = new ArrayList<>();
+		//com.google.javascript.rhino.Token:217,0.8164965809277261
+		for (String line : lines){
+			String className = line.split(":")[0];
+			int lineNo = Integer.parseInt(line.split(":")[1].split(",")[0]);
+			double suspValue = Double.parseDouble(line.split(":")[1].split(",")[1]);
+			suspList.add(new SuspiciousLocation(className, lineNo, suspValue));
+		}
+		return suspList;
+	}
 	
 	public Set<String> getExtraFailedTests(List<String> oriFailedTests){
 		Set<String> extraFailedTests = new HashSet<>();

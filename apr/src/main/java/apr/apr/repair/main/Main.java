@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import apr.apr.repair.localization.FaultLocalizer;
+import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
 import apr.apr.repair.parser.ClassVarParser;
 import apr.apr.repair.utils.ClassFinder;
@@ -39,6 +40,10 @@ public class Main {
 		// fault localization
 //		faultLocalize(testClasses, srcClasses);
 		
+		// read fl results from file
+		FaultLocalizer fl = new FaultLocalizer();
+		List<SuspiciousLocation> suspList = fl.readFLResults();
+		
 		// parse java files into ast
 //		for(String srcClass : srcClasses){
 //			AttemptFileParser fp = new AttemptFileParser(srcClass, FileUtil.srcJavaDir);
@@ -47,11 +52,9 @@ public class Main {
 //			break;
 //		}
 		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
-		cvp.printClassVarMap();
+//		cvp.printClassVarMap();
 		
 	}
-	
-	
 
 	/** @Description fault localization & re-fl if extra failed tests found
 	 * @author apr
