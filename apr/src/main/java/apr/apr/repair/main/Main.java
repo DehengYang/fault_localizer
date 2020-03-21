@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import apr.apr.repair.localization.FaultLocalizer;
 import apr.apr.repair.parser.AttemptFileParser;
+import apr.apr.repair.parser.ClassVarParser;
 import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 
@@ -39,13 +40,14 @@ public class Main {
 //		faultLocalize(testClasses, srcClasses);
 		
 		// parse java files into ast
-		for(String srcClass : srcClasses){
-			AttemptFileParser fp = new AttemptFileParser(srcClass, FileUtil.srcJavaDir);
-//			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
-			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
-			break;
-		}
-		
+//		for(String srcClass : srcClasses){
+//			AttemptFileParser fp = new AttemptFileParser(srcClass, FileUtil.srcJavaDir);
+////			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
+//			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
+//			break;
+//		}
+		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
+		cvp.printClassVarMap();
 		
 	}
 	
