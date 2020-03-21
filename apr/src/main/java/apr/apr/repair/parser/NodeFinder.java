@@ -8,9 +8,11 @@ import java.io.FileNotFoundException;
 import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,7 +121,13 @@ public class NodeFinder {
 	public void getBasicVariables(){
 		Consumer<Node> consumer = n -> {
 			if (n instanceof FieldDeclaration || n instanceof InitializerDeclaration){
-				
+				NodeList<VariableDeclarator> vars = ((FieldDeclaration) n).getVariables();
+				for (VariableDeclarator var : vars){
+					Type type = var.getType();
+					String name = var.getNameAsString();
+//					variables.add(getVariable(var, name, type));
+					getVariable(var, name, type, variables);
+				}
 			}
 		};
 		
@@ -130,7 +138,9 @@ public class NodeFinder {
 		Consumer<Node> consumer = n -> {
 			if (n instanceof VariableDeclarator){
 				Type type = ((VariableDeclarator) n).getType();
-				addVariable(n, type, variables);
+				String name = ((VariableDeclarator) n).getNameAsString();
+//				variables.add(getVariable(n, name, type));
+				getVariable(n, name, type, variables);
 			}
 			
 			if (n instanceof MethodDeclaration){
@@ -139,8 +149,9 @@ public class NodeFinder {
 //					if (variables.containsKey(para.getName().asString())) logger.debug("repeated para");
 //					variables.put(para.getName().asString(), para.getType().asString());
 					Type type = para.getType();
-					addVariable(n, type, variables);
-						
+					String name = para.getNameAsString();
+//					variables.add(getVariable(para, name, type));
+					getVariable(para, name, type, variables);
 				}
 			}
 			
@@ -160,20 +171,42 @@ public class NodeFinder {
 		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
 	}
 	
-	/** @Description  add a variable into variables
+	/** @Description  get a variable 
 	 * @author apr
 	 * @version Mar 20, 2020
 	 *
 	 * @param type
 	 * @param variables2
 	 */
-	private void addVariable(Node n, Type type, List<VariableNode> variables) {
+	private void getVariable(Node n, String name, Type type, List<VariableNode> variables) {
 		String typeName = type.asString();
-		VariableNode vn = new VariableNode(n, ((VariableDeclarator) n).getName().asString(), typeName);
+		VariableNode vn = new VariableNode(n, name, typeName);
 		if (type instanceof ReferenceType){
 			vn.setVarRefType(type.resolve().asReferenceType().getQualifiedName());
 		}
-		variables.add(vn);
+		
+//		if (vn.toString().contains("Variable: coloringTieBreaker = new Co")){
+//			logger.debug("break point here");
+//			
+//			if (!variables.isEmpty()){
+//				for (VariableNode var : variables){
+//					boolean equal = var.equals(vn);
+//					logger.debug("equal: {}", equal);
+//				}
+//			}
+//			
+//			if (!variables.contains(vn)){
+//				variables.add(vn);
+//			}else{
+//				logger.debug("repeated node: {}", vn.getVarName());
+//			}
+//		}
+		
+		if (!variables.contains(vn)){
+			variables.add(vn);
+		}else{
+			logger.debug("repeated node: {}", vn.getVarName());
+		}
 	}
 
 	/** @Description print all collected variabls from the compilation unit.
@@ -183,7 +216,7 @@ public class NodeFinder {
 	 */
 	public void printVars() {
 		for (VariableNode var : variables){
-			logger.info("variable: {}", var);
+			logger.info(var.toString());
 		}
 	}
 

@@ -36,7 +36,17 @@ public class VariableNode {
 	 */
 	@Override
 	public String toString(){
-		return String.format("Variable: %s, name: %s, oriType: %s, refType: %s", node.toString(), varName, varOriType, varRefType);
+		return String.format("Variable: %s, name: %s, oriType: %s, refType: %s, range: %s-%s", node.toString(), varName, varOriType, varRefType,
+				node.getRange().get().begin.line, node.getRange().get().end.line);
+	}
+	
+	@Override
+	public boolean equals(Object obj){
+		if (obj instanceof VariableNode){
+			VariableNode vn = (VariableNode) obj;
+			return node.equals(vn.getNode());
+		}
+		return false;
 	}
 	
 	public Node getNode() {
