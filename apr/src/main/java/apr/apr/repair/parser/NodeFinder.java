@@ -118,41 +118,8 @@ public class NodeFinder {
 	
 	public void getBasicVariables(){
 		Consumer<Node> consumer = n -> {
-			if (n instanceof VariableDeclarator){
-				Type type = ((VariableDeclarator) n).getType();
-				String typeName = type.asString();
-				VariableNode vn = new VariableNode(n, ((VariableDeclarator) n).getName().asString(), typeName);
-				if (type instanceof ReferenceType){
-					vn.setVarRefType(type.resolve().asReferenceType().getQualifiedName());
-//					typeName = type.resolve().asReferenceType().getQualifiedName();
-				}
-//				variables.put(((VariableDeclarator) n).getName().asString(), typeName);
-				variables.add(vn);
-			}
-			
-			if (n instanceof MethodDeclaration){
-				NodeList<Parameter> paras = ((MethodDeclaration) n).getParameters();
-				for (Parameter para : paras){
-//					if (variables.containsKey(para.getName().asString())) logger.debug("repeated para");
-//					variables.put(para.getName().asString(), para.getType().asString());
-					Type type = para.getType();
-					String typeName = "";
-					if (type instanceof ReferenceType){
-//						try{
-						typeName = type.resolve().asReferenceType().getQualifiedName();
-//						}catch (Exception e){ //UnsupportedOperationException ParseException
-////							e.printStackTrace();
-//							logger.info("ParseException----------");
-//							if (e instanceof ParseException){
-//								logger.info("-------------ParseException----------");
-//							}
-//						}
-					}else{
-						typeName = type.asString();
-					}
-					variables.put(para.getName().asString(), typeName);
-					
-				}
+			if (n instanceof FieldDeclaration || n instanceof InitializerDeclaration){
+				
 			}
 		};
 		
@@ -161,6 +128,22 @@ public class NodeFinder {
 	
 	public void getAllVariables(){
 		Consumer<Node> consumer = n -> {
+			if (n instanceof VariableDeclarator){
+				Type type = ((VariableDeclarator) n).getType();
+				addVariable(n, type, variables);
+			}
+			
+			if (n instanceof MethodDeclaration){
+				NodeList<Parameter> paras = ((MethodDeclaration) n).getParameters();
+				for (Parameter para : paras){
+//					if (variables.containsKey(para.getName().asString())) logger.debug("repeated para");
+//					variables.put(para.getName().asString(), para.getType().asString());
+					Type type = para.getType();
+					addVariable(n, type, variables);
+						
+				}
+			}
+			
 //			if (n instanceof FieldAccessExpr){
 //				NodeList<Type> types = ((FieldAccessExpr) n).getTypeArguments().get();
 //				for (Type type : types){
@@ -172,45 +155,35 @@ public class NodeFinder {
 //			if (n instanceof FieldAccessExpr){
 //				n.getL
 //			}
-			
-			if (n instanceof MethodDeclaration){
-				NodeList<Parameter> paras = ((MethodDeclaration) n).getParameters();
-				for (Parameter para : paras){
-//					if (variables.containsKey(para.getName().asString())) logger.debug("repeated para");
-//					variables.put(para.getName().asString(), para.getType().asString());
-					Type type = para.getType();
-					String typeName = "";
-					if (type instanceof ReferenceType){
-//						try{
-						typeName = type.resolve().asReferenceType().getQualifiedName();
-//						}catch (Exception e){ //UnsupportedOperationException ParseException
-////							e.printStackTrace();
-//							logger.info("ParseException----------");
-//							if (e instanceof ParseException){
-//								logger.info("-------------ParseException----------");
-//							}
-//						}
-					}else{
-						typeName = type.asString();
-					}
-					
-					variables.put(para.getName().asString(), typeName);
-					
-				}
-			}
 		};
 		
 		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
 	}
 	
+	/** @Description  add a variable into variables
+	 * @author apr
+	 * @version Mar 20, 2020
+	 *
+	 * @param type
+	 * @param variables2
+	 */
+	private void addVariable(Node n, Type type, List<VariableNode> variables) {
+		String typeName = type.asString();
+		VariableNode vn = new VariableNode(n, ((VariableDeclarator) n).getName().asString(), typeName);
+		if (type instanceof ReferenceType){
+			vn.setVarRefType(type.resolve().asReferenceType().getQualifiedName());
+		}
+		variables.add(vn);
+	}
+
 	/** @Description print all collected variabls from the compilation unit.
 	 * @author apr
 	 * @version Mar 20, 2020
 	 *
 	 */
 	public void printVars() {
-		for (Map.Entry<String, String> entry : variables.entrySet()){
-			logger.info("variable: {}, type: {}", entry.getKey(), entry.getValue());
+		for (VariableNode var : variables){
+			logger.info("variable: {}", var);
 		}
 	}
 

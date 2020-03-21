@@ -27,6 +27,18 @@ public class VariableNode {
 		this.setVarRefType(varRefType);
 	}
 
+	/**
+	 * @Description formmat print  
+	 * @author apr
+	 * @version Mar 20, 2020
+	 *
+	 * @return
+	 */
+	@Override
+	public String toString(){
+		return String.format("Variable: %s, name: %s, oriType: %s, refType: %s", node.toString(), varName, varOriType, varRefType);
+	}
+	
 	public Node getNode() {
 		return node;
 	}
