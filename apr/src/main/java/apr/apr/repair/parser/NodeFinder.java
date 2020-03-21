@@ -23,6 +23,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.InitializerDeclaration;
@@ -214,16 +215,19 @@ public class NodeFinder {
 					if (Character.isUpperCase(scopeName.charAt(0))){
 						logger.info("scopeName: {} is skipped as it is not a var", scopeName);
 					}else{
-						String scopeTypeName = getTypeName(classVarMap, scopeName, this.className);
+						// CoalesceVariableNames
+						String className = getClassName(n);
+						String scopeTypeName = getTypeName(classVarMap, scopeName, className);
 						if (scopeTypeName == null){
 							// find in current vars
 							for (VariableNode var : variables){
-								if (var.getVarName().equals(scopeTypeName)){
+								if (var.getVarName().equals(scopeName)){
 									scopeTypeName = var.getVarOriType();
+									break;
 								}
 							}
 						}
-						String varTypeName =  classVarMap.get(className).getVarMap().get(sn.getIdentifier());
+						String varTypeName =  classVarMap.get(scopeTypeName).getVarMap().get(sn.getIdentifier());
 						
 						getVariable(n, scopeName + "." + sn.getIdentifier(), varTypeName, variables);
 					}
@@ -252,6 +256,29 @@ public class NodeFinder {
 		cu.walk(TreeTraversal.PREORDER, consumer);
 	}
 	
+	/** @Description 
+	 * @author apr
+	 * @version Mar 21, 2020
+	 *
+	 * @param n
+	 * @return
+	 */
+	private String getClassName(Node n) {
+		int cnt = 0; // set a limit to avoid infinite loop
+		Node parent = n.getParentNode().get();
+		while(true){
+			cnt ++;
+			if (cnt >= 100000) return null;
+			
+			if (parent instanceof ClassOrInterfaceDeclaration){
+				String className = ((ClassOrInterfaceDeclaration) parent).getName().asString();
+				return className;
+			}else{
+				parent = parent.getParentNode().get();
+			}
+		}
+	}
+
 	/**
 	 * @Description 
 	 * @author apr
