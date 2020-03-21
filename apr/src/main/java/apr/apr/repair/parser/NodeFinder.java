@@ -33,9 +33,13 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.printer.YamlPrinter;
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
@@ -62,6 +66,7 @@ public class NodeFinder {
 	private CompilationUnit cu;
 	private CompilationUnit cuSymbol;
 	
+	private List<VariableNode> fieldVariables = new ArrayList<>();
 	private List<VariableNode> variables = new ArrayList<>();
 	
 	public static void main(String[] args){
@@ -70,6 +75,14 @@ public class NodeFinder {
 				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/", "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
 		///mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
 //		sf.getTargetNode();
+		
+		CompilationUnit cu = sf.getCU();
+//		LexicalPreservingPrinter.setup(cu);
+//		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print",LexicalPreservingPrinter.print(cu) , false);
+		
+		// http://javaparser.org/inspecting-an-ast/
+		YamlPrinter printer = new YamlPrinter(true);
+		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print", printer.output(cu), false);
 		
 		// get vars
 		sf.getBasicVariables();
@@ -107,11 +120,10 @@ public class NodeFinder {
 	        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
 	        
 	        cuSymbol = StaticJavaParser.parse(new File(srcPath));
-			List<FieldDeclaration> fds = cuSymbol.findAll(FieldDeclaration.class);
-//	        System.out.println("Field type: " + fds.get(1).getVariables().get(0).getType()
-//	                .resolve().asReferenceType().getQualifiedName());
-			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
-					.resolve().asReferenceType().getQualifiedName());
+//			List<FieldDeclaration> fds = cuSymbol.findAll(FieldDeclaration.class);
+//			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
+//					.resolve().asReferenceType().getQualifiedName());
+//			System.exit(0);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -119,16 +131,31 @@ public class NodeFinder {
 	
 	
 	public void getBasicVariables(){
+		// VariableDeclarator in InitializerDeclaration
+//		Consumer<Node> vdConsumer = n -> {
+//			if (n instanceof VariableDeclarator){
+//				Type type = ((VariableDeclarator) n).getType();
+//				String name = ((VariableDeclarator) n).getNameAsString();
+////				variables.add(getVariable(n, name, type));
+//				getVariable(n, name, type, variables);
+//			}
+//		};
+		
 		Consumer<Node> consumer = n -> {
-			if (n instanceof FieldDeclaration || n instanceof InitializerDeclaration){
+			if (n instanceof FieldDeclaration){
 				NodeList<VariableDeclarator> vars = ((FieldDeclaration) n).getVariables();
 				for (VariableDeclarator var : vars){
 					Type type = var.getType();
 					String name = var.getNameAsString();
 //					variables.add(getVariable(var, name, type));
-					getVariable(var, name, type, variables);
+					getVariable(var, name, type, fieldVariables);
 				}
 			}
+			
+//			if (n instanceof InitializerDeclaration){
+//				logger.debug("find InitializerDeclaration");
+//				((InitializerDeclaration) n).walk(vdConsumer);
+//			}
 		};
 		
 		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
@@ -155,6 +182,18 @@ public class NodeFinder {
 				}
 			}
 			
+			// e.g., this.compiler, v1.index
+			if (n instanceof FieldAccessExpr){
+				SimpleName sn = ((FieldAccessExpr) n).getName();
+				Expression exp = ((FieldAccessExpr) n).getScope();
+				if (exp instanceof NameExpr){
+					String instanceName = ((NameExpr) exp).getNameAsString();
+					if (checkIn(instanceName, fieldVariables)){
+						
+					}
+				}
+			}
+			
 //			if (n instanceof FieldAccessExpr){
 //				NodeList<Type> types = ((FieldAccessExpr) n).getTypeArguments().get();
 //				for (Type type : types){
@@ -171,6 +210,23 @@ public class NodeFinder {
 		cuSymbol.walk(TreeTraversal.PREORDER, consumer);
 	}
 	
+	/** @Description 
+	 * @author apr
+	 * @version Mar 21, 2020
+	 *
+	 * @param instanceName
+	 * @param fieldVariables2
+	 * @return
+	 */
+	private boolean checkIn(String instanceName, List<VariableNode> vars) {
+		for (VariableNode var : vars){
+			if(var.getVarName().equals(instanceName)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/** @Description  get a variable 
 	 * @author apr
 	 * @version Mar 20, 2020
@@ -300,5 +356,9 @@ public class NodeFinder {
 	public int getEndLineNo(Node node){
 		Range range = node.getRange().get();
 		return range.end.line;
+	}
+	
+	public CompilationUnit getCU(){
+		return cu;
 	}
 }
