@@ -174,9 +174,15 @@ public class NodeFinder {
 //                  identifier: "compiler"
 //              scope(Type=ThisExpr): 		
 				if (exp instanceof ThisExpr){
-					String typeName = getTypeName(classVarMap, sn.getIdentifier(), this.className); //sn.getIdentifier() -> varName
+					String className = getClassName(n);
+					String typeName = getTypeName(classVarMap, sn.getIdentifier(), className); //sn.getIdentifier() -> varName
 					getVariable(n, "this." + sn.getIdentifier(), typeName, variables);
 				}
+				
+				// debug
+//				if (sn.getIdentifier().equals("use")){
+//					logger.debug("");
+//				}
 				
 				if (exp instanceof NameExpr){
 					String scopeName = ((NameExpr) exp).getNameAsString();
@@ -195,6 +201,7 @@ public class NodeFinder {
 								}
 							}
 						}
+						
 						String varTypeName =  classVarMap.get(scopeTypeName).getVarMap().get(sn.getIdentifier());
 						
 						getVariable(n, scopeName + "." + sn.getIdentifier(), varTypeName, variables);
