@@ -5,6 +5,9 @@ package apr.apr.repair.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,12 +37,19 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.LiteralExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.printer.DotPrinter;
+import com.github.javaparser.printer.PrettyPrinter;
+import com.github.javaparser.printer.PrettyPrinterConfiguration;
 import com.github.javaparser.printer.YamlPrinter;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -72,19 +82,41 @@ public class NodeFinder {
 	private List<VariableNode> variables = new ArrayList<>();
 	
 	public static void main(String[] args){
-		// a test: lineNo -> 154 (stmt) , 153 (}), 41 (import), 64 (field declare), 333 method, 78 class construct 
-		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 
-				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/", "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
+		// a test: lineNo -> 154 (stmt) , 153 (}), 41 (import), 64 (field declare), 333 method, 78 class construct, 73 empty
+		NodeFinder sf = new NodeFinder(151, "com.google.javascript.jscomp.CoalesceVariableNames", 
+				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
+		// , "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"
 		///mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
-//		sf.getTargetNode();
+		Node targetNode = sf.getTargetNode();
+//		YamlPrinter printer = new YamlPrinter(true);
+//		logger.info("format print targetNode: {}", printer.output(targetNode));
 		
-		CompilationUnit cu = sf.getCU();
+		PrettyPrinterConfiguration conf = new PrettyPrinterConfiguration();
+//		conf.setIndentSize(" ");
+		conf.setPrintComments(false);
+		PrettyPrinter prettyPrinter = new PrettyPrinter(conf);
+		System.out.println(prettyPrinter.print(targetNode));
+		
+		Node tokenizedNode = sf.tokenize(targetNode);
+		
+		
+		// output tree structure picture
+//		DotPrinter printer2 = new DotPrinter(true);
+//		try (FileWriter fileWriter = new FileWriter("ast.dot");
+//		    PrintWriter printWriter = new PrintWriter(fileWriter)) {
+//		    printWriter.print(printer2.output(targetNode));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
+//		CompilationUnit cu = sf.getCU();
+//		cu.getTokenRange().get().forEach(t -> logger.debug(t.getText()));
 //		LexicalPreservingPrinter.setup(cu);
 //		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print",LexicalPreservingPrinter.print(cu) , false);
 		
 		// http://javaparser.org/inspecting-an-ast/
-		YamlPrinter printer = new YamlPrinter(true);
-		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print", printer.output(cu), false);
+//		YamlPrinter printer = new YamlPrinter(true);
+//		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print", printer.output(cu), false);
 		
 		// get vars
 //		sf.getBasicVariables();
@@ -92,13 +124,72 @@ public class NodeFinder {
 //		sf.printVars();
 	}
 	
+	
+	public String getPrettyPrintNode(Node node){
+		PrettyPrinterConfiguration conf = new PrettyPrinterConfiguration();
+//		conf.setIndentSize(" ");
+		conf.setPrintComments(false);
+		PrettyPrinter prettyPrinter = new PrettyPrinter(conf);
+		return prettyPrinter.print(node);
+	}
+	
+	/** @Description 
+	 * @author apr
+	 * @version Mar 22, 2020
+	 *
+	 * e.g., 
+	 * if (colorings.isEmpty() || !n.isName() || parent.isFunction()) {
+     *     return;
+	 * }
+	 * -> 
+	 * 
+	 * if (var.id() || !n.isName() || parent.isFunction()) {
+	 * 
+	 *
+	 * @param targetNode2
+	 * @return
+	 */
+	public Node tokenize(Node targetNode) {
+		Node node = targetNode.clone();
+		// identifiers, literals, and variable types
+		// id: ClassOrInterfaceType, varName, methodName
+		// lit: all literalExpr
+//		node.findAll(ClassOrInterfaceType.class);
+//		node.findAll(VariableDeclarator.class);
+//		node.findAll(FieldDeclaration.class);
+//		node.findAll(MethodDeclaration.class);
+//		node.findAll(FieldAccessExpr.class);
+//		node.findAll(MethodCallExpr.class);
+		
+		// a simple approach
+		Consumer<Node> consumer = n -> {
+			if (n instanceof SimpleName){
+				((SimpleName) n).setIdentifier("id");
+			}
+			
+			if (n instanceof ClassOrInterfaceType){
+				((ClassOrInterfaceType) n).setName("varType");
+			}
+			
+			if (n instanceof LiteralExpr){
+				n.replace(new StringLiteralExpr("literal"));
+			}
+		};
+		cu.walk(consumer);
+		
+		logger.info(getPrettyPrintNode(cu));
+		
+		
+		return node;
+	}
+
 	/**
 	 * construct class
 	 * @param lineNo
 	 * @param clazz
 	 * @param directory
 	 */
-	public NodeFinder(int lineNo, String clazz, String directory, String srcJavaDir){
+	public NodeFinder(int lineNo, String clazz, String directory){
 		this.lineNo = lineNo;
 		this.className = clazz;
 		
@@ -333,7 +424,7 @@ public class NodeFinder {
 		FindNode();
 		
 		if(targetNode != null){
-			logger.debug(targetNode.toString());
+			logger.debug("targetNode is: {}",targetNode.toString());
 		}else{
 			logger.warn("targetNode is null. its lineNo: {}, className: {}", lineNo, className);
 		}
@@ -375,7 +466,7 @@ public class NodeFinder {
 			*/
 			if (n instanceof FieldDeclaration || n instanceof InitializerDeclaration || n instanceof MethodDeclaration
 					|| n instanceof TypeDeclaration  || n instanceof ConstructorDeclaration){
-				if (getStartLineNo(n) <= lineNo && lineNo <= getEndLineNo(n)){
+				if (getStartLineNo(n) == lineNo || lineNo == getEndLineNo(n)){
 					targetNode = n;
 					logger.debug("declaration info: {}, {}, {}", n.getClass(), n.getBegin(), n.getEnd() );
 //					return;
