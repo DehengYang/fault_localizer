@@ -603,6 +603,6 @@ public class NodeFinder {
 	 * @return
 	 */
 	private int getLineRange(Node node) {
-		return getEndLineNo(node) - getStartLineNo(node);
+		return getEndLineNo(node) - getStartLineNo(node) + 1;
 	}
 }
