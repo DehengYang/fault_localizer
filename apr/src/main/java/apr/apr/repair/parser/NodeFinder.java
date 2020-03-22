@@ -533,7 +533,7 @@ public class NodeFinder {
 				break;
 			}
 			
-			if (parent instanceof MethodDeclaration || parent instanceof ClassOrInterfaceDeclaration){
+			if (parent instanceof ClassOrInterfaceDeclaration){ // parent instanceof MethodDeclaration || 
 				logger.warn("parent is {}, exit the loop", parent.getClass());
 				break;
 			}
@@ -542,16 +542,23 @@ public class NodeFinder {
 				nodes.remove(0);
 				nodes.add(parent);
 				
+				currentSize = getLineRange(parent);
 				curNode = parent;
 				continue;
 			}
 			
 			List<Node> siblings = parent.getChildNodes();
 			int index = siblings.indexOf(curNode);  // debug: when two same nodes in a parent
+			int preCnt = 1;
+//			int preStop = false;
+			int nextCnt = 1;
+			boolean traverseAllPreFlag = false;
+			boolean traverseAllNextFlag = false;
+			
+			boolean stopPre = false;
+			boolean stopNext = false;
 			while (currentSize <= fragSize){
-				int preCnt = 1;
-				boolean traverseAllPreFlag = false;
-				if (index - preCnt >= 0){ // search previous node & try to add
+				if (index - preCnt >= 0 && !stopPre){ // search previous node & try to add
 					Node preSib = siblings.get(index - preCnt);
 					preCnt ++;
 					
@@ -559,14 +566,14 @@ public class NodeFinder {
 					if (preSibSize + currentSize <= fragSize){
 						currentSize += preSibSize;
 						nodes.add(0, preSib);
+					}else{
+						stopPre = true;
 					}
 				}else{
 					traverseAllPreFlag = true;
 				}
 				
-				int nextCnt = 1;
-				boolean traverseAllNextFlag = false;
-				if (index + nextCnt < siblings.size()){ // search next node & try to add
+				if (index + nextCnt < siblings.size() && !stopNext){ // search next node & try to add
 					Node nextSib = siblings.get(index + nextCnt);
 					nextCnt ++;
 					
@@ -574,6 +581,8 @@ public class NodeFinder {
 					if (nextSibSize + currentSize <= fragSize){
 						currentSize += nextSibSize;
 						nodes.add(nodes.size(), nextSib);
+					}else{
+						stopNext = true;
 					}
 				}else{
 					traverseAllNextFlag = true;
@@ -582,6 +591,14 @@ public class NodeFinder {
 				if (traverseAllPreFlag && traverseAllNextFlag) {
 					break;
 				}
+				
+				if (stopPre && stopNext){
+					break;
+				}
+			}
+			
+			if (stopPre || stopNext){
+				break;
 			}
 			
 			curNode = parent;
