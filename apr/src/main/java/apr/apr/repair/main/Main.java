@@ -25,6 +25,7 @@ import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
 import apr.apr.repair.parser.ClassNode;
 import apr.apr.repair.parser.ClassVarParser;
+import apr.apr.repair.parser.CodeFragment;
 import apr.apr.repair.parser.NodeFinder;
 import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
@@ -60,12 +61,24 @@ public class Main {
 //		cvp.printClassVarMap();
 		
 		// get/list all variables for the given file
-		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 
-				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/", "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
-		sf.getAllVariables(classVarMap);
-		sf.printVars();
+//		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 
+//				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/", "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
+//		sf.getAllVariables(classVarMap);
+//		sf.printVars();
 		
-		
+		repairLocations(suspList);
+	}
+
+	/** @Description 
+	 * @author apr
+	 * @version Mar 22, 2020
+	 *
+	 * @param suspList
+	 */
+	private static void repairLocations(List<SuspiciousLocation> suspList) {
+		for (SuspiciousLocation sl : suspList){
+			CodeFragment cf = new CodeFragment(sl.getLineNo(), sl.getClassName(), FileUtil.srcJavaDir);
+		}
 		
 	}
 

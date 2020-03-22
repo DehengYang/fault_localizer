@@ -1,5 +1,6 @@
 #for ast print
 ast.print
+ast.dot
 
 /target/
 

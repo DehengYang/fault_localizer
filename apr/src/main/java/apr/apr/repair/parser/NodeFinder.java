@@ -81,13 +81,53 @@ public class NodeFinder {
 //	private List<VariableNode> fieldVariables = new ArrayList<>();
 	private List<VariableNode> variables = new ArrayList<>();
 	
+	
+	/**
+	 * construct class
+	 * @param lineNo
+	 * @param clazz
+	 * @param directory
+	 */
+	public NodeFinder(int lineNo, String clazz, String directory){
+		this.lineNo = lineNo;
+		this.className = clazz;
+		
+		// get src path
+		if (! directory.endsWith("/")){ // make sure the src path (as below) is valid.
+			directory += "/";
+		}
+		String srcPath = directory + clazz.replace(".", "/") + ".java";
+		
+		// get compilation unit
+		try {
+			cu = StaticJavaParser.parse(new File(srcPath));
+			
+			// get cu with symbol solver
+//			TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
+//	        TypeSolver javaParserTypeSolver = new JavaParserTypeSolver(new File(srcJavaDir));
+//			CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+//	        combinedSolver.add(reflectionTypeSolver);
+//	        combinedSolver.add(javaParserTypeSolver);
+//	        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
+//	        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
+//	        
+//	        cuSymbol = StaticJavaParser.parse(new File(srcPath));
+//			List<FieldDeclaration> fds = cuSymbol.findAll(FieldDeclaration.class);
+//			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
+//					.resolve().asReferenceType().getQualifiedName());
+//			System.exit(0);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args){
 		// a test: lineNo -> 154 (stmt) , 153 (}), 41 (import), 64 (field declare), 333 method, 78 class construct, 73 empty
 		NodeFinder sf = new NodeFinder(151, "com.google.javascript.jscomp.CoalesceVariableNames", 
 				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
 		// , "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"
 		///mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
-		Node targetNode = sf.getTargetNode();
+		Node targetNode = sf.findTargetNode();
 //		YamlPrinter printer = new YamlPrinter(true);
 //		logger.info("format print targetNode: {}", printer.output(targetNode));
 		
@@ -175,51 +215,12 @@ public class NodeFinder {
 				n.replace(new StringLiteralExpr("literal"));
 			}
 		};
-		cu.walk(consumer);
+		node.walk(consumer);
 		
-		logger.info(getPrettyPrintNode(cu));
+		logger.info(getPrettyPrintNode(node));
 		
 		
 		return node;
-	}
-
-	/**
-	 * construct class
-	 * @param lineNo
-	 * @param clazz
-	 * @param directory
-	 */
-	public NodeFinder(int lineNo, String clazz, String directory){
-		this.lineNo = lineNo;
-		this.className = clazz;
-		
-		// get src path
-		if (! directory.endsWith("/")){ // make sure the src path (as below) is valid.
-			directory += "/";
-		}
-		String srcPath = directory + clazz.replace(".", "/") + ".java";
-		
-		// get compilation unit
-		try {
-			cu = StaticJavaParser.parse(new File(srcPath));
-			
-			// get cu with symbol solver
-//			TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
-//	        TypeSolver javaParserTypeSolver = new JavaParserTypeSolver(new File(srcJavaDir));
-//			CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
-//	        combinedSolver.add(reflectionTypeSolver);
-//	        combinedSolver.add(javaParserTypeSolver);
-//	        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
-//	        StaticJavaParser.getConfiguration().setSymbolResolver(symbolSolver);
-//	        
-//	        cuSymbol = StaticJavaParser.parse(new File(srcPath));
-//			List<FieldDeclaration> fds = cuSymbol.findAll(FieldDeclaration.class);
-//			System.out.println("Field type: " + fds.get(0).getVariables().get(0).getType()
-//					.resolve().asReferenceType().getQualifiedName());
-//			System.exit(0);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public void getAllVariables(Map<String, ClassNode> classVarMap){
@@ -420,15 +421,19 @@ public class NodeFinder {
 	 *
 	 * @return
 	 */
-	public Node getTargetNode(){
+	public Node findTargetNode(){
 		FindNode();
 		
 		if(targetNode != null){
-			logger.debug("targetNode is: {}",targetNode.toString());
+			logger.debug("targetNode is: {}, its lineNo: {}, className: {}", targetNode.toString(), lineNo, className);
 		}else{
 			logger.warn("targetNode is null. its lineNo: {}, className: {}", lineNo, className);
 		}
 		
+		return targetNode;
+	}
+	
+	public Node getTargetNode(){
 		return targetNode;
 	}
 	
@@ -497,5 +502,107 @@ public class NodeFinder {
 	
 	public CompilationUnit getCU(){
 		return cu;
+	}
+
+	/** @Description 
+	 * @author apr
+	 * @version Mar 22, 2020
+	 *
+	 * @param fragSize
+	 * @return
+	 */
+	public List<Node> getCodeFragment(int fragSize, Node curNode) {
+		List<Node> nodes = new ArrayList<>();
+		
+		nodes.add(curNode);
+		
+//		int targetIndex = 0; 
+		
+		int currentSize = getLineRange(curNode);
+		int cnt = 0; // to avoid infinite loop
+		while ( currentSize <= fragSize ){
+			cnt ++;
+			if (cnt >= 10000){
+				logger.error("stop after 10000 times while loop.");
+				break;
+			}
+			
+			Node parent = curNode.getParentNode().get();
+			if (parent == null){
+				logger.warn("parent is null, exit the loop");
+				break;
+			}
+			
+			if (parent instanceof MethodDeclaration || parent instanceof ClassOrInterfaceDeclaration){
+				logger.warn("parent is {}, exit the loop", parent.getClass());
+				break;
+			}
+			
+			if (getLineRange(parent) <= fragSize){
+				nodes.remove(0);
+				nodes.add(parent);
+				
+				curNode = parent;
+				continue;
+			}
+			
+			List<Node> siblings = parent.getChildNodes();
+			int index = siblings.indexOf(curNode);  // debug: when two same nodes in a parent
+			while (currentSize <= fragSize){
+				int preCnt = 1;
+				boolean traverseAllPreFlag = false;
+				if (index - preCnt >= 0){ // search previous node & try to add
+					Node preSib = siblings.get(index - preCnt);
+					preCnt ++;
+					
+					int preSibSize = getLineRange(preSib);
+					if (preSibSize + currentSize <= fragSize){
+						currentSize += preSibSize;
+						nodes.add(0, preSib);
+					}
+				}else{
+					traverseAllPreFlag = true;
+				}
+				
+				int nextCnt = 1;
+				boolean traverseAllNextFlag = false;
+				if (index + nextCnt < siblings.size()){ // search next node & try to add
+					Node nextSib = siblings.get(index + nextCnt);
+					nextCnt ++;
+					
+					int nextSibSize = getLineRange(nextSib);
+					if (nextSibSize + currentSize <= fragSize){
+						currentSize += nextSibSize;
+						nodes.add(nodes.size(), nextSib);
+					}
+				}else{
+					traverseAllNextFlag = true;
+				}
+				
+				if (traverseAllPreFlag && traverseAllNextFlag) {
+					break;
+				}
+			}
+			
+			curNode = parent;
+//			for (Node sib : siblings){
+//				if (sib.getTokenRange().get() != targetNode.getTokenRange().get()){ // debug if correct
+//					List
+//				}
+//			}
+		}
+		
+		return nodes;
+	}
+
+	/** @Description 
+	 * @author apr
+	 * @version Mar 22, 2020
+	 *
+	 * @param preSib
+	 * @return
+	 */
+	private int getLineRange(Node node) {
+		return getEndLineNo(node) - getStartLineNo(node);
 	}
 }
