@@ -56,8 +56,8 @@ public class Main {
 //			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
 //			break;
 //		}
-		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
-		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
+//		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
+//		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
 //		cvp.printClassVarMap();
 		
 		// get/list all variables for the given file
@@ -78,6 +78,7 @@ public class Main {
 	private static void repairLocations(List<SuspiciousLocation> suspList) {
 		for (SuspiciousLocation sl : suspList){
 			CodeFragment cf = new CodeFragment(sl.getLineNo(), sl.getClassName(), FileUtil.srcJavaDir);
+			
 		}
 		
 	}

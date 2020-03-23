@@ -9,7 +9,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.stmt.Statement;
 
 /**
  * @author apr
@@ -24,8 +26,19 @@ public class CodeFragment {
 	private String className;
 	private String directory; 
 	
-	private int windowsSize = 10;
+	private int windowsSize = 6;
 	private int fragSize = 10; // at least 10 lines for a code fragment
+	
+	public CodeFragment(){
+	}
+	
+	public CodeFragment(Node node){
+		nodes.add(node);
+	}
+	
+	public CodeFragment(List<Node> nodes){
+		this.setNodes(nodes);
+	}
 	
 	public CodeFragment(int lineNo, String className, String directory){
 		this.setLineNo(lineNo);
@@ -76,6 +89,16 @@ public class CodeFragment {
 
 	public void setDirectory(String directory) {
 		this.directory = directory;
+	}
+
+	/** @Description 
+	 * @author apr
+	 * @version Mar 23, 2020
+	 *
+	 * @param stmti
+	 */
+	public void addNode(Node node) {
+		nodes.add(node);
 	}
 	
 }

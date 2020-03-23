@@ -59,6 +59,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import apr.apr.repair.utils.FileUtil;
+import apr.apr.repair.utils.NodeUtil;
 
 import com.github.javaparser.ast.Node.TreeTraversal;
 
@@ -125,19 +126,20 @@ public class NodeFinder {
 		// a test: lineNo -> 154 (stmt) , 153 (}), 41 (import), 64 (field declare), 333 method, 78 class construct, 73 empty
 		NodeFinder sf = new NodeFinder(151, "com.google.javascript.jscomp.CoalesceVariableNames", 
 				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
+		
 		// , "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"
 		///mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
-		Node targetNode = sf.findTargetNode();
+//		Node targetNode = sf.findTargetNode();
 //		YamlPrinter printer = new YamlPrinter(true);
 //		logger.info("format print targetNode: {}", printer.output(targetNode));
 		
-		PrettyPrinterConfiguration conf = new PrettyPrinterConfiguration();
-//		conf.setIndentSize(" ");
-		conf.setPrintComments(false);
-		PrettyPrinter prettyPrinter = new PrettyPrinter(conf);
-		System.out.println(prettyPrinter.print(targetNode));
-		
-		Node tokenizedNode = sf.tokenize(targetNode);
+//		PrettyPrinterConfiguration conf = new PrettyPrinterConfiguration();
+////		conf.setIndentSize(" ");
+//		conf.setPrintComments(false);
+//		PrettyPrinter prettyPrinter = new PrettyPrinter(conf);
+//		System.out.println(prettyPrinter.print(targetNode));
+//		
+//		Node tokenizedNode = sf.tokenize(targetNode);
 		
 		
 		// output tree structure picture
@@ -149,78 +151,19 @@ public class NodeFinder {
 //			e.printStackTrace();
 //		}
 		
-//		CompilationUnit cu = sf.getCU();
+		CompilationUnit cu = sf.getCU();
 //		cu.getTokenRange().get().forEach(t -> logger.debug(t.getText()));
 //		LexicalPreservingPrinter.setup(cu);
 //		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print",LexicalPreservingPrinter.print(cu) , false);
 		
 		// http://javaparser.org/inspecting-an-ast/
-//		YamlPrinter printer = new YamlPrinter(true);
-//		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print", printer.output(cu), false);
+		YamlPrinter printer = new YamlPrinter(true);
+		FileUtil.writeToFile(System.getProperty("user.dir") + "/ast.print", printer.output(cu), false);
 		
 		// get vars
 //		sf.getBasicVariables();
 //		sf.getAllVariables();
 //		sf.printVars();
-	}
-	
-	
-	public String getPrettyPrintNode(Node node){
-		PrettyPrinterConfiguration conf = new PrettyPrinterConfiguration();
-//		conf.setIndentSize(" ");
-		conf.setPrintComments(false);
-		PrettyPrinter prettyPrinter = new PrettyPrinter(conf);
-		return prettyPrinter.print(node);
-	}
-	
-	/** @Description 
-	 * @author apr
-	 * @version Mar 22, 2020
-	 *
-	 * e.g., 
-	 * if (colorings.isEmpty() || !n.isName() || parent.isFunction()) {
-     *     return;
-	 * }
-	 * -> 
-	 * 
-	 * if (var.id() || !n.isName() || parent.isFunction()) {
-	 * 
-	 *
-	 * @param targetNode2
-	 * @return
-	 */
-	public Node tokenize(Node targetNode) {
-		Node node = targetNode.clone();
-		// identifiers, literals, and variable types
-		// id: ClassOrInterfaceType, varName, methodName
-		// lit: all literalExpr
-//		node.findAll(ClassOrInterfaceType.class);
-//		node.findAll(VariableDeclarator.class);
-//		node.findAll(FieldDeclaration.class);
-//		node.findAll(MethodDeclaration.class);
-//		node.findAll(FieldAccessExpr.class);
-//		node.findAll(MethodCallExpr.class);
-		
-		// a simple approach
-		Consumer<Node> consumer = n -> {
-			if (n instanceof SimpleName){
-				((SimpleName) n).setIdentifier("id");
-			}
-			
-			if (n instanceof ClassOrInterfaceType){
-				((ClassOrInterfaceType) n).setName("varType");
-			}
-			
-			if (n instanceof LiteralExpr){
-				n.replace(new StringLiteralExpr("literal"));
-			}
-		};
-		node.walk(consumer);
-		
-		logger.info(getPrettyPrintNode(node));
-		
-		
-		return node;
 	}
 	
 	public void getAllVariables(Map<String, ClassNode> classVarMap){
@@ -450,7 +393,7 @@ public class NodeFinder {
 //			logger.debug("node: {}", n.getClass());
 			
 			if (n instanceof Statement){ //EnumDeclaration, FieldDeclaration
-				if (getStartLineNo(n) <= lineNo && lineNo <= getEndLineNo(n)){
+				if (NodeUtil.getStartLineNo(n) <= lineNo && lineNo <= NodeUtil.getEndLineNo(n)){
 					targetNode = n;
 					logger.debug("stmt info: {}, {}, {}", n.getClass(), n.getBegin(), n.getEnd() );
 //					return;
@@ -471,7 +414,7 @@ public class NodeFinder {
 			*/
 			if (n instanceof FieldDeclaration || n instanceof InitializerDeclaration || n instanceof MethodDeclaration
 					|| n instanceof TypeDeclaration  || n instanceof ConstructorDeclaration){
-				if (getStartLineNo(n) == lineNo || lineNo == getEndLineNo(n)){
+				if (NodeUtil.getStartLineNo(n) == lineNo || lineNo == NodeUtil.getEndLineNo(n)){
 					targetNode = n;
 					logger.debug("declaration info: {}, {}, {}", n.getClass(), n.getBegin(), n.getEnd() );
 //					return;
@@ -482,23 +425,7 @@ public class NodeFinder {
 		cu.walk(TreeTraversal.PREORDER, consumer);
 	}
 	
-	/**
-	 * @Description get start line number of the node 
-	 * @author apr
-	 * @version Mar 20, 2020
-	 *
-	 * @return
-	 */
-	public int getStartLineNo(Node node){
-		Range range = node.getRange().get();
-		return range.begin.line;
-	}
 	
-	
-	public int getEndLineNo(Node node){
-		Range range = node.getRange().get();
-		return range.end.line;
-	}
 	
 	public CompilationUnit getCU(){
 		return cu;
@@ -518,7 +445,7 @@ public class NodeFinder {
 		
 //		int targetIndex = 0; 
 		
-		int currentSize = getLineRange(curNode);
+		int currentSize = NodeUtil.getLineRange(curNode);
 		int cnt = 0; // to avoid infinite loop
 		while ( currentSize <= fragSize ){
 			cnt ++;
@@ -538,11 +465,11 @@ public class NodeFinder {
 				break;
 			}
 			
-			if (getLineRange(parent) <= fragSize){
+			if (NodeUtil.getLineRange(parent) <= fragSize){
 				nodes.remove(0);
 				nodes.add(parent);
 				
-				currentSize = getLineRange(parent);
+				currentSize = NodeUtil.getLineRange(parent);
 				curNode = parent;
 				continue;
 			}
@@ -550,10 +477,11 @@ public class NodeFinder {
 			List<Node> siblings = parent.getChildNodes();
 			int index = -1;
 //			int index = siblings.indexOf(curNode);  // debug: when two same nodes in a parent -> verified. need to change
-			for(int i = 0; i < siblings.size(), i++){
+			for(int i = 0; i < siblings.size(); i++){
 				Node sib = siblings.get(i);
-				if (sib.equals(curNode) && sib.getRange().get().equals(curNode.getRange())){
+				if (sib.equals(curNode) && sib.getRange().get().equals(curNode.getRange().get())){
 					index = i;
+//					sib.getTokenRange().get();
 				}
 			}
 			
@@ -570,7 +498,7 @@ public class NodeFinder {
 					Node preSib = siblings.get(index - preCnt);
 					preCnt ++;
 					
-					int preSibSize = getLineRange(preSib);
+					int preSibSize = NodeUtil.getLineRange(preSib);
 					if (preSibSize + currentSize <= fragSize){
 						currentSize += preSibSize;
 						nodes.add(0, preSib);
@@ -585,7 +513,7 @@ public class NodeFinder {
 					Node nextSib = siblings.get(index + nextCnt);
 					nextCnt ++;
 					
-					int nextSibSize = getLineRange(nextSib);
+					int nextSibSize = NodeUtil.getLineRange(nextSib);
 					if (nextSibSize + currentSize <= fragSize){
 						currentSize += nextSibSize;
 						nodes.add(nodes.size(), nextSib);
@@ -618,16 +546,5 @@ public class NodeFinder {
 		}
 		
 		return nodes;
-	}
-
-	/** @Description 
-	 * @author apr
-	 * @version Mar 22, 2020
-	 *
-	 * @param preSib
-	 * @return
-	 */
-	private int getLineRange(Node node) {
-		return getEndLineNo(node) - getStartLineNo(node) + 1;
 	}
 }

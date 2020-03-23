@@ -70,6 +70,8 @@ public class ClassVarParser {
 				String srcPath = directory + srcClass.replace(".", "/") + ".java";
 				CompilationUnit cu = StaticJavaParser.parse(new File(srcPath));
 				
+				logger.debug("current parsed path: {}", srcPath);
+				
 //				Map<String, String> varMap 
 //				Consumer<Node> fdConsumer = n -> {
 //					if (n instanceof FieldDeclaration){
