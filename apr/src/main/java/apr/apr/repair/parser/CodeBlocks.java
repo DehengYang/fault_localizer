@@ -94,20 +94,31 @@ public class CodeBlocks {
 	 */
 	private List<CodeFragment> getCodeblocks(Node node) {
 		List<CodeFragment> cfs = new ArrayList<>();
-		List<Statement> stmts = node.findAll(Statement.class);
 		
-		// exclude the node itself
-		if(node instanceof Statement){
-			int index = NodeUtil.getIndex(stmts, node);
-			stmts.remove(index);
+		List<Node> children = node.getChildNodes();
+		List<Statement> stmts = new ArrayList<>();
+		for(Node child : children){
+			if (child instanceof Statement){
+				stmts.add((Statement) child);
+			}else{
+				logger.info("child: {} (type: {}) is not a statement.", child.toString(), child.getClass());
+			}
 		}
 		
-		for (int i = 0; i < stmts.size() - 1; i++){
+//		List<Statement> stmts = node.findAll(Statement.class);
+//		
+//		// exclude the node itself
+//		if(node instanceof Statement){
+//			int index = NodeUtil.getIndex(stmts, node);
+//			stmts.remove(index);
+//		}
+		
+		for (int i = 0; i < stmts.size(); i++){  //  - 1
 			CodeFragment cf = new CodeFragment();
 			Statement stmti = stmts.get(i);
 			for (int j = i; j < stmts.size(); j++){
 				Statement stmtj = stmts.get(j);
-				cf.addNode(stmti);
+				cf.addNode(stmtj);
 				if (cf.getLineRangeSize() >= fragSize){
 					cfs.add(cf);
 				}
