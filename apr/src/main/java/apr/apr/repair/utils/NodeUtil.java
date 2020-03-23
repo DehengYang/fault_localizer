@@ -4,10 +4,13 @@
 package apr.apr.repair.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
 
+import org.apache.commons.codec.digest.MurmurHash3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,6 +191,14 @@ public class NodeUtil {
 			windowSize = (int) Math.ceil((double) cf.getLineRangeSize()/2);
 		}
 		
+		
+		// hash map
+		Map<CodeFragment, Map<long[], Integer>> hashSet = new HashMap<>();
+		Map<long[], Integer> hashSubSet = new HashMap<>();
+		Map<long[], List<CodeFragment>> candMap = new HashMap<>(); // candidates map
+		
+		codeFrags.add(cf);
+		
 		for (CodeFragment codeFrag : codeFrags){
 			// jude if similar/clone
 			// refer to: "CCAligner: A token based large-gap clone detector"
@@ -212,10 +223,25 @@ public class NodeUtil {
 						combinedLines += tLines[indTemp];
 					}
 					
+					long[] hashK = MurmurHash3.hash128(combinedLines.getBytes());
+					CodeFragment hashV = codeFrag;
+					hashSubSet.put(hashK, i);
+					
+					if (candMap.containsKey(hashK)){
+						candMap.get(hashK).add(hashV);
+					}else{
+						List<CodeFragment> vList = new ArrayList<>();
+						vList.add(hashV);
+						candMap.put(hashK, vList);
+					}
 				}
 			}
+			// hashSubSet
+			hashSet.put(codeFrag, hashSubSet);
+			hashSubSet.clear();
+			
 		}
-		
+			
 		// deal with cf.
 		
 	}
