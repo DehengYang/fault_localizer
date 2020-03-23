@@ -423,9 +423,7 @@ public class NodeFinder {
 		};
 		
 		cu.walk(TreeTraversal.PREORDER, consumer);
-	}
-	
-	
+	}	
 	
 	public CompilationUnit getCU(){
 		return cu;

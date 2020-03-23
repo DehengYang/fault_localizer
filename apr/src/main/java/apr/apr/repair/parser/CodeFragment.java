@@ -13,6 +13,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.Statement;
 
+import apr.apr.repair.utils.NodeUtil;
+
 /**
  * @author apr
  * @version Mar 22, 2020
@@ -38,6 +40,19 @@ public class CodeFragment {
 	
 	public CodeFragment(List<Node> nodes){
 		this.setNodes(nodes);
+	}
+	
+	/**
+	 * @Description get how many lines the CodeFragment has. 
+	 * @author apr
+	 * @version Mar 23, 2020
+	 *
+	 * @return
+	 */
+	public int getLineRangeSize(){
+		if (nodes.isEmpty()) return 0;
+		
+		return NodeUtil.getEndLineNo(nodes.get(nodes.size()-1)) - NodeUtil.getStartLineNo(nodes.get(0)) + 1;
 	}
 	
 	public CodeFragment(int lineNo, String className, String directory){

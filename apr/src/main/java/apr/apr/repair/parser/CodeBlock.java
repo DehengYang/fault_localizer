@@ -80,7 +80,7 @@ public class CodeBlock {
 		List<MethodDeclaration> methods = cu.findAll(MethodDeclaration.class);
 		for (MethodDeclaration method : methods){
 			codeFrags.add(new CodeFragment(method)); // add the method itself
-			getCodeblocks(method);
+			codeFrags.addAll(getCodeblocks(method));
 		}
 	}
 
@@ -90,17 +90,26 @@ public class CodeBlock {
 	 * @version Mar 23, 2020
 	 *
 	 */
-	private void getCodeblocks(MethodDeclaration method) {
-		List<Statement> stmts = method.findAll(Statement.class);
+	private List<CodeFragment> getCodeblocks(Node node) {
+		List<CodeFragment> cfs = new ArrayList<>();
+		List<Statement> stmts = node.findAll(Statement.class);
 		for (int i = 0; i < stmts.size() - 1; i++){
 			CodeFragment cf = new CodeFragment();
 			Statement stmti = stmts.get(i);
 			for (int j = i; j < stmts.size(); j++){
 				Statement stmtj = stmts.get(j);
 				cf.addNode(stmti);
-				if ()
+				if (cf.getLineRangeSize() >= fragSize){
+					cfs.add(cf);
+				}
+				
+				if (!stmtj.getChildNodes().isEmpty()){
+					cfs.addAll(getCodeblocks(stmtj));
+				}
 			}
 		}
+		
+		return cfs;
 		
 	}
 }
