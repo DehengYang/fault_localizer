@@ -82,6 +82,7 @@ public class CodeBlocks {
 		List<MethodDeclaration> methods = cu.findAll(MethodDeclaration.class);
 		for (MethodDeclaration method : methods){
 //			codeFrags.add(new CodeFragment(method)); // add the method itself
+			
 //			logger.debug(NodeUtil.getPrettyPrintNode(method));
 			
 //			if(method.toString().contains("protected Point2D calculateLabelAnchorPoint(ItemLabelAnchor anchor, double x, double y, PlotOrientatio")){
@@ -157,4 +158,9 @@ public class CodeBlocks {
 		
 		return cfs;
 	}
+	
+	public List<CodeFragment> getCodeFrags(){
+		return codeFrags;
+	}
+	
 }

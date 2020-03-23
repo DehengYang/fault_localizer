@@ -30,6 +30,7 @@ import apr.apr.repair.parser.CodeFragment;
 import apr.apr.repair.parser.NodeFinder;
 import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
+import apr.apr.repair.utils.NodeUtil;
 
 public class Main {
 	final static Logger logger = LoggerFactory.getLogger(Main.class);
@@ -72,7 +73,7 @@ public class Main {
 			startT = FileUtil.getTime();
 			ClassNode cn = entry.getValue();
 			
-//			cn = classVarMap.get("AbstractRenderer");
+//			cn = classVarMap.get("DialCap");
 			
 			CodeBlocks cbs = new CodeBlocks(cn.getCu());
 			
@@ -92,7 +93,7 @@ public class Main {
 //		sf.getAllVariables(classVarMap);
 //		sf.printVars();
 		
-		repairLocations(suspList);
+		repairLocations(suspList, classVarMap);
 	}
 
 	/** @Description 
@@ -101,10 +102,18 @@ public class Main {
 	 *
 	 * @param suspList
 	 */
-	private static void repairLocations(List<SuspiciousLocation> suspList) {
+	private static void repairLocations(List<SuspiciousLocation> suspList, Map<String, ClassNode> classVarMap) {
 		for (SuspiciousLocation sl : suspList){
 			CodeFragment cf = new CodeFragment(sl.getLineNo(), sl.getClassName(), FileUtil.srcJavaDir);
 			
+			for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
+				String className = entry.getKey();
+				logger.info("current class: {}", className);
+//				startT = FileUtil.getTime();
+				ClassNode cn = entry.getValue();
+				
+				NodeUtil.getSimilarCode(cf, cn.getCbs());
+			}
 		}
 		
 	}

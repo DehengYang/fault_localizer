@@ -3,7 +3,9 @@
  */
 package apr.apr.repair.utils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -18,6 +20,9 @@ import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.printer.PrettyPrinter;
 import com.github.javaparser.printer.PrettyPrinterConfiguration;
+
+import apr.apr.repair.parser.CodeBlocks;
+import apr.apr.repair.parser.CodeFragment;
 
 /**
  * @author apr
@@ -100,6 +105,16 @@ public class NodeUtil {
 		return node;
 	}
 	
+	public static String getTokenizedStr(CodeFragment cf){
+		List<Node> nodes = cf.getNodes();
+		String str = "";
+		for (Node node : nodes){
+			Node tokenizedNode = tokenize(node);
+			str += getPrettyPrintNode(tokenizedNode);
+		}
+		return str;
+	}
+	
 	/** @Description 
 	 * @author apr
 	 * @version Mar 21, 2020
@@ -151,6 +166,93 @@ public class NodeUtil {
 	public static int getLineRange(Node node) {
 		return getEndLineNo(node) - getStartLineNo(node) + 1;
 	}
+
+	/** @Description 
+	 * @author apr
+	 * @version Mar 23, 2020
+	 *
+	 * @param cf
+	 * @param cbs
+	 */
+	public static void getSimilarCode(CodeFragment cf, CodeBlocks cbs) {
+		List<CodeFragment> codeFrags = cbs.getCodeFrags();
+		
+		// constants
+		int windowSize = 6; // q
+		int e = 1; // mis-match
+		double simThreshold = 0.7;
+		
+		String[] tokenLines = getTokenizedStr(cf).split("\n");
+		
+		if (tokenLines.length <= 6){
+			windowSize = (int) Math.ceil((double) cf.getLineRangeSize()/2);
+		}
+		
+		for (CodeFragment codeFrag : codeFrags){
+			// jude if similar/clone
+			// refer to: "CCAligner: A token based large-gap clone detector"
+			String[] tLines = getTokenizedStr(codeFrag).split("\n");
+			int tSize = tLines.length;
+			int numWindows = tSize - windowSize + 1;
+			for (int i = 0; i < numWindows; i++){
+				String tLine = tLines[i];
+				int[] indexes = new int[windowSize]; // i -> i + windowSize - 1
+				for (int ind = 0; i < windowSize; ind++){
+					indexes[ind] = ind + i;
+				}
+				
+				// refer to: https://www.cnblogs.com/zzlback/p/10947064.html
+				List<List<Integer>> indList = new ArrayList<>();
+				diffCombine(indexes,windowSize - e, 0, 0, indList);
+				
+				// 
+				for (List<Integer> ind : indList){
+					String combinedLines = "";
+					for (int indTemp : ind){
+						combinedLines += tLines[indTemp];
+					}
+					
+				}
+			}
+		}
+		
+		// deal with cf.
+		
+	}
+	
+	public static Stack<Integer> stack = new Stack<Integer>();
+	
+	/**
+	 * @Description refer to: https://www.cnblogs.com/zzlback/p/10947064.html 
+	 * @author apr
+	 * @version Mar 23, 2020
+	 *
+	 * @param indexes
+	 * @param targ
+	 * @param has
+	 * @param cur
+	 */
+	public static void diffCombine(int[] indexes, int targ, int has, int cur, List<List<Integer>> indList ) {
+		
+        if(has == targ) {
+        	List<Integer> ind = new ArrayList<>();
+        	for (int i : stack){
+        		ind.add(i);
+        	}
+        	ind.sort(null);
+        	indList.add(ind);
+//            System.out.println(stack);
+            return;
+        }
+         
+        for(int i=cur;i<indexes.length;i++) {
+            if(!stack.contains(indexes[i])) {
+                stack.add(indexes[i]);
+                diffCombine(indexes, targ, has+1, i, indList);
+                stack.pop();
+            }
+        }
+    }
 	
 	
 }
