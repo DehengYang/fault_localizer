@@ -548,7 +548,15 @@ public class NodeFinder {
 			}
 			
 			List<Node> siblings = parent.getChildNodes();
-			int index = siblings.indexOf(curNode);  // debug: when two same nodes in a parent
+			int index = -1;
+//			int index = siblings.indexOf(curNode);  // debug: when two same nodes in a parent -> verified. need to change
+			for(int i = 0; i < siblings.size(), i++){
+				Node sib = siblings.get(i);
+				if (sib.equals(curNode) && sib.getRange().get().equals(curNode.getRange())){
+					index = i;
+				}
+			}
+			
 			int preCnt = 1;
 //			int preStop = false;
 			int nextCnt = 1;
