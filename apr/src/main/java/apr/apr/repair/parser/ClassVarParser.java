@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.github.javadocparser.ParseException;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -68,9 +71,22 @@ public class ClassVarParser {
 					directory += "/";
 				}
 				String srcPath = directory + srcClass.replace(".", "/") + ".java";
+				
+				// debug: 
+				// TODO: need to debug javaparser source code.
+//				if (!srcPath.contains("source/org/jfree/chart/plot/ThermometerPlot.java")){
+//					continue;
+//				}
+				
+//				JavaParser jp = new JavaParser();
+//				ParseResult result = jp.parse(new File(srcPath), Charset.forName("UTF-8"));
+//				CompilationUnit cu = (CompilationUnit) result.getResult().get();
+				
+//				CompilationUnit cu = StaticJavaParser.parse(new File(srcPath), Charset.forName("UTF-8"));
+				
 				CompilationUnit cu = StaticJavaParser.parse(new File(srcPath));
 				
-				logger.debug("current parsed path: {}", srcPath);
+//				logger.debug("current parsed path: {}", srcPath);
 				
 //				Map<String, String> varMap 
 //				Consumer<Node> fdConsumer = n -> {
@@ -99,7 +115,7 @@ public class ClassVarParser {
 								varMap.put(varName, varType);
 							}
 						}
-						classVarMap.put(className, new ClassNode(className, srcClass, varMap));
+						classVarMap.put(className, new ClassNode(className, srcClass, varMap, cu));
 					}
 				};
 				

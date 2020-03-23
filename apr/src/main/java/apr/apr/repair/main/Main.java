@@ -25,6 +25,7 @@ import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
 import apr.apr.repair.parser.ClassNode;
 import apr.apr.repair.parser.ClassVarParser;
+import apr.apr.repair.parser.CodeBlocks;
 import apr.apr.repair.parser.CodeFragment;
 import apr.apr.repair.parser.NodeFinder;
 import apr.apr.repair.utils.ClassFinder;
@@ -56,9 +57,26 @@ public class Main {
 //			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
 //			break;
 //		}
-//		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
-//		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
+		
+		// get all vars defined in Classes
+		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
+		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
 //		cvp.printClassVarMap();
+		
+		// get all code blocks DataPackageResources_pl & ThermometerPlot
+		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
+			String className = entry.getKey();
+			ClassNode cn = entry.getValue();
+			
+			CodeBlocks cbs = new CodeBlocks(cn.getCu());
+			
+			cn.setCbs(cbs);
+		}
+		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
+			String className = entry.getKey();
+			ClassNode cn = entry.getValue();
+			logger.debug("a breakpoint");
+		}
 		
 		// get/list all variables for the given file
 //		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 

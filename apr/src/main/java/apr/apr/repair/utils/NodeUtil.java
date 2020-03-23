@@ -3,6 +3,7 @@
  */
 package apr.apr.repair.utils;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -33,6 +34,21 @@ public class NodeUtil {
 		PrettyPrinter prettyPrinter = new PrettyPrinter(conf);
 		return prettyPrinter.print(node);
 	}
+	
+	public static <T> int getIndex(List<T> nodes, Node node){
+		int index = -1;
+//		int index = siblings.indexOf(curNode);  // debug: when two same nodes in a parent -> verified. need to change
+		for(int i = 0; i < nodes.size(); i++){
+			Node n = (Node) nodes.get(i);
+			if (n.equals(node) && n.getRange().get().equals(node.getRange().get())){
+				index = i;
+//				sib.getTokenRange().get();
+			}
+		}
+		return index;
+	}
+	
+	
 	
 	/** @Description 
 	 * @author apr

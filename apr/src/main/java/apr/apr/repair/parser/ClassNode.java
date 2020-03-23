@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 
 /**
@@ -21,12 +22,15 @@ public class ClassNode {
 	
 	private String className;
 	private String fullClassName; 
+	private CompilationUnit cu;
+	private CodeBlocks cbs;
 	
 	private Map<String, String> varMap = new HashMap<>();  // varname, vartype
 	
-	public ClassNode(String className, String fullClassName, Map<String, String> varMap){
+	public ClassNode(String className, String fullClassName, Map<String, String> varMap, CompilationUnit cu){
 		this.setClassName(className);
 		this.setFullClassName(fullClassName);
+		this.setCu(cu);
 		
 		for (Map.Entry<String, String> entry : varMap.entrySet()){
 			this.varMap.put(entry.getKey(), entry.getValue());
@@ -72,5 +76,21 @@ public class ClassNode {
 
 	public void setFullClassName(String fullClassName) {
 		this.fullClassName = fullClassName;
+	}
+
+	public CompilationUnit getCu() {
+		return cu;
+	}
+
+	public void setCu(CompilationUnit cu) {
+		this.cu = cu;
+	}
+
+	public CodeBlocks getCbs() {
+		return cbs;
+	}
+
+	public void setCbs(CodeBlocks cbs) {
+		this.cbs = cbs;
 	}	
 }

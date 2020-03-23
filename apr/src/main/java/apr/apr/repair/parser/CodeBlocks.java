@@ -59,6 +59,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import apr.apr.repair.utils.FileUtil;
+import apr.apr.repair.utils.NodeUtil;
 
 import com.github.javaparser.ast.Node.TreeTraversal;
 
@@ -68,20 +69,21 @@ import com.github.javaparser.ast.Node.TreeTraversal;
  * @version Mar 23, 2020
  *
  */
-public class CodeBlock {
-	final static Logger logger = LoggerFactory.getLogger(CodeBlock.class);
+public class CodeBlocks {
+	final static Logger logger = LoggerFactory.getLogger(CodeBlocks.class);
 	
 	List<CodeFragment> codeFrags = new ArrayList<>();
 	
 	private int fragSize = 10; // at least 10 lines for a code fragment
 	
-	public CodeBlock(CompilationUnit cu){
+	public CodeBlocks(CompilationUnit cu){
 		// parse all nodes
 		List<MethodDeclaration> methods = cu.findAll(MethodDeclaration.class);
 		for (MethodDeclaration method : methods){
 			codeFrags.add(new CodeFragment(method)); // add the method itself
 			codeFrags.addAll(getCodeblocks(method));
 		}
+		logger.debug("a breakpoint");
 	}
 
 	/** @Description 
@@ -93,6 +95,13 @@ public class CodeBlock {
 	private List<CodeFragment> getCodeblocks(Node node) {
 		List<CodeFragment> cfs = new ArrayList<>();
 		List<Statement> stmts = node.findAll(Statement.class);
+		
+		// exclude the node itself
+		if(node instanceof Statement){
+			int index = NodeUtil.getIndex(stmts, node);
+			stmts.remove(index);
+		}
+		
 		for (int i = 0; i < stmts.size() - 1; i++){
 			CodeFragment cf = new CodeFragment();
 			Statement stmti = stmts.get(i);
@@ -110,6 +119,5 @@ public class CodeBlock {
 		}
 		
 		return cfs;
-		
 	}
 }
