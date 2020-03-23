@@ -75,17 +75,33 @@ public class CodeBlocks {
 	List<CodeFragment> codeFrags = new ArrayList<>();
 	
 	private int fragSize = 10; // at least 10 lines for a code fragment
+	private int maxFragSize = 20;
 	
 	public CodeBlocks(CompilationUnit cu){
 		// parse all nodes
 		List<MethodDeclaration> methods = cu.findAll(MethodDeclaration.class);
 		for (MethodDeclaration method : methods){
-			codeFrags.add(new CodeFragment(method)); // add the method itself
+//			codeFrags.add(new CodeFragment(method)); // add the method itself
+//			logger.debug(NodeUtil.getPrettyPrintNode(method));
+			
+//			if(method.toString().contains("protected Point2D calculateLabelAnchorPoint(ItemLabelAnchor anchor, double x, double y, PlotOrientatio")){
+//				logger.info("");
+//			}
+			
 			codeFrags.addAll(getCodeblocks(method));
 		}
-		logger.debug("a breakpoint");
+//		logger.debug("a breakpoint");
 	}
 
+	@Override
+	public String toString(){
+		String str = "";
+		for (CodeFragment cf : codeFrags){
+			str += cf.toString() + "\n";
+		}
+		return str;
+	}
+	
 	/** @Description 
 	 * refer to: "SLACC: Simion-based Language Agnostic Code Clones"
 	 * @author apr
@@ -95,14 +111,19 @@ public class CodeBlocks {
 	private List<CodeFragment> getCodeblocks(Node node) {
 		List<CodeFragment> cfs = new ArrayList<>();
 		
+		if (NodeUtil.getLineRange(node) <= maxFragSize){
+			cfs.add(new CodeFragment(node)); // add node itself
+		}
+		
 		List<Node> children = node.getChildNodes();
 		List<Statement> stmts = new ArrayList<>();
 		for(Node child : children){
 			if (child instanceof Statement){
 				stmts.add((Statement) child);
-			}else{
-				logger.info("child: {} (type: {}) is not a statement.", child.toString(), child.getClass());
 			}
+//			else{
+//				logger.info("child: {} (type: {}) is not a statement.", child.toString(), child.getClass());
+//			}
 		}
 		
 //		List<Statement> stmts = node.findAll(Statement.class);
@@ -119,11 +140,16 @@ public class CodeBlocks {
 			for (int j = i; j < stmts.size(); j++){
 				Statement stmtj = stmts.get(j);
 				cf.addNode(stmtj);
-				if (cf.getLineRangeSize() >= fragSize){
+				
+				if (cf.getLineRangeSize() > maxFragSize){
+					break;
+				}
+				
+				if (cf.getLineRangeSize() >= fragSize){ // && cf.getLineRangeSize() <= maxFragSize
 					cfs.add(cf);
 				}
 				
-				if (!stmtj.getChildNodes().isEmpty()){
+				if (!stmtj.getChildNodes().isEmpty()){ // && NodeUtil.getLineRange(stmtj) >= fragSize
 					cfs.addAll(getCodeblocks(stmtj));
 				}
 			}

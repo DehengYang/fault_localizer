@@ -42,6 +42,15 @@ public class CodeFragment {
 		this.setNodes(nodes);
 	}
 	
+	@Override
+	public String toString(){
+		String str = "";
+		for (Node node : nodes){
+			str += NodeUtil.getPrettyPrintNode(node);
+		}
+		return str;
+	}
+	
 	/**
 	 * @Description get how many lines the CodeFragment has. 
 	 * @author apr

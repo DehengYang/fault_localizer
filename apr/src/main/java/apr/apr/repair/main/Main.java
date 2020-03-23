@@ -59,24 +59,32 @@ public class Main {
 //		}
 		
 		// get all vars defined in Classes
+		long startT = FileUtil.getTime();
 		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
 		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
+		logger.debug("classVarMap collection time cost: {}", FileUtil.countTime(startT));
 //		cvp.printClassVarMap();
 		
 		// get all code blocks DataPackageResources_pl & ThermometerPlot
 		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
 			String className = entry.getKey();
+			logger.info("current class: {}", className);
+			startT = FileUtil.getTime();
 			ClassNode cn = entry.getValue();
+			
+//			cn = classVarMap.get("AbstractRenderer");
 			
 			CodeBlocks cbs = new CodeBlocks(cn.getCu());
 			
 			cn.setCbs(cbs);
+			
+			logger.debug("class for code block: {}, time cost: {}", className, FileUtil.countTime(startT));
 		}
-		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
-			String className = entry.getKey();
-			ClassNode cn = entry.getValue();
-			logger.debug("a breakpoint");
-		}
+//		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
+//			String className = entry.getKey();
+//			ClassNode cn = entry.getValue();
+//			logger.debug("a breakpoint");
+//		}
 		
 		// get/list all variables for the given file
 //		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 
