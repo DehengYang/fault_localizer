@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.javaparser.ast.CompilationUnit;
 
+import apr.apr.repair.execute.PatchTest;
 import apr.apr.repair.localization.FaultLocalizer;
 import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
@@ -32,6 +33,7 @@ import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 import apr.apr.repair.utils.NodeUtil;
 
+
 public class Main {
 	final static Logger logger = LoggerFactory.getLogger(Main.class);
 	
@@ -43,6 +45,10 @@ public class Main {
 		ClassFinder cf = new ClassFinder();
 		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
 		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+		
+		// replicate all tests
+		replicateTests(testClasses);
+//		System.exit(0);
 		
 		// fault localization
 //		faultLocalize(testClasses, srcClasses);
@@ -212,7 +218,7 @@ public class Main {
 							FileUtil.depsList.add(path);
 						
 	        		}else{
-	        			System.out.format("dependency: %s is empty or does not exist.", dep);
+	        			System.out.format("dependency: %s is empty or does not exist.\n", dep);
 	        		}
 	        	}
 	//        	parameters.put("dependences", cli.getOptionValue("dependences"));
@@ -273,4 +279,64 @@ public class Main {
         
 //		return parameters;
     }
+	
+	private static void replicateTests(Set<String> testClasses) {
+		// write to file.
+		List<String> allTests = new ArrayList<>();
+		for (String test : testClasses){
+			allTests.add(test);
+		}
+		
+		allTests.removeAll(FileUtil.oriFailedTests);
+		FileUtil.writeLinesToFile(FileUtil.positiveTestsPath, allTests);
+				
+		// run failed tests
+		long startT = System.currentTimeMillis();
+		PatchTest pt = new PatchTest(Arrays.asList(FileUtil.failedTestsStr.split(":")));
+		Boolean testResult = pt.runTests();
+		List<String> failedAfterTest = pt.getFailedTests();		
+		List<String> failedAfterTestCopy = pt.getFailedTests();
+		FileUtil.writeToFile(FileUtil.flLogPath, String.format("Time cost of pre-process before patch generation/validation (run all failed tests): %s\n", FileUtil.countTime(startT)) );
+		
+		FileUtil.writeToFile(String.format("oriFailedTests size: %d, replicated failed tests size: %d\n", FileUtil.oriFailedTests.size(),
+				failedAfterTestCopy.size()));
+		
+		if (failedAfterTest.isEmpty()){
+				System.err.println("No failed tests found in failed tests result replication.\n");
+				FileUtil.writeToFile("No failed tests found in failed tests result replication.\n");
+				System.exit(0);
+		}
+				
+		failedAfterTest.retainAll(FileUtil.oriFailedTests);
+		if (failedAfterTest.size() != FileUtil.oriFailedTests.size()){ // the same failed test (replication/reproduction)
+			FileUtil.writeToFile("replication (failed tests) failed.\n");
+			for (String test : failedAfterTestCopy){
+				FileUtil.writeToFile(String.format("replicated failed test: %s\n", test));
+			}
+			for (String test : failedAfterTestCopy){
+				FileUtil.writeToFile(String.format("original failed test: %s\n", test));
+			}
+			System.exit(0);
+		}else{
+			// run positive tests
+			startT = System.currentTimeMillis();
+			pt = new PatchTest(FileUtil.positiveTestsPath);
+			testResult = pt.runTests();
+			failedAfterTest = pt.getFailedTests();
+			FileUtil.writeToFile(FileUtil.flLogPath, String.format("Time cost of pre-process before patch generation/validation (run all positive tests): %s\n", FileUtil.countTime(startT)) );
+			
+			if (failedAfterTest.isEmpty()){
+				FileUtil.writeToFile("replication (all tests) passed.\n");
+			}else{
+				FileUtil.writeToFile("replication (pos tests) failed.\n");
+				for (String test : failedAfterTest){
+					FileUtil.writeToFile(String.format("failed pos test: %s\n", test));
+					FileUtil.fakedPosTests.add(test);
+				}
+						
+				allTests.removeAll(FileUtil.fakedPosTests);
+				FileUtil.writeLinesToFile(FileUtil.filteredPositiveTestsPath, allTests);
+				}
+			}
+	}
 }
