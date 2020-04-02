@@ -252,29 +252,29 @@ public class Main {
 	        	String toolOutputDir = new File(buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName;
 	        	
 	        	// to be written
-	        	FileUtil.flLogPath = toolOutputDir + "/fl_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.flLogPath = toolOutputDir + "/fl_log.txt";
 	        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
 	        	
-	        	FileUtil.searchLogPath = toolOutputDir + "/search_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.searchLogPath = toolOutputDir + "/search_log.txt";
 	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
 	        	
-	        	FileUtil.changedFLPath = toolOutputDir + "/changedFL_" + FileUtil.toolName + ".txt";
+	        	FileUtil.changedFLPath = toolOutputDir + "/changedFL.txt";
 	        	FileUtil.writeToFile(FileUtil.changedFLPath, "", false); // init
 	        	
 	        	// save fl list for first fl. 
-	        	FileUtil.oriFLPath = toolOutputDir + "/oriFL_" + FileUtil.toolName + ".txt";
-	        	FileUtil.oriFlLogPath = toolOutputDir + "/oriFL_" + FileUtil.toolName + ".txt";	        	
+	        	FileUtil.oriFLPath = toolOutputDir + "/oriFL.txt";
+	        	FileUtil.oriFlLogPath = toolOutputDir + "/oriFL.txt";	        	
 	        	FileUtil.writeToFile(FileUtil.oriFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.oriFlLogPath, "", false); 
 	        	
 	        	// second fl
-	        	FileUtil.filteredFLPath = toolOutputDir + "/filteredFL_log_" + FileUtil.toolName + ".txt";
-	        	FileUtil.filteredFlLogPath = toolOutputDir + "/filteredFL_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.filteredFLPath = toolOutputDir + "/filteredFL_log.txt";
+	        	FileUtil.filteredFlLogPath = toolOutputDir + "/filteredFL_log.txt";
 	        	FileUtil.writeToFile(FileUtil.filteredFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.filteredFlLogPath, "", false); 
 	        	
-	        	FileUtil.positiveTestsPath = toolOutputDir + "/allPosTests_" + FileUtil.toolName + ".txt";
-	        	FileUtil.filteredPositiveTestsPath = toolOutputDir + "/filteredPosTests_" + FileUtil.toolName + ".txt";
+	        	FileUtil.positiveTestsPath = toolOutputDir + "/allPosTests.txt";
+	        	FileUtil.filteredPositiveTestsPath = toolOutputDir + "/filteredPosTests.txt";
 	        	FileUtil.writeToFile(FileUtil.positiveTestsPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.filteredPositiveTestsPath, "", false); // init
 	        }
