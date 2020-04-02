@@ -22,6 +22,7 @@ import com.github.javaparser.ast.CompilationUnit;
 
 import apr.apr.repair.execute.PatchTest;
 import apr.apr.repair.localization.FaultLocalizer;
+import apr.apr.repair.localization.FaultLocalizer2;
 import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
 import apr.apr.repair.parser.ClassNode;
@@ -54,12 +55,18 @@ public class Main {
 		replicateTests(testClasses);
 //		System.exit(0);
 		
-		// fault localization
-//		faultLocalize(testClasses, srcClasses);
+		// fault localization v0.1.1
+		faultLocalize(testClasses, srcClasses);
+		
+		// fl v1.7.3
+		FaultLocalizer2 fl = new FaultLocalizer2();
+		fl.localize();
+		fl.logFL();
+		
 		
 		// read fl results from file
-		FaultLocalizer fl = new FaultLocalizer();
-		List<SuspiciousLocation> suspList = fl.readFLResults();
+//		FaultLocalizer fl = new FaultLocalizer();
+//		List<SuspiciousLocation> suspList = fl.readFLResults();
 		
 		// parse java files into ast
 //		for(String srcClass : srcClasses){
@@ -103,7 +110,7 @@ public class Main {
 //		sf.getAllVariables(classVarMap);
 //		sf.printVars();
 		
-		repairLocations(suspList, classVarMap);
+//		repairLocations(suspList, classVarMap);
 	}
 
 	/** @Description 
@@ -171,6 +178,10 @@ public class Main {
         opt8.setRequired(true);
         Option opt9 = new Option("gzoltarSh","gzoltarSh",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/libs/gzoltar1.7.3/runGZoltar.sh");
         opt9.setRequired(true);
+        Option opt10 = new Option("bugDir","bugDir",true,"e.g., /mnt/benchmarks/repairDir/Kali_Defects4J_Mockito_10/");
+        opt10.setRequired(true);
+        Option opt11 = new Option("junitJar","junitJar",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/script/../benchmarks/defects4j/framework/projects/lib/junit-4.11.jar");
+        opt11.setRequired(true);
 
         Options options = new Options();
         options.addOption(opt1);
@@ -182,6 +193,8 @@ public class Main {
         options.addOption(opt7);
         options.addOption(opt8);
         options.addOption(opt9);
+        options.addOption(opt10);
+        options.addOption(opt11);
 
         CommandLine cli = null;
         CommandLineParser cliParser = new DefaultParser();
@@ -272,7 +285,12 @@ public class Main {
 	        if(cli.hasOption("gzoltarSh")){
 	        	FileUtil.gzoltarSh = cli.getOptionValue("gzoltarSh");
 	        }
-	        
+	        if(cli.hasOption("bugDir")){
+	        	FileUtil.bugDir = cli.getOptionValue("bugDir");
+	        }
+	        if(cli.hasOption("junitJar")){
+	        	FileUtil.junitJar = cli.getOptionValue("junitJar");
+	        }
         } catch (IOException e) {
 			e.printStackTrace();
 		}
