@@ -45,6 +45,10 @@ public class Main {
 		ClassFinder cf = new ClassFinder();
 		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
 		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+		// for debug
+		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt", srcClasses);
+		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt", testClasses);
+		
 		
 		// replicate all tests
 		replicateTests(testClasses);
@@ -158,13 +162,15 @@ public class Main {
         Option opt4 = new Option("dependences","dependences",true,"all dependencies");
         opt4.setRequired(true);
         Option opt5 = new Option("buggylocDir","buggylocDir",true,"e.g., /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Mockito_10/");
-        opt4.setRequired(true);
+        opt5.setRequired(true);
         Option opt6 = new Option("externalProjPath","externalProjPath",true,"Path to run junit tests. e.g., /home/apr/apr_tools/tbar-ori/TBar-dale/externel/target/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar");
-        opt4.setRequired(true);
+        opt6.setRequired(true);
         Option opt7 = new Option("jvmPath","jvmPath",true,"java path to run junit tests (e.g., /home/apr/env/jdk1.7.0_80/jre/bin/java)");
-        opt4.setRequired(true);
+        opt7.setRequired(true);
         Option opt8 = new Option("failedTestsStr","failedTestsStr",true,"e.g., com.google.javascript.jscomp.CollapseVariableDeclarationsTest");
-        opt4.setRequired(true);
+        opt8.setRequired(true);
+        Option opt9 = new Option("gzoltarSh","gzoltarSh",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/libs/gzoltar1.7.3/runGZoltar.sh");
+        opt9.setRequired(true);
 
         Options options = new Options();
         options.addOption(opt1);
@@ -175,6 +181,7 @@ public class Main {
         options.addOption(opt6);
         options.addOption(opt7);
         options.addOption(opt8);
+        options.addOption(opt9);
 
         CommandLine cli = null;
         CommandLineParser cliParser = new DefaultParser();
@@ -262,6 +269,10 @@ public class Main {
 	        	FileUtil.failedTestsStr = cli.getOptionValue("failedTestsStr");
 	        	FileUtil.oriFailedTests = Arrays.asList(FileUtil.failedTestsStr.split(":"));
 	        }
+	        if(cli.hasOption("gzoltarSh")){
+	        	FileUtil.gzoltarSh = cli.getOptionValue("gzoltarSh");
+	        }
+	        
         } catch (IOException e) {
 			e.printStackTrace();
 		}

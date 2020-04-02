@@ -31,6 +31,7 @@ public class FileUtil {
 	public static String externalProjPath;
 	public static String jvmPath;
 	public static String failedTestsStr;
+	public static String gzoltarSh;
 	
 	public static ArrayList<String> depsList = new ArrayList<>();
 	
