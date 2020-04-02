@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import apr.apr.repair.localization.SuspiciousLocation;
+
 public class FileUtil {
 	// java/test classes
 	public static List<String> srcClasses = new ArrayList<>();
@@ -67,7 +69,9 @@ public class FileUtil {
 	public static String flPath;
 	public static String flLogPath;
 	public static String oriFLPath;
+	public static String oriFlLogPath;
 	public static String filteredFLPath;
+	public static String filteredFlLogPath;
 	public static String buggylocPath;
 	public static String mpPath;
 	public static String toolName = "Dale_APR";
@@ -205,5 +209,23 @@ public class FileUtil {
             e.printStackTrace();
         }
         return list;
+	}
+	
+	public static List<SuspiciousLocation> readBuggylocFile(String path){
+		List<SuspiciousLocation> buggyLocs = new ArrayList<>();
+		try {
+            final BufferedReader in = new BufferedReader(
+                new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            String line;
+            while ((line = in.readLine()) != null) {
+            	// e.g., com.google.javascript.jscomp.RemoveUnusedVars:380
+            	SuspiciousLocation sl = new SuspiciousLocation(line.split(":")[0], Integer.parseInt(line.split(":")[1]));
+            	buggyLocs.add(sl); // add test
+            }
+            in.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return buggyLocs;
 	}
 }

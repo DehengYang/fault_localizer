@@ -66,7 +66,7 @@ public class Main {
 		
 		// read fl results from file
 //		FaultLocalizer fl = new FaultLocalizer();
-//		List<SuspiciousLocation> suspList = fl.readFLResults();
+//		List<SuspiciousLocation> suspList = fl.readFLResults(FileUtil.flPath);
 		
 		// parse java files into ast
 //		for(String srcClass : srcClasses){
@@ -141,11 +141,11 @@ public class Main {
 	 *
 	 */
 	private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
-		FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath, testClasses, srcClasses);
+		FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath, FileUtil.oriFlLogPath, testClasses, srcClasses);
 		Set<String> extraFailedTests = fl.getExtraFailedTests(FileUtil.oriFailedTests);
 		if (! extraFailedTests.isEmpty()){
 			logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
-			FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, testClasses, srcClasses, new ArrayList<>(extraFailedTests));
+			FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, FileUtil.filteredFlLogPath, testClasses, srcClasses, new ArrayList<>(extraFailedTests));
 			Set<String> reExtraFailedTests = flSecond.getExtraFailedTests(FileUtil.oriFailedTests);
 		
 			if (! reExtraFailedTests.isEmpty()){
@@ -246,27 +246,37 @@ public class Main {
 	        if(cli.hasOption("buggylocDir")){
 	        	String buggylocDir = cli.getOptionValue("buggylocDir");
 	        	FileUtil.buggylocDir = buggylocDir;
-	        	FileUtil.flPath = new File(buggylocDir).getAbsolutePath() + "/FL.txt";
+	        	//FileUtil.flPath = new File(buggylocDir).getAbsolutePath() + "/FL.txt";
 	        	FileUtil.buggylocPath = new File(buggylocDir).getAbsolutePath() + "/buggyloc.txt";
 	        	
-	        	// to be written
-	        	FileUtil.flLogPath = new File(buggylocDir).getAbsolutePath() + "/fl_log_" + FileUtil.toolName + ".txt";
-	        	FileUtil.searchLogPath = new File(buggylocDir).getAbsolutePath() + "/search_log_" + FileUtil.toolName + ".txt";
-	        	FileUtil.changedFLPath = new File(buggylocDir).getAbsolutePath() + "/changedFL_" + FileUtil.toolName + ".txt";
-	        	FileUtil.oriFLPath = new File(buggylocDir).getAbsolutePath() + "/oriFL_" + FileUtil.toolName + ".txt";
-	        	FileUtil.filteredFLPath = new File(buggylocDir).getAbsolutePath() + "/filteredFL_" + FileUtil.toolName + ".txt";
-	        	FileUtil.positiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/allPosTests_" + FileUtil.toolName + ".txt";
-	        	FileUtil.filteredPositiveTestsPath = new File(buggylocDir).getAbsolutePath() + "/filteredPosTests_" + FileUtil.toolName + ".txt";
+	        	String toolOutputDir = new File(buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName;
 	        	
+	        	// to be written
+	        	FileUtil.flLogPath = toolOutputDir + "/fl_log_" + FileUtil.toolName + ".txt";
 	        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
+	        	
+	        	FileUtil.searchLogPath = toolOutputDir + "/search_log_" + FileUtil.toolName + ".txt";
 	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
+	        	
+	        	FileUtil.changedFLPath = toolOutputDir + "/changedFL_" + FileUtil.toolName + ".txt";
 	        	FileUtil.writeToFile(FileUtil.changedFLPath, "", false); // init
-	        	FileUtil.writeToFile(FileUtil.filteredFLPath, "", false); // init
+	        	
+	        	// save fl list for first fl. 
+	        	FileUtil.oriFLPath = toolOutputDir + "/oriFL_" + FileUtil.toolName + ".txt";
+	        	FileUtil.oriFlLogPath = toolOutputDir + "/oriFL_" + FileUtil.toolName + ".txt";	        	
 	        	FileUtil.writeToFile(FileUtil.oriFLPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.oriFlLogPath, "", false); 
+	        	
+	        	// second fl
+	        	FileUtil.filteredFLPath = toolOutputDir + "/filteredFL_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.filteredFlLogPath = toolOutputDir + "/filteredFL_log_" + FileUtil.toolName + ".txt";
+	        	FileUtil.writeToFile(FileUtil.filteredFLPath, "", false); // init
+	        	FileUtil.writeToFile(FileUtil.filteredFlLogPath, "", false); 
+	        	
+	        	FileUtil.positiveTestsPath = toolOutputDir + "/allPosTests_" + FileUtil.toolName + ".txt";
+	        	FileUtil.filteredPositiveTestsPath = toolOutputDir + "/filteredPosTests_" + FileUtil.toolName + ".txt";
 	        	FileUtil.writeToFile(FileUtil.positiveTestsPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.filteredPositiveTestsPath, "", false); // init
-	        	
-	//        	parameters.put("buggylocDir", cli.getOptionValue("buggylocDir"));
 	        }
 	        if(cli.hasOption("externalProjPath")){
 	        	FileUtil.externalProjPath = cli.getOptionValue("externalProjPath");

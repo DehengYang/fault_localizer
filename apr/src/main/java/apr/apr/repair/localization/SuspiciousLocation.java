@@ -27,6 +27,11 @@ public class SuspiciousLocation {
 //		this.setSuspValue(suspValue);
 //	}
 
+	public SuspiciousLocation(String className, int lineNo){
+		this.className = className;
+		this.lineNo = lineNo;
+	}
+	
 	public SuspiciousLocation(String className, int lineNo, double suspValue){
 		this.className = className;
 		this.lineNo = lineNo;
@@ -60,6 +65,15 @@ public class SuspiciousLocation {
 	public String toString(){
 		return String.format("%s:%s,%s", this.className, this.lineNo, this.suspValue);
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+       return this.getClassName().equals(((SuspiciousLocation) o).getClassName())  &&  
+    		   this.getLineNo()     ==    ((SuspiciousLocation) o).getLineNo();
+    }
 	
 	/**
 	 * @Description calculate suspiciousness using Ochiai formula 

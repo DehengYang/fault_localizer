@@ -37,21 +37,24 @@ public class FaultLocalizer  {
 	private Set<String> testClasses = new HashSet<>();
 	private Set<String> srcClasses = new HashSet<>();
 	private String savePath;
+	private String logPath;
 	
 	public FaultLocalizer(){
 		
 	}
 	
-	public FaultLocalizer(String savePath, Set<String> testClasses, Set<String> srcClasses) {
+	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses) {
 //		this(null, null);
 		this.savePath = savePath;
+		this.logPath = logPath;
 		this.testClasses.addAll(testClasses);
 		this.srcClasses.addAll(srcClasses);
 		localize(null);
 	}
 	
-	public FaultLocalizer(String savePath,  Set<String> testClasses, Set<String> srcClasses, List<String> extraFailedTests) {
+	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, List<String> extraFailedTests) {
 		this.savePath = savePath;
+		this.logPath = logPath;
 		this.testClasses.addAll(testClasses);
 		this.srcClasses.addAll(srcClasses);
 		localize(extraFailedTests);
@@ -66,8 +69,8 @@ public class FaultLocalizer  {
 	 * @version Mar 21, 2020
 	 *
 	 */
-	public List<SuspiciousLocation> readFLResults() {
-		List<String> lines = FileUtil.readFile(FileUtil.flPath);
+	public List<SuspiciousLocation> readFLResults(String flPath) {
+		List<String> lines = FileUtil.readFile(flPath);
 		List<SuspiciousLocation> suspList = new ArrayList<>();
 		//com.google.javascript.rhino.Token:217,0.8164965809277261
 		for (String line : lines){
@@ -173,7 +176,7 @@ public class FaultLocalizer  {
 				totalPassed ++;
 			}else{
 				totalFailed ++;
-				
+				FileUtil.writeToFile(logPath, String.format("Failed test: %s, trace: \n%s \n\n", tr.getName(), tr.getTrace()));
 				String fullTrace = tr.getTrace();
 				
 				
@@ -196,6 +199,9 @@ public class FaultLocalizer  {
 				logger.info("Failed test: {}. \nTrace: \n{}", tr.getName(), fullTrace);
 			}
 		}
+		
+		FileUtil.writeToFile(logPath, String.format("Total passed tests: %d , total failed tests: %d\n", 
+				totalPassed, totalFailed)); //apr. record
 		
 		// for each component (suspicious stmt)
 		for(Component component : spectra.getComponents()){
@@ -247,6 +253,59 @@ public class FaultLocalizer  {
 			FileUtil.writeToFile(savePath, sl.toString() + "\n");
 		}
 		
+		changeFL(suspList);
+		
 		logger.info("FL ends.");
+	}
+
+	/** @Description  find buggy locs and move them into top positions
+	 * @author apr
+	 * @version Apr 2, 2020
+	 *
+	 * @param suspList2
+	 */
+	private void changeFL(List<SuspiciousLocation> suspList) {
+		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(FileUtil.buggylocPath);
+		List <Integer> buggyLocIndex = new ArrayList<>();
+		
+		List<SuspiciousLocation> suspListBackup = new ArrayList<>();
+		suspListBackup.addAll(suspList);
+		
+		List<SuspiciousLocation> changedSuspList = new ArrayList<>();
+		
+		for (SuspiciousLocation sl : buggyLocs){
+			int index = suspList.indexOf(sl);
+			if (index >= 0){
+				buggyLocIndex.add(index);
+//				repairLocs.add(se);
+				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is localized, its rank index is: %d .\n", sl.toString(), index));
+			}else{
+				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is not localized.\n", sl.toString()));
+			}
+		}
+		
+		Collections.sort(buggyLocIndex);
+		
+		// firstly add buggy locs
+		for (int index : buggyLocIndex){
+			changedSuspList.add(suspListBackup.get(index));
+		}
+		
+		suspListBackup.removeAll(buggyLocs);
+		changedSuspList.addAll(suspListBackup);
+		
+		for (SuspiciousLocation sl : changedSuspList){
+			String changedFlPath = savePath.replaceFirst(".txt", "_changed.txt");
+			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
+		}
+		logger.debug("bp here");
+	}
+
+	public String getLogPath() {
+		return logPath;
+	}
+
+	public void setLogPath(String logPath) {
+		this.logPath = logPath;
 	}
 }
