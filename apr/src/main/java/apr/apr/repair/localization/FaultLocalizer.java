@@ -294,8 +294,8 @@ public class FaultLocalizer  {
 		suspListBackup.removeAll(buggyLocs);
 		changedSuspList.addAll(suspListBackup);
 		
+		String changedFlPath = savePath.replaceFirst(".txt", "_changed.txt");
 		for (SuspiciousLocation sl : changedSuspList){
-			String changedFlPath = savePath.replaceFirst(".txt", "_changed.txt");
 			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
 		}
 		logger.debug("bp here");

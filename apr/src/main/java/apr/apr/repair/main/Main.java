@@ -52,16 +52,17 @@ public class Main {
 		
 		
 		// replicate all tests
-		replicateTests(testClasses);
+//		replicateTests(testClasses);
 //		System.exit(0);
 		
 		// fault localization v0.1.1
-		faultLocalize(testClasses, srcClasses);
+//		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
 		FaultLocalizer2 fl = new FaultLocalizer2();
 		fl.localize();
 		fl.logFL();
+		System.exit(0);
 		
 		
 		// read fl results from file

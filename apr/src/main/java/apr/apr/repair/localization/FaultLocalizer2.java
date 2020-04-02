@@ -48,7 +48,7 @@ public class FaultLocalizer2 {
 	public void localize(){
 		String cmd = FileUtil.gzoltarSh + " " + data_dir + " " + bug_dir + " " + test_classpath + " " + test_classes_dir + " "
 				+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + junit_jar;
-		String output = CmdUtil.runCmd(cmd);
+		CmdUtil.runCmdNoOutput(cmd);	
 	}
 	
 	/**

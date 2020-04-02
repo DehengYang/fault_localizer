@@ -49,6 +49,24 @@ public class CmdUtil {
 		return output;
 	}
 	
+	public static void runCmdNoOutput(String cmd) {
+		try{
+			String[] commands = {"bash", "-c", cmd};
+			Process proc = Runtime.getRuntime().exec(commands);
+
+			// fixed
+//			String stderr = IOUtils.toString(proc.getErrorStream(), Charset.defaultCharset());
+			IOUtils.toString(proc.getInputStream(), Charset.defaultCharset());
+			
+			// read error if exists
+//			if(!stderr.equals("")){
+//				System.err.println(String.format("Error/Warning occurs:\n %s\n", stderr)); // .substring(0, 300): avoid printing too long cmd string.
+//			}
+		}catch (Exception err){
+			err.printStackTrace();
+		}
+	}
+	
 	
 	// a bug exposed by Closure 103 run all tests.
 	// the while ((line = stdInput.readLine()) != null){ will get stuck... after reading several lines.
