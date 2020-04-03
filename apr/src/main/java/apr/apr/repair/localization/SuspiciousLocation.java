@@ -103,7 +103,7 @@ public class SuspiciousLocation {
 	 * @return
 	 */
 	public double calculateSuspicious(){
-		return execFailed/Math.sqrt((execFailed+execPassed)*(execFailed+execPassed));
+		return execFailed/Math.sqrt((execFailed+execPassed)*totalFailed);
 	}
 	
 	public double getSuspValue() {
