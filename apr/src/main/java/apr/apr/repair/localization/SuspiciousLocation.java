@@ -39,6 +39,26 @@ public class SuspiciousLocation {
 	}
 	
 	/**
+	 * 
+	 * @param className
+	 * @param lineNo
+	 * @param execPassed
+	 * @param execFailed
+	 * @param totalPassed
+	 * @param totalFailed
+	 */
+	public SuspiciousLocation(String className, int lineNo, int execPassed, int execFailed, int totalPassed, int totalFailed) {
+		this.className = className;
+		this.lineNo = lineNo;
+		this.execFailed = execFailed;
+		this.execPassed = execPassed;
+		this.setTotalFailed(totalFailed);
+		this.setTotalPassed(totalPassed);
+		
+		this.suspValue = calculateSuspicious();
+	}
+	
+	/**
 	 * @param execPassed
 	 * @param execFailed
 	 * @param totalPassed

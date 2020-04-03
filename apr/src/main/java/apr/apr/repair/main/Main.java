@@ -60,8 +60,8 @@ public class Main {
 		
 		// fl v1.7.3
 		FaultLocalizer2 fl = new FaultLocalizer2();
-		fl.localize();
-		fl.logFL();
+//		fl.localize();
+		fl.logFL(true);
 		System.exit(0);
 		
 		
@@ -177,7 +177,7 @@ public class Main {
         opt7.setRequired(true);
         Option opt8 = new Option("failedTestsStr","failedTestsStr",true,"e.g., com.google.javascript.jscomp.CollapseVariableDeclarationsTest");
         opt8.setRequired(true);
-        Option opt9 = new Option("gzoltarSh","gzoltarSh",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/libs/gzoltar1.7.3/runGZoltar.sh");
+        Option opt9 = new Option("gzoltarDir","gzoltarDir",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/libs/gzoltar1.7.3/");
         opt9.setRequired(true);
         Option opt10 = new Option("bugDir","bugDir",true,"e.g., /mnt/benchmarks/repairDir/Kali_Defects4J_Mockito_10/");
         opt10.setRequired(true);
@@ -293,8 +293,8 @@ public class Main {
 	        	FileUtil.failedTestsStr = cli.getOptionValue("failedTestsStr");
 	        	FileUtil.oriFailedTests = Arrays.asList(FileUtil.failedTestsStr.split(":"));
 	        }
-	        if(cli.hasOption("gzoltarSh")){
-	        	FileUtil.gzoltarSh = cli.getOptionValue("gzoltarSh");
+	        if(cli.hasOption("gzoltarDir")){
+	        	FileUtil.gzoltarDir = new File(cli.getOptionValue("gzoltarDir")).getAbsolutePath();
 	        }
 	        if(cli.hasOption("bugDir")){
 	        	FileUtil.bugDir = cli.getOptionValue("bugDir");
