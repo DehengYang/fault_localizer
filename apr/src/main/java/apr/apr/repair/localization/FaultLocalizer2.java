@@ -41,7 +41,8 @@ public class FaultLocalizer2 {
 	// 1) other benchmark bugs
 	
 	public FaultLocalizer2(){
-		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/FL"; // direcory
+		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL";
+//		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/FL"; // direcory
 		bug_dir = FileUtil.bugDir;
 		test_classpath = FileUtil.dependencies;
 		test_classes_dir = FileUtil.binTestDir;

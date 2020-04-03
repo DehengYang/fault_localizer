@@ -56,12 +56,14 @@ public class Main {
 //		System.exit(0);
 		
 		// fault localization v0.1.1
-//		faultLocalize(testClasses, srcClasses);
+		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
+		long startTime = System.currentTimeMillis();
 		FaultLocalizer2 fl = new FaultLocalizer2();
-//		fl.localize();
+		fl.localize();
 		fl.logFL(true);
+		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
 		System.exit(0);
 		
 		
@@ -142,13 +144,22 @@ public class Main {
 	 *
 	 */
 	private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
+		long startTime = System.currentTimeMillis();
+		
 		FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath, FileUtil.oriFlLogPath, testClasses, srcClasses);
 		Set<String> extraFailedTests = fl.getExtraFailedTests(FileUtil.oriFailedTests);
+		
+		FileUtil.writeToFile(String.format("First fl (v0.1.1) time cost: %s\n", FileUtil.countTime(startTime)));
+		
 		if (! extraFailedTests.isEmpty()){
+			startTime = System.currentTimeMillis();
+			
 			logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
 			FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, FileUtil.filteredFlLogPath, testClasses, srcClasses, new ArrayList<>(extraFailedTests));
 			Set<String> reExtraFailedTests = flSecond.getExtraFailedTests(FileUtil.oriFailedTests);
 		
+			FileUtil.writeToFile(String.format("Second fl (v0.1.1) time cost: %s\n", FileUtil.countTime(startTime)));
+			
 			if (! reExtraFailedTests.isEmpty()){
 				logger.warn("After re-running fl, there still exists {} extra failed test(s) in current FL.", reExtraFailedTests.size());
 			}
@@ -264,13 +275,13 @@ public class Main {
 	        	
 	        	// save fl list for first fl. 
 	        	FileUtil.oriFLPath = toolOutputDir + "/oriFL.txt";
-	        	FileUtil.oriFlLogPath = toolOutputDir + "/oriFL.txt";	        	
+	        	FileUtil.oriFlLogPath = toolOutputDir + "/oriFL.log";	        	
 	        	FileUtil.writeToFile(FileUtil.oriFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.oriFlLogPath, "", false); 
 	        	
 	        	// second fl
-	        	FileUtil.filteredFLPath = toolOutputDir + "/filteredFL_log.txt";
-	        	FileUtil.filteredFlLogPath = toolOutputDir + "/filteredFL_log.txt";
+	        	FileUtil.filteredFLPath = toolOutputDir + "/filteredFL.txt";
+	        	FileUtil.filteredFlLogPath = toolOutputDir + "/filteredFL.log";
 	        	FileUtil.writeToFile(FileUtil.filteredFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.filteredFlLogPath, "", false); 
 	        	
