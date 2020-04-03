@@ -262,7 +262,7 @@ public class FaultLocalizer  {
 	 * @author apr
 	 * @version Apr 2, 2020
 	 *
-	 * @param suspList2
+	 * @param suspList
 	 */
 	private void changeFL(List<SuspiciousLocation> suspList) {
 		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(FileUtil.buggylocPath);
@@ -295,6 +295,7 @@ public class FaultLocalizer  {
 		changedSuspList.addAll(suspListBackup);
 		
 		String changedFlPath = savePath.replaceFirst(".txt", "_changed.txt");
+		FileUtil.writeToFile(changedFlPath, "",false);
 		for (SuspiciousLocation sl : changedSuspList){
 			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
 		}

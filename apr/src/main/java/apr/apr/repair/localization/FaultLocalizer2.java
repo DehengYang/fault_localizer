@@ -60,7 +60,7 @@ public class FaultLocalizer2 {
 	 */
 	public void localize(){
 		String cmd = FileUtil.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + bug_dir + " " + test_classpath + " " + test_classes_dir + " "
-				+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + junit_jar;
+				+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + junit_jar + " >/dev/null 2>&1";
 		CmdUtil.runCmdNoOutput(cmd);	
 	}
 	
@@ -133,7 +133,7 @@ public class FaultLocalizer2 {
 		});
 		
 		// write to file.
-		String writePath = flResultDir + "/ochiai-calculate.csv";
+		String writePath = flResultDir + "/fl.txt";
 		FileUtil.writeToFile(writePath, "", false);
 		for (SuspiciousLocation sl : slList){
 			// debug
@@ -141,6 +141,8 @@ public class FaultLocalizer2 {
 			String line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + "\n";
 			FileUtil.writeToFile(writePath, line);
 		}
+		
+		changeFL(slList);
 		
 //		for (int i = 0; i < matrixList.size(); i++){
 //			boolean testResult;
@@ -169,6 +171,50 @@ public class FaultLocalizer2 {
 //		}
 	}
 	
+	
+	/** @Description  find buggy locs and move them into top positions
+	 * @author apr
+	 * @version Apr 2, 2020
+	 *
+	 * @param suspList
+	 */
+	private void changeFL(List<SuspiciousLocation> suspList) {
+		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(FileUtil.buggylocPath);
+		List <Integer> buggyLocIndex = new ArrayList<>();
+		
+		List<SuspiciousLocation> suspListBackup = new ArrayList<>();
+		suspListBackup.addAll(suspList);
+		
+		List<SuspiciousLocation> changedSuspList = new ArrayList<>();
+		
+		for (SuspiciousLocation sl : buggyLocs){
+			int index = suspList.indexOf(sl);
+			if (index >= 0){
+				buggyLocIndex.add(index);
+//				repairLocs.add(se);
+				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is localized, its rank index is: %d .\n", sl.toString(), index));
+			}else{
+				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is not localized.\n", sl.toString()));
+			}
+		}
+		
+		Collections.sort(buggyLocIndex);
+		
+		// firstly add buggy locs
+		for (int index : buggyLocIndex){
+			changedSuspList.add(suspListBackup.get(index));
+		}
+		
+		suspListBackup.removeAll(buggyLocs);
+		changedSuspList.addAll(suspListBackup);
+		
+		String changedFlPath = data_dir + "/sfl/txt/fl_changed.txt";
+		FileUtil.writeToFile(changedFlPath, "",false);
+		for (SuspiciousLocation sl : changedSuspList){
+			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
+		}
+		logger.debug("bp here");
+	}
 
 	public String getData_dir() {
 		return data_dir;

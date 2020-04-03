@@ -56,12 +56,12 @@ public class Main {
 //		System.exit(0);
 		
 		// fault localization v0.1.1
-		faultLocalize(testClasses, srcClasses);
+//		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
 		long startTime = System.currentTimeMillis();
 		FaultLocalizer2 fl = new FaultLocalizer2();
-		fl.localize();
+//		fl.localize();
 		fl.logFL(true);
 		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
 		System.exit(0);
