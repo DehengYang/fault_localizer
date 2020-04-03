@@ -261,10 +261,12 @@ public class FileUtil {
             final BufferedReader in = new BufferedReader(
                 new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
             String line;
+            in.readLine(); // skip first row
             while ((line = in.readLine()) != null) {
             	// e.g., JUNIT,org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization
+            	// now become: org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization,PASS,118975132,
             	if (line.length() == 0) logger.error("Empty line in %s", path);
-            	testsList.add(line.split(",")[1]); // add test
+            	testsList.add(line.split(",")[0]); // add test
             }
             in.close();
         } catch (final IOException e) {

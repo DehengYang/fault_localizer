@@ -87,7 +87,8 @@ public class FaultLocalizer2 {
 			matrixList = FileUtil.readMatrixFile(flResultDir + "/matrix.txt", slSpecList.size());
 		}
 		
-		List<String> testsList = FileUtil.readTestFile(data_dir + "/unit_tests.txt");
+//		List<String> testsList = FileUtil.readTestFile(data_dir + "/unit_tests.txt");
+		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
 		
 		int totalPassedTests = FileUtil.totalPassedTests;
 		int totalFailedTests = FileUtil.totalFailedTests;
@@ -134,6 +135,8 @@ public class FaultLocalizer2 {
 		String writePath = flResultDir + "/ochiai-calculate.csv";
 		FileUtil.writeToFile(writePath, "", false);
 		for (SuspiciousLocation sl : slList){
+			// debug
+//			String line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + String.format(" %d %", args)"\n";
 			String line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + "\n";
 			FileUtil.writeToFile(writePath, line);
 		}
