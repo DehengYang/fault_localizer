@@ -275,6 +275,33 @@ public class FileUtil {
         return testsList;
 	}
 	
+	/**
+	 * @Description e.g.,read all test methods from /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Closure_103/Dale_APR/FL/unit_tests.txt 
+	 * @author apr
+	 * @version Apr 4, 2020
+	 *
+	 * @param path
+	 * @return
+	 */
+	public static List<String> readTestMethodFile(String path){
+		List<String> testsList = new ArrayList<>();
+		try {
+            final BufferedReader in = new BufferedReader(
+                new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            String line;
+            in.readLine(); // skip first row
+            while ((line = in.readLine()) != null) {
+            	// e.g., JUNIT,org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization
+            	if (line.length() == 0) logger.error("Empty line in %s", path);
+            	testsList.add(line.split(",")[1]); // add test
+            }
+            in.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return testsList;
+	}
+	
 	public static List<Pair<List<Integer>, String>> readMatrixFile(String path, int specSize){
 		List<Pair<List<Integer>, String>> matrixList = new ArrayList<>();
 		try {

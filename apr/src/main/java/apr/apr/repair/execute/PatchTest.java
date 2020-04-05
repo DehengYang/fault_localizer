@@ -18,9 +18,11 @@ public class PatchTest {
 //	String externalProjRoot = "/home/apr/apr_tools/tbar-ori/TBar-dale/externel/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar"; ///home/apr/apr_tools/tbar-ori/TBar-dale/externel/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 	List<String> dependencies;
 	List<String> failedTests = new ArrayList<>();
-	List<String> failedTestsMethods = new ArrayList<>();
+	List<String> failedTestMethods = new ArrayList<>();
 	
 	String flag; // file or str
+	
+	boolean runTestMethods = false;
 	
 	public PatchTest(String testFilePath){
 		this.testFilePath = testFilePath;
@@ -30,6 +32,18 @@ public class PatchTest {
 	public PatchTest(List<String> testCases){
 		this.testCases = testCases;
 		flag = "str";
+	}
+	
+	public PatchTest(String testFilePath, boolean runTestMethods){
+		this.testFilePath = testFilePath;
+		flag = "file";
+		this.runTestMethods = runTestMethods;
+	}
+	
+	public PatchTest(List<String> testCases, boolean runTestMethods){
+		this.testCases = testCases;
+		flag = "str";
+		this.runTestMethods = runTestMethods;
 	}
 	
 	public boolean runTests(){
@@ -75,6 +89,10 @@ public class PatchTest {
 			System.out.format("unknown flag of PatchTest: %s\n", flag);
 		}
 		
+		if (runTestMethods){
+			cmd += " -runTestMethods true";
+		}
+		
 		// run cmd
 		System.out.println(cmd);
 //		FLUtil.writeToFile(String.format("cmd for execution: %s\n", cmd));
@@ -88,8 +106,15 @@ public class PatchTest {
 		String[] lines = output.split("\n");
 		for (String line : lines){
 			// find a failed test case
-			if (line.length() > 12 && line.substring(0, 12).equals("failed test:")){
+			String str = "[Patch test] failed test: ";
+			if (line.length() > str.length() && line.substring(0, str.length()).equals(str)){
 				failedTests.add(line.split(":")[1].trim());
+			}
+			
+			// [Patch test] failed test method
+			str = "[Patch test] failed test method: ";
+			if (line.length() > str.length() && line.substring(0, str.length()).equals(str)){
+				failedTestMethods.add(line.split(":")[1].trim());
 			}
 		}
 		
@@ -98,5 +123,9 @@ public class PatchTest {
 	
 	public List<String> getFailedTests(){
 		return this.failedTests;
+	}
+	
+	public List<String> getFailedTestMethods(){
+		return this.failedTestMethods;
 	}
 }

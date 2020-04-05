@@ -50,20 +50,20 @@ public class Main {
 		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt", srcClasses);
 		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt", testClasses);
 		
-		
-		// replicate all tests
-//		replicateTests(testClasses);
-//		System.exit(0);
-		
 		// fault localization v0.1.1
 //		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
-		long startTime = System.currentTimeMillis();
-		FaultLocalizer2 fl = new FaultLocalizer2();
-//		fl.localize();
-		fl.logFL(true);
-		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
+//		long startTime = System.currentTimeMillis();
+//		FaultLocalizer2 fl = new FaultLocalizer2();
+////		fl.localize();
+//		fl.logFL(true);
+//		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
+//		System.exit(0);
+		
+		// replicate all tests
+//		replicateTests(testClasses);
+		replicateTests();
 		System.exit(0);
 		
 		
@@ -389,5 +389,45 @@ public class Main {
 				FileUtil.writeLinesToFile(FileUtil.filteredPositiveTestsPath, allTests);
 				}
 			}
+	}
+	
+	
+	/**
+	 * @Description replicate tests according to the test methods listed by gzoltar v1.7.3 
+	 * @author apr
+	 * @version Apr 4, 2020
+	 *
+	 */
+	private static void replicateTests() {
+		// get all test methods
+		String unitPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/unit_tests.txt";
+		List<String> testMethods = FileUtil.readTestMethodFile(unitPath);
+		String testMethodsPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/test_methods.txt";
+		FileUtil.writeLinesToFile(testMethodsPath, testMethods, false);
+		
+		// run all test methods
+		PatchTest pt = new PatchTest(testMethodsPath, true);
+		pt.runTests();
+		List<String> failedMethodsAfterTest = pt.getFailedTestMethods();
+		
+		// check if there is extra tests
+		int fakeCnt = 0;
+		for (String failedMethod : failedMethodsAfterTest){
+			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
+				FileUtil.fakedPosTests.add(failedMethod);
+				fakeCnt ++;
+				FileUtil.writeToFile(String.format("fake pos test method: %s\n", failedMethod));
+			}
+		}
+		
+		FileUtil.writeToFile(String.format("fakeCnt: %s\n", fakeCnt));
+		if (fakeCnt == failedMethodsAfterTest.size()){
+			FileUtil.writeToFile("expected failed tests are not found. Exit now.\n");
+			System.exit(0);
+		}
+		
+		testMethods.removeAll(FileUtil.fakedPosTests);
+		String nonFakePosTestPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/non_fake_pos_tests.txt";
+		FileUtil.writeLinesToFile(nonFakePosTestPath, testMethods, false);
 	}
 }
