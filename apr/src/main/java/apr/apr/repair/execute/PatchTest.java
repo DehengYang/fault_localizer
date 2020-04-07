@@ -51,6 +51,14 @@ public class PatchTest {
 		// add java
 		cmd += FileUtil.jvmPath + " -cp ";
 		
+		// add external jar
+		try {
+			cmd += new File(FileUtil.externalProjPath).getCanonicalPath() + File.pathSeparator;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// for testing
 //		FLUtil.binJavaDir = "/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/build/classes/";
 //		FLUtil.binTestDir = "/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/build/test/";
@@ -63,18 +71,10 @@ public class PatchTest {
 		if (!FileUtil.dependencies.contains(FileUtil.binTestDir)){
 			cmd += FileUtil.binTestDir + File.pathSeparator;
 		}
-		cmd += FileUtil.dependencies + File.pathSeparator;//bug fix
+		cmd += FileUtil.dependencies; // + File.pathSeparator;//bug fix
 //		for (String dep : FLUtil.dependences){
 //			cmd += dep + File.pathSeparator;
 //		}
-		
-		// add external jar
-		try {
-			cmd += new File(FileUtil.externalProjPath).getCanonicalPath();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		// add main class & corresponding parameter
 		if (flag.equals("str")){
