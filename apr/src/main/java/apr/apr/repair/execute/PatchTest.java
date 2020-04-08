@@ -13,40 +13,45 @@ import apr.apr.repair.utils.FileUtil;
  */
 public class PatchTest {
 	String testFilePath;
-	List<String> testCases;
+	private List<String> testCases;
 //	String jvmPath = "/home/apr/env/jdk1.7.0_80/jre/bin/java"; ///home/apr/env/jdk1.7.0_80/jre/bin/java
 //	String externalProjRoot = "/home/apr/apr_tools/tbar-ori/TBar-dale/externel/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar"; ///home/apr/apr_tools/tbar-ori/TBar-dale/externel/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-	List<String> dependencies;
-	List<String> failedTests = new ArrayList<>();
-	List<String> failedTestMethods = new ArrayList<>();
+	private List<String> dependencies;
+	private List<String> failedTests = new ArrayList<>();
+	private List<String> failedTestMethods = new ArrayList<>();
+	private String savePath;
 	
 	String flag; // file or str
 	
 	boolean runTestMethods = false;
 	
-	public PatchTest(String testFilePath){
+	public PatchTest(String testFilePath, String savePath){
 		this.testFilePath = testFilePath;
 		flag = "file";
+		this.savePath = savePath;
 	}
 	
-	public PatchTest(List<String> testCases){
+	public PatchTest(List<String> testCases, String savePath){
 		this.testCases = testCases;
 		flag = "str";
+		this.savePath = savePath;
 	}
 	
-	public PatchTest(String testFilePath, boolean runTestMethods){
+	public PatchTest(String testFilePath, boolean runTestMethods, String savePath){
 		this.testFilePath = testFilePath;
 		flag = "file";
 		this.runTestMethods = runTestMethods;
+		this.savePath = savePath;
 	}
 	
-	public PatchTest(List<String> testCases, boolean runTestMethods){
+	public PatchTest(List<String> testCases, boolean runTestMethods, String savePath){
 		this.testCases = testCases;
 		flag = "str";
 		this.runTestMethods = runTestMethods;
+		this.savePath = savePath;
 	}
 	
-	public boolean runTests(){
+	public void runTests(){
 		String cmd = "";
 		// add java
 		cmd += FileUtil.jvmPath + " -cp ";
@@ -93,6 +98,9 @@ public class PatchTest {
 			cmd += " -runTestMethods true";
 		}
 		
+		// save path
+		cmd += " -savePath " + savePath;
+		
 		// run cmd
 		System.out.println(cmd);
 //		FLUtil.writeToFile(String.format("cmd for execution: %s\n", cmd));
@@ -100,25 +108,27 @@ public class PatchTest {
 //		cmd = "/home/apr/env/jdk1.7.0_80/bin/java -cp /mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/build/classes:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/build/test:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/junit4-legacy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/protobuf_deploy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/google_common_deploy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/ant_deploy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/junit4-core.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/libtrunk_rhino_parser_jarjared.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/hamcrest-core-1.1.jar:/home/apr/apr_tools/tbar-ori/TBar-dale/externel/target/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar apr.junit.PatchTest -testFile /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Closure_103/allPosTests_Dale_APR.txt";
 //		cmd = "/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/build/classes:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/build/test:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/junit4-legacy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/protobuf_deploy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/google_common_deploy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/ant_deploy.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/junit4-core.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/libtrunk_rhino_parser_jarjared.jar:/mnt/benchmarks/repairDir/TBar_Defects4J_Closure_103/lib/hamcrest-core-1.1.jar:/home/apr/apr_tools/tbar-ori/TBar-dale/externel/target/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar apr.junit.PatchTest -testFile /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Closure_103/allPosTests_Dale_APR.txt";
 //		String output = CmdUtil.runCmd2(cmd);
-		String output = CmdUtil.runCmd(cmd);
+//		String output = CmdUtil.runCmd(cmd);
+		
+		CmdUtil.runCmdNoOutput(cmd);
 		
 		// parse output
-		String[] lines = output.split("\n");
-		for (String line : lines){
-			// find a failed test case
-			String str = "[Patch test] failed test: ";
-			if (line.length() > str.length() && line.substring(0, str.length()).equals(str)){
-				failedTests.add(line.split(":")[1].trim());
-			}
-			
-			// [Patch test] failed test method
-			str = "[Patch test] failed test method: ";
-			if (line.length() > str.length() && line.substring(0, str.length()).equals(str)){
-				failedTestMethods.add(line.split(":")[1].trim());
-			}
-		}
+//		String[] lines = output.split("\n");
+//		for (String line : lines){
+//			// find a failed test case
+//			String str = "[Patch test] failed test: ";
+//			if (line.length() > str.length() && line.substring(0, str.length()).equals(str)){
+//				failedTests.add(line.split(":")[1].trim());
+//			}
+//			
+//			// [Patch test] failed test method
+//			str = "[Patch test] failed test method: ";
+//			if (line.length() > str.length() && line.substring(0, str.length()).equals(str)){
+//				failedTestMethods.add(line.split(":")[1].trim());
+//			}
+//		}
 		
-		return failedTests.isEmpty();
+//		return failedTests.isEmpty();
 	}
 	
 	public List<String> getFailedTests(){

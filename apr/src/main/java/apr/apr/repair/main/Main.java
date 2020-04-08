@@ -47,23 +47,24 @@ public class Main {
 		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
 		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
 		// for debug
+		String testClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
 		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt", srcClasses);
-		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt", testClasses);
+		FileUtil.writeLinesToFile(testClassesPath, testClasses);
 		
 //		 fault localization v0.1.1
 //		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
-//		long startTime = System.currentTimeMillis();
-//		FaultLocalizer2 fl = new FaultLocalizer2();
-//		fl.localize();
-//		fl.logFL(true);
-//		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
+		long startTime = System.currentTimeMillis();
+		FaultLocalizer2 fl = new FaultLocalizer2();
+		fl.localize();
+		fl.logFL(true);
+		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
 //		System.exit(0);
 		
 		// replicate all tests
 //		replicateTests(testClasses);
-		replicateTests();
+		replicateTests(testClassesPath);
 		System.exit(0);
 		
 		
@@ -331,66 +332,97 @@ public class Main {
 //		return parameters;
     }
 	
-	private static void replicateTests(Set<String> testClasses) {
-		// write to file.
-		List<String> allTests = new ArrayList<>();
-		for (String test : testClasses){
-			allTests.add(test);
-		}
-		
-		allTests.removeAll(FileUtil.oriFailedTests);
-		FileUtil.writeLinesToFile(FileUtil.positiveTestsPath, allTests);
-				
-		// run failed tests
-		long startT = System.currentTimeMillis();
-		PatchTest pt = new PatchTest(Arrays.asList(FileUtil.failedTestsStr.split(":")));
-		Boolean testResult = pt.runTests();
-		List<String> failedAfterTest = pt.getFailedTests();		
-		List<String> failedAfterTestCopy = pt.getFailedTests();
-		FileUtil.writeToFile(FileUtil.flLogPath, String.format("Time cost of pre-process before patch generation/validation (run all failed tests): %s\n", FileUtil.countTime(startT)) );
-		
-		FileUtil.writeToFile(String.format("oriFailedTests size: %d, replicated failed tests size: %d\n", FileUtil.oriFailedTests.size(),
-				failedAfterTestCopy.size()));
-		
-		if (failedAfterTest.isEmpty()){
-				System.err.println("No failed tests found in failed tests result replication.\n");
-				FileUtil.writeToFile("No failed tests found in failed tests result replication.\n");
-				System.exit(0);
-		}
-				
-		failedAfterTest.retainAll(FileUtil.oriFailedTests);
-		if (failedAfterTest.size() != FileUtil.oriFailedTests.size()){ // the same failed test (replication/reproduction)
-			FileUtil.writeToFile("replication (failed tests) failed.\n");
-			for (String test : failedAfterTestCopy){
-				FileUtil.writeToFile(String.format("replicated failed test: %s\n", test));
-			}
-			for (String test : failedAfterTestCopy){
-				FileUtil.writeToFile(String.format("original failed test: %s\n", test));
-			}
-			System.exit(0);
-		}else{
-			// run positive tests
-			startT = System.currentTimeMillis();
-			pt = new PatchTest(FileUtil.positiveTestsPath);
-			testResult = pt.runTests();
-			failedAfterTest = pt.getFailedTests();
-			FileUtil.writeToFile(FileUtil.flLogPath, String.format("Time cost of pre-process before patch generation/validation (run all positive tests): %s\n", FileUtil.countTime(startT)) );
-			
-			if (failedAfterTest.isEmpty()){
-				FileUtil.writeToFile("replication (all tests) passed.\n");
-			}else{
-				FileUtil.writeToFile("replication (pos tests) failed.\n");
-				for (String test : failedAfterTest){
-					FileUtil.writeToFile(String.format("failed pos test: %s\n", test));
-					FileUtil.fakedPosTests.add(test);
-				}
-						
-				allTests.removeAll(FileUtil.fakedPosTests);
-				FileUtil.writeLinesToFile(FileUtil.filteredPositiveTestsPath, allTests);
-				}
-			}
-	}
+//	private static void replicateTests(Set<String> testClasses) {
+//		// write to file.
+//		List<String> allTests = new ArrayList<>();
+//		for (String test : testClasses){
+//			allTests.add(test);
+//		}
+//		
+//		allTests.removeAll(FileUtil.oriFailedTests);
+//		FileUtil.writeLinesToFile(FileUtil.positiveTestsPath, allTests);
+//				
+//		// run failed tests
+//		long startT = System.currentTimeMillis();
+//		PatchTest pt = new PatchTest(Arrays.asList(FileUtil.failedTestsStr.split(":")));
+//		Boolean testResult = pt.runTests();
+//		List<String> failedAfterTest = pt.getFailedTests();		
+//		List<String> failedAfterTestCopy = pt.getFailedTests();
+//		FileUtil.writeToFile(FileUtil.flLogPath, String.format("Time cost of pre-process before patch generation/validation (run all failed tests): %s\n", FileUtil.countTime(startT)) );
+//		
+//		FileUtil.writeToFile(String.format("oriFailedTests size: %d, replicated failed tests size: %d\n", FileUtil.oriFailedTests.size(),
+//				failedAfterTestCopy.size()));
+//		
+//		if (failedAfterTest.isEmpty()){
+//				System.err.println("No failed tests found in failed tests result replication.\n");
+//				FileUtil.writeToFile("No failed tests found in failed tests result replication.\n");
+//				System.exit(0);
+//		}
+//				
+//		failedAfterTest.retainAll(FileUtil.oriFailedTests);
+//		if (failedAfterTest.size() != FileUtil.oriFailedTests.size()){ // the same failed test (replication/reproduction)
+//			FileUtil.writeToFile("replication (failed tests) failed.\n");
+//			for (String test : failedAfterTestCopy){
+//				FileUtil.writeToFile(String.format("replicated failed test: %s\n", test));
+//			}
+//			for (String test : failedAfterTestCopy){
+//				FileUtil.writeToFile(String.format("original failed test: %s\n", test));
+//			}
+//			System.exit(0);
+//		}else{
+//			// run positive tests
+//			startT = System.currentTimeMillis();
+//			pt = new PatchTest(FileUtil.positiveTestsPath);
+//			testResult = pt.runTests();
+//			failedAfterTest = pt.getFailedTests();
+//			FileUtil.writeToFile(FileUtil.flLogPath, String.format("Time cost of pre-process before patch generation/validation (run all positive tests): %s\n", FileUtil.countTime(startT)) );
+//			
+//			if (failedAfterTest.isEmpty()){
+//				FileUtil.writeToFile("replication (all tests) passed.\n");
+//			}else{
+//				FileUtil.writeToFile("replication (pos tests) failed.\n");
+//				for (String test : failedAfterTest){
+//					FileUtil.writeToFile(String.format("failed pos test: %s\n", test));
+//					FileUtil.fakedPosTests.add(test);
+//				}
+//						
+//				allTests.removeAll(FileUtil.fakedPosTests);
+//				FileUtil.writeLinesToFile(FileUtil.filteredPositiveTestsPath, allTests);
+//				}
+//			}
+//	}
 	
+	/**
+	 * @Description replicate tests given by testClasses
+	 * @author apr
+	 * @version Apr 8, 2020
+	 *
+	 */
+	private static void replicateTests(String testPath) {
+		// run all test methods
+		String savePath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/failedMethods_replicate.txt";
+		PatchTest pt = new PatchTest(testPath, false, savePath); // do not run test methods, just run tests. So false.
+		pt.runTests();
+//		List<String> failedMethodsAfterTest = pt.getFailedTestMethods();
+		List<String> failedMethodsAfterTest = FileUtil.readFile(savePath);
+		
+		// check if there is extra tests
+		int fakeCnt = 0;
+		for (String failedMethod : failedMethodsAfterTest){
+			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
+				FileUtil.fakedPosTests.add(failedMethod);
+				fakeCnt ++;
+				FileUtil.writeToFile(String.format("fake pos test method: %s\n", failedMethod));
+			}
+		}
+		
+		FileUtil.writeToFile(String.format("fakeCnt: %s\n", fakeCnt));
+		// check if there is any expected failed test.
+		if (fakeCnt == failedMethodsAfterTest.size()){
+			FileUtil.writeToFile("expected failed tests are not found. Exit now.\n");
+			System.exit(0);
+		}
+	}
 	
 	/**
 	 * @Description replicate tests according to the test methods listed by gzoltar v1.7.3 
@@ -400,13 +432,14 @@ public class Main {
 	 */
 	private static void replicateTests() {
 		// get all test methods
+		String savePath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/failedMethods_replicate.txt";
 		String unitPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/unit_tests.txt";
 		List<String> testMethods = FileUtil.readTestMethodFile(unitPath);
 		String testMethodsPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/test_methods.txt";
 		FileUtil.writeLinesToFile(testMethodsPath, testMethods, false);
 		
 		// run all test methods
-		PatchTest pt = new PatchTest(testMethodsPath, true);
+		PatchTest pt = new PatchTest(testMethodsPath, true, savePath);
 		pt.runTests();
 		List<String> failedMethodsAfterTest = pt.getFailedTestMethods();
 		
