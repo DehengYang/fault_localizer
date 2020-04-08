@@ -50,13 +50,13 @@ public class Main {
 		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt", srcClasses);
 		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt", testClasses);
 		
-		// fault localization v0.1.1
+//		 fault localization v0.1.1
 //		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
 //		long startTime = System.currentTimeMillis();
 //		FaultLocalizer2 fl = new FaultLocalizer2();
-////		fl.localize();
+//		fl.localize();
 //		fl.logFL(true);
 //		FileUtil.writeToFile(String.format("fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
 //		System.exit(0);
@@ -426,8 +426,8 @@ public class Main {
 			System.exit(0);
 		}
 		
-		testMethods.removeAll(FileUtil.fakedPosTests);
-		String nonFakePosTestPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/non_fake_pos_tests.txt";
-		FileUtil.writeLinesToFile(nonFakePosTestPath, testMethods, false);
+//		testMethods.removeAll(FileUtil.fakedPosTests);
+//		String nonFakePosTestPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/non_fake_pos_tests.txt";
+//		FileUtil.writeLinesToFile(nonFakePosTestPath, testMethods, false);
 	}
 }

@@ -79,7 +79,7 @@ public class FileUtil {
 	public static String filteredFlLogPath;
 	public static String buggylocPath;
 	public static String mpPath;
-	public static String toolName = "Dale_APR";
+	public static String toolName = "MY_APR";
 	// for simfix code search
 	public static String searchLogPath;
 	
