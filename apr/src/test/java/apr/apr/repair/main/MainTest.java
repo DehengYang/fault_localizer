@@ -122,6 +122,14 @@ randomly failed test: org.apache.commons.math3.random.ValueServerTest#testNextDi
 2 fails out of 1000 repeated runs.
 
 	 * 
+	 * mockito-23
+	 * inconsistent number of /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Mockito_23/MY_APR/FL/sfl/txt/tests.csv and 
+	 * /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Mockito_23/MY_APR/FL/unit_tests.txt
+	 * 
+	 * tests.csv contains 1380 test cases, while unit_tests.txt includes 1323. (via `cat xxx | cut -d "," -f 1 | uniq | sort`)
+	 * And the former does not have org.concurrentmockito.ThreadsShareGenerouslyStubbedMockTest#shouldAllowVerifyingInThreads
+	 * but the latter has.
+	 * Therefore, this awaits further study.
 	 * 
 	 * 
 	 * 
