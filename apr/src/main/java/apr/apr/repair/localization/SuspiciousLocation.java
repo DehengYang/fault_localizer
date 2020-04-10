@@ -11,8 +11,10 @@ public class SuspiciousLocation {
 	private int totalPassed; 
 	private int totalFailed;
 	
-	List<String> execPassedMethods = new ArrayList<>(); 
-	List<String> execFailedMethods = new ArrayList<>();
+	private List<String> execPassedMethods = new ArrayList<>(); 
+	private List<String> execFailedMethods = new ArrayList<>();
+	
+	private List<Integer> coveredTestIndexList = null;
 	
 	private double suspValue;
 	
@@ -54,6 +56,28 @@ public class SuspiciousLocation {
 		this.execPassed = execPassed;
 		this.setTotalFailed(totalFailed);
 		this.setTotalPassed(totalPassed);
+		
+		this.suspValue = calculateSuspicious();
+	}
+	
+	/**
+	 * support executed test record
+	 * @param className
+	 * @param lineNo
+	 * @param execPassed
+	 * @param execFailed
+	 * @param totalPassed
+	 * @param totalFailed
+	 */
+	public SuspiciousLocation(String className, int lineNo, int execPassed, int execFailed, int totalPassed, int totalFailed, List<Integer> coveredTestIndexList) {
+		this.className = className;
+		this.lineNo = lineNo;
+		this.execFailed = execFailed;
+		this.execPassed = execPassed;
+		this.setTotalFailed(totalFailed);
+		this.setTotalPassed(totalPassed);
+		
+		this.setCoveredTestIndexList(coveredTestIndexList);
 		
 		this.suspValue = calculateSuspicious();
 	}
@@ -150,5 +174,13 @@ public class SuspiciousLocation {
 
 	public void setTotalFailed(int totalFailed) {
 		this.totalFailed = totalFailed;
+	}
+
+	public List<Integer> getCoveredTestIndexList() {
+		return coveredTestIndexList;
+	}
+
+	public void setCoveredTestIndexList(List<Integer> coveredTestIndexList) {
+		this.coveredTestIndexList = coveredTestIndexList;
 	}
 }

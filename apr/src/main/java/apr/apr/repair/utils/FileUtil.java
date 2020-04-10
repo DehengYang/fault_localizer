@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -360,5 +361,96 @@ public class FileUtil {
             e.printStackTrace();
         }
         return matrixList;
+	}
+	
+	public static List<SuspiciousLocation> parseMatrixFile(String path, List<SuspiciousLocation> slSpecList, int testSize){
+		// init matrix
+		int specSize = slSpecList.size();
+	    int[][] matrix = new int[testSize][specSize + 1];
+	    String[] lineSplit = null;
+	    
+	    int totalPassedCnt = 0;
+	    int totalFailedCnt = 0;
+	    
+	    // refer to: https://www.novixys.com/blog/java-reading-large-file-efficiently/
+		try(BufferedReader in = new BufferedReader(new FileReader(path))) {
+		    // get first row
+		    String line = in.readLine();
+		    lineSplit = line.split(" ");
+		    if (lineSplit[lineSplit.length - 1].equals("+")){
+		    	lineSplit[lineSplit.length - 1] = "2"; // passed test
+		    	totalPassedCnt ++;
+		    }else{
+		    	lineSplit[lineSplit.length - 1] = "-2";// failed test
+		    	totalFailedCnt ++;
+		    }
+		    // check size 
+		    if (lineSplit.length != (specSize + 1)){
+    			String str = String.format("line length(): {}, total stmts size + 1: {} + 1. They are not consistent. EXIT now.\n", line.replace(" ", "").length(), specSize);
+    			FileUtil.writeToFile(str);
+    			logger.error("matrix-spectra size inconsistency error: {}", str);
+    			System.exit(0);
+    		}
+		    
+		    // deal with first row
+            for(int i = 0; i < lineSplit.length; i++)
+            {
+                matrix[0][i] = Integer.valueOf(lineSplit[i]);
+            }
+		    
+		    // deal with the rest rows
+            // refer to: https://stackoverflow.com/questions/36368470/reading-a-text-file-horizontally-and-vertically-in-java
+            int cnt = 1;
+		    while ((line = in.readLine()) != null) {
+		    	lineSplit = line.split(" ");
+		    	if (lineSplit[lineSplit.length - 1].equals("+")){
+			    	lineSplit[lineSplit.length - 1] = "2"; // passed test
+			    	totalPassedCnt ++;
+			    }else{
+			    	lineSplit[lineSplit.length - 1] = "-2";// failed test
+			    	totalFailedCnt ++;
+			    }
+                for(int i = 0; i < lineSplit.length; i++)
+                {
+                    matrix[cnt][i] = Integer.valueOf(lineSplit[i]);
+                }
+                cnt++;
+		    }   
+		} catch (final IOException e) {
+            e.printStackTrace();
+        }
+		
+		// check equality
+		if (testSize != (totalPassedCnt + totalFailedCnt)){
+			String str = String.format("testsList.size(): %d, totalPassedCnt: %d, totalFailedCnt: %d. They are not consistent. EXIT now.\n", testSize, totalPassedCnt, totalFailedCnt);
+			FileUtil.writeToFile(str);
+			logger.error("matrix-test inconsistency size error: {}", str);
+			System.exit(0);
+		}
+		
+		List<SuspiciousLocation> slList = new ArrayList<>();
+		for (int i = 0; i < specSize + 1; i++){ // i_th column
+			SuspiciousLocation sl = slSpecList.get(i);
+			int executedPassedCount = 0;
+			int executedFailedCount = 0;
+			List<Integer> coveredTestIndexList = new ArrayList<>(); // save indexes of executed tests
+			
+			for (int j = 0; j < testSize; j++){ // j_th row. Test result
+				if(matrix[j][i] == 1){  // executed by j_th row test case
+					coveredTestIndexList.add(j);
+					if(matrix[j][specSize] == 2){ // passed
+						executedPassedCount ++;
+					}else{
+						executedFailedCount ++;
+					}
+				}
+			}
+			
+			slList.add(new SuspiciousLocation(sl.getClassName(), 
+					sl.getLineNo(), executedPassedCount, executedFailedCount,
+					totalPassedCnt, totalFailedCnt, coveredTestIndexList));
+		}
+		
+		return slList;
 	}
 }

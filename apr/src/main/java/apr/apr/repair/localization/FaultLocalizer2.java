@@ -192,6 +192,75 @@ public class FaultLocalizer2 {
 //		}
 	}
 	
+	/**
+	 * @Description parse the original matrix file
+	 * @author apr
+	 * @version Apr 2, 2020
+	 *
+	 */
+	public void logFL(){
+		// dir containing fl results files
+		String flResultDir = data_dir + "/sfl/txt";
+		
+		// get all tests
+		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
+		
+		// get all stmts from the spectra file
+		List<SuspiciousLocation> slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.csv");
+		
+		// parse matrix file
+		List<SuspiciousLocation> slList = FileUtil.parseMatrixFile(flResultDir + "/matrix.txt", slSpecList, testsList.size());
+
+		Collections.sort(slList, new Comparator<SuspiciousLocation>(){
+			@Override
+			public int compare(final SuspiciousLocation o1, final SuspiciousLocation o2){
+				return Double.compare(o2.getSuspValue(), o1.getSuspValue());
+			}
+		});
+		
+		// write to file.
+		String writePath = flResultDir + "/fl.txt";
+		FileUtil.writeToFile(writePath, "", false);
+		// write to file. (with details)
+		String detailFLPath = flResultDir + "/fl_details.txt";
+		FileUtil.writeToFile(detailFLPath, "", false);
+		for (SuspiciousLocation sl : slList){
+			String line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + "\n";
+			FileUtil.writeToFile(writePath, line);
+			
+			List<Integer> coveredTestIndexList = sl.getCoveredTestIndexList();
+			line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + " " + coveredTestIndexList.toString() + "\n";
+			FileUtil.writeToFile(detailFLPath, line);
+		}
+		
+		changeFL(slList);
+		
+//		for (int i = 0; i < matrixList.size(); i++){
+//			boolean testResult;
+//			if(matrixList.get(i).getRight().equals("+")){
+//				testResult = true;
+//			}else{
+//				testResult = false;
+//			}
+//			List<Integer> coveredStmtIndexList = matrixList.get(i).getLeft();
+//			
+//			TestResultImpl test = new TestResultImpl(TestCase.from(this.testsList.get(i)), testResult);
+//			
+//			for(int index : coveredStmtIndexList){
+//				SourceLocation sl = slList.get(index);
+//				
+//				if (!results.containsKey(sl)) {
+//					results.put(sl, new ArrayList<fr.inria.lille.localization.TestResult>());
+//				}
+//				results.get(sl).add(test);
+//			}
+//		}
+//		
+//		LinkedHashMap<SourceLocation, List<fr.inria.lille.localization.TestResult>> map = new LinkedHashMap<>();
+//		for (StatementSourceLocation ssl : sslList){
+//			map.put(ssl.getLocation(), results.get(ssl.getLocation()));
+//		}
+	}
 	
 	/** @Description  find buggy locs and move them into top positions
 	 * @author apr
@@ -213,7 +282,7 @@ public class FaultLocalizer2 {
 			if (index >= 0){
 				buggyLocIndex.add(index);
 //				repairLocs.add(se);
-				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is localized, its rank index is: %d .\n", sl.toString(), index));
+				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, suspList.get(index).getSuspValue()));
 			}else{
 				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is not localized.\n", sl.toString()));
 			}
