@@ -75,7 +75,11 @@ public class FaultLocalizer2 {
 		
 		logger.debug("cmd: {}", cmd);
 		
+		long startTime = System.currentTimeMillis();
+		
 		CmdUtil.runCmdNoOutput(cmd);
+		
+		FileUtil.writeToFile(String.format("fl (v1.7.3) (run gzoltar cmd) time cost: %s\n", FileUtil.countTime(startTime)));
 	}
 	
 	/**

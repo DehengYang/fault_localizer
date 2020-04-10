@@ -52,7 +52,7 @@ public class Main {
 		FileUtil.writeLinesToFile(testClassesPath, testClasses);
 		
 //		 fault localization v0.1.1
-//		faultLocalize(testClasses, srcClasses);
+		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
 		long startTime = System.currentTimeMillis();
@@ -268,11 +268,11 @@ public class Main {
 	        	FileUtil.flLogPath = toolOutputDir + "/fl_log.txt";
 	        	FileUtil.writeToFile(FileUtil.flLogPath, "", false);
 	        	
-	        	FileUtil.searchLogPath = toolOutputDir + "/search_log.txt";
-	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
+//	        	FileUtil.searchLogPath = toolOutputDir + "/search_log.txt";
+//	        	FileUtil.writeToFile(FileUtil.searchLogPath, "", false); // init
 	        	
-	        	FileUtil.changedFLPath = toolOutputDir + "/changedFL.txt";
-	        	FileUtil.writeToFile(FileUtil.changedFLPath, "", false); // init
+//	        	FileUtil.changedFLPath = toolOutputDir + "/changedFL.txt";
+//	        	FileUtil.writeToFile(FileUtil.changedFLPath, "", false); // init
 	        	
 	        	// save fl list for first fl. 
 	        	FileUtil.oriFLPath = toolOutputDir + "/oriFL.txt";
@@ -286,10 +286,10 @@ public class Main {
 	        	FileUtil.writeToFile(FileUtil.filteredFLPath, "", false); // init
 	        	FileUtil.writeToFile(FileUtil.filteredFlLogPath, "", false); 
 	        	
-	        	FileUtil.positiveTestsPath = toolOutputDir + "/allPosTests.txt";
-	        	FileUtil.filteredPositiveTestsPath = toolOutputDir + "/filteredPosTests.txt";
-	        	FileUtil.writeToFile(FileUtil.positiveTestsPath, "", false); // init
-	        	FileUtil.writeToFile(FileUtil.filteredPositiveTestsPath, "", false); // init
+//	        	FileUtil.positiveTestsPath = toolOutputDir + "/allPosTests.txt";
+//	        	FileUtil.filteredPositiveTestsPath = toolOutputDir + "/filteredPosTests.txt";
+//	        	FileUtil.writeToFile(FileUtil.positiveTestsPath, "", false); // init
+//	        	FileUtil.writeToFile(FileUtil.filteredPositiveTestsPath, "", false); // init
 	        }
 	        if(cli.hasOption("externalProjPath")){
 	        	FileUtil.externalProjPath = cli.getOptionValue("externalProjPath");
