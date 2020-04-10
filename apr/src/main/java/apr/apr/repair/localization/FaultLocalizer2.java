@@ -44,7 +44,13 @@ public class FaultLocalizer2 {
 		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL";
 //		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/FL"; // direcory
 		bug_dir = FileUtil.bugDir;
-		test_classpath = FileUtil.dependencies;
+		
+		//test_classpath = FileUtil.dependencies;
+		test_classpath = "";
+		for (String dep : FileUtil.depsList){
+			test_classpath += dep + ":";
+		}
+		
 		test_classes_dir = FileUtil.binTestDir;
 		src_classes_dir = FileUtil.binJavaDir;
 		src_classes_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
