@@ -193,8 +193,8 @@ public class Main {
         opt9.setRequired(true);
         Option opt10 = new Option("bugDir","bugDir",true,"e.g., /mnt/benchmarks/repairDir/Kali_Defects4J_Mockito_10/");
         opt10.setRequired(true);
-        Option opt11 = new Option("junitJar","junitJar",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/script/../benchmarks/defects4j/framework/projects/lib/junit-4.11.jar");
-        opt11.setRequired(true);
+//        Option opt11 = new Option("junitJar","junitJar",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/script/../benchmarks/defects4j/framework/projects/lib/junit-4.11.jar");
+//        opt11.setRequired(true);
 
         Options options = new Options();
         options.addOption(opt1);
@@ -207,7 +207,7 @@ public class Main {
         options.addOption(opt8);
         options.addOption(opt9);
         options.addOption(opt10);
-        options.addOption(opt11);
+//        options.addOption(opt11);
 
         CommandLine cli = null;
         CommandLineParser cliParser = new DefaultParser();
@@ -311,9 +311,9 @@ public class Main {
 	        if(cli.hasOption("bugDir")){
 	        	FileUtil.bugDir = cli.getOptionValue("bugDir");
 	        }
-	        if(cli.hasOption("junitJar")){
-	        	FileUtil.junitJar = cli.getOptionValue("junitJar");
-	        }
+//	        if(cli.hasOption("junitJar")){
+//	        	FileUtil.junitJar = cli.getOptionValue("junitJar");
+//	        }
         } catch (IOException e) {
 			e.printStackTrace();
 		}

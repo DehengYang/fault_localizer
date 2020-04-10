@@ -123,7 +123,7 @@ public class FaultLocalizer  {
 		// set classpath
 		gz.setClassPaths(FileUtil.depsList);
 		
-		FileUtil.writeLinesToFile("/mnt/benchmarks/buggylocs/Bears/Bears_openmrs-openmrs-module-webservices.rest_455565885-458312291/MY_APR/deps.txt", FileUtil.depsList, false);
+//		FileUtil.writeLinesToFile("/mnt/benchmarks/buggylocs/Bears/Bears_openmrs-openmrs-module-webservices.rest_455565885-458312291/MY_APR/deps.txt", FileUtil.depsList, false);
 		
 		gz.addTestPackageNotToExecute("junit.framework"); // prevent extra unrelated failed tests 
 		gz.addTestPackageNotToExecute("org.junit");
