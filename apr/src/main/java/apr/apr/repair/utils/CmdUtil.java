@@ -56,7 +56,9 @@ public class CmdUtil {
 
 			// fixed
 //			String stderr = IOUtils.toString(proc.getErrorStream(), Charset.defaultCharset());
+			
 			IOUtils.toString(proc.getInputStream(), Charset.defaultCharset());
+//			proc.getInputStream();  // this is not correct.
 			
 			// read error if exists
 //			if(!stderr.equals("")){

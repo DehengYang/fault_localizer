@@ -64,7 +64,10 @@ public class Main {
 		
 		// replicate all tests
 //		replicateTests(testClasses);
+		startTime = System.currentTimeMillis();
 		replicateTests(testClassesPath);
+		FileUtil.writeToFile(String.format("replicateTests time cost: %s\n", FileUtil.countTime(startTime)));
+		
 		System.exit(0);
 		
 		
@@ -191,8 +194,8 @@ public class Main {
         opt8.setRequired(true);
         Option opt9 = new Option("gzoltarDir","gzoltarDir",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/libs/gzoltar1.7.3/");
         opt9.setRequired(true);
-        Option opt10 = new Option("bugDir","bugDir",true,"e.g., /mnt/benchmarks/repairDir/Kali_Defects4J_Mockito_10/");
-        opt10.setRequired(true);
+//        Option opt10 = new Option("bugDir","bugDir",true,"e.g., /mnt/benchmarks/repairDir/Kali_Defects4J_Mockito_10/");
+//        opt10.setRequired(true);
 //        Option opt11 = new Option("junitJar","junitJar",true,"e.g., /mnt/recursive-repairthemall/RepairThemAll-Nopol/script/../benchmarks/defects4j/framework/projects/lib/junit-4.11.jar");
 //        opt11.setRequired(true);
 
@@ -206,7 +209,7 @@ public class Main {
         options.addOption(opt7);
         options.addOption(opt8);
         options.addOption(opt9);
-        options.addOption(opt10);
+//        options.addOption(opt10);
 //        options.addOption(opt11);
 
         CommandLine cli = null;
@@ -308,9 +311,9 @@ public class Main {
 	        if(cli.hasOption("gzoltarDir")){
 	        	FileUtil.gzoltarDir = new File(cli.getOptionValue("gzoltarDir")).getAbsolutePath();
 	        }
-	        if(cli.hasOption("bugDir")){
-	        	FileUtil.bugDir = cli.getOptionValue("bugDir");
-	        }
+//	        if(cli.hasOption("bugDir")){
+//	        	FileUtil.bugDir = cli.getOptionValue("bugDir");
+//	        }
 //	        if(cli.hasOption("junitJar")){
 //	        	FileUtil.junitJar = cli.getOptionValue("junitJar");
 //	        }

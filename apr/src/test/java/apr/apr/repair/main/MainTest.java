@@ -117,6 +117,10 @@ public class MainTest {
  -binTestDir /mnt/benchmarks/repairDir/Kali_Bugs.jar_Commons-Math_bfbb156d/target/test-classes 
  -dependences /home/apr/env/mavenDownload/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/home/apr/env/mavenDownload/junit/junit/4.10/junit-4.10.jar
 -buggylocDir /mnt/benchmarks/buggylocs/Bugs.jar/Bugs.jar_Commons-Math_bfbb156d
+
+randomly failed test: org.apache.commons.math3.random.ValueServerTest#testNextDigest,FAIL,49617971
+2 fails out of 1000 repeated runs.
+
 	 * 
 	 * 
 	 * 
