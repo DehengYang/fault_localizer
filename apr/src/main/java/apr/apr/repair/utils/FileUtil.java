@@ -257,17 +257,36 @@ public class FileUtil {
 	}
 	
 	public static List<String> readTestFile(String path){
+		return readTestFile(path, true);
+	}
+	
+	/**
+	 * @Description e.g., /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Mockito_23/MY_APR/FL/unit_tests.txt
+	 * or: /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Mockito_23/MY_APR/FL/sfl/txt/tests.csv
+	 * @author apr
+	 * @version Apr 10, 2020
+	 *
+	 * @param path
+	 * @param isCsv
+	 * @return
+	 */
+	public static List<String> readTestFile(String path, boolean isCsv){
 		List<String> testsList = new ArrayList<>();
+		int position = 1;
+		if (isCsv){
+			position = 0;
+		}
+		
 		try {
             final BufferedReader in = new BufferedReader(
                 new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
             String line;
             in.readLine(); // skip first row
             while ((line = in.readLine()) != null) {
-            	// e.g., JUNIT,org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization
-            	// now become: org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization,PASS,118975132,
+            	// (txt) e.g., JUNIT,org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization
+            	// (csv) now become: org.jfree.chart.entity.junit.LegendItemEntityTests#testSerialization,PASS,118975132,
             	if (line.length() == 0) logger.error("Empty line in %s", path);
-            	testsList.add(line.split(",")[0]); // add test
+            	testsList.add(line.split(",")[position]); // add test
             }
             in.close();
         } catch (final IOException e) {
@@ -363,9 +382,10 @@ public class FileUtil {
         return matrixList;
 	}
 	
-	public static List<SuspiciousLocation> parseMatrixFile(String path, List<SuspiciousLocation> slSpecList, int testSize){
+	public static List<SuspiciousLocation> parseMatrixFile(String path, List<SuspiciousLocation> slSpecList, List<String> testsList, List<String> failedMethods){
 		// init matrix
 		int specSize = slSpecList.size();
+		int testSize = testsList.size();
 	    int[][] matrix = new int[testSize][specSize + 1];
 	    String[] lineSplit = null;
 	    
@@ -383,6 +403,8 @@ public class FileUtil {
 		    }else{
 		    	lineSplit[lineSplit.length - 1] = "-2";// failed test
 		    	totalFailedCnt ++;
+		    	
+		    	failedMethods.add(testsList.get(0));
 		    }
 		    // check size 
 		    if (lineSplit.length != (specSize + 1)){
@@ -409,6 +431,8 @@ public class FileUtil {
 			    }else{
 			    	lineSplit[lineSplit.length - 1] = "-2";// failed test
 			    	totalFailedCnt ++;
+			    	
+			    	failedMethods.add(testsList.get(cnt));
 			    }
                 for(int i = 0; i < lineSplit.length; i++)
                 {
@@ -429,7 +453,8 @@ public class FileUtil {
 		}
 		
 		List<SuspiciousLocation> slList = new ArrayList<>();
-		for (int i = 0; i < specSize + 1; i++){ // i_th column
+		// bug fix for error "java.lang.IndexOutOfBoundsException: Index: 4182, Size: 4182" -> remove + 1
+		for (int i = 0; i < specSize; i++){ // i_th column
 			SuspiciousLocation sl = slSpecList.get(i);
 			int executedPassedCount = 0;
 			int executedFailedCount = 0;
