@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -37,6 +36,10 @@ public class FaultLocalizer2 {
 	private String all_tests_file;
 	private String junit_jar;
 	
+	private String unitTestsPath = null;
+	
+	private List<String> failedMethods = new ArrayList<>();;
+	
 	// test:
 	// 1) other benchmark bugs
 	
@@ -58,6 +61,26 @@ public class FaultLocalizer2 {
 //		junit_jar = FileUtil.junitJar;
 	}
 	
+	public FaultLocalizer2(String unitTestsPath){
+		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/secondFL";
+//		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/FL"; // direcory
+//		bug_dir = FileUtil.bugDir;
+		
+		//test_classpath = FileUtil.dependencies;
+		test_classpath = "";
+		for (String dep : FileUtil.depsList){
+			test_classpath += dep + ":";
+		}
+		
+		test_classes_dir = FileUtil.binTestDir;
+		src_classes_dir = FileUtil.binJavaDir;
+		src_classes_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
+		all_tests_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
+		
+		this.unitTestsPath = unitTestsPath;
+//		junit_jar = FileUtil.junitJar;
+	}
+	
 	/**
 	 * @Description get fl results 
 	 * @author apr
@@ -76,6 +99,11 @@ public class FaultLocalizer2 {
 		String cmd = FileUtil.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + test_classpath + " " + test_classes_dir + " "
 				+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + " >/dev/null 2>&1";
 		
+		if (unitTestsPath != null && new File(unitTestsPath).exists()){
+			cmd = FileUtil.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + test_classpath + " " + test_classes_dir + " "
+					+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + unitTestsPath + " >/dev/null 2>&1";
+		}
+		
 		logger.debug("cmd: {}", cmd);
 		
 		long startTime = System.currentTimeMillis();
@@ -83,6 +111,25 @@ public class FaultLocalizer2 {
 		CmdUtil.runCmdNoOutput(cmd);
 		
 		FileUtil.writeToFile(String.format("fl (v1.7.3) (run gzoltar cmd) time cost: %s\n", FileUtil.countTime(startTime)));
+	}
+	
+	/**
+	 * @Description copy from  logFL(boolean simplify). This is mainly to run FileUtil.readMatrixFile to get some info.
+	 * @author apr
+	 * @version Apr 10, 2020
+	 *
+	 */
+	public void getCoveredStmtsInfo(){
+		String flResultDir = data_dir + "/sfl/txt";
+		List<SuspiciousLocation> slSpecList;
+		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
+		List<Pair<List<Integer>, String>> matrixList;
+		
+		// simplify
+		String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", FileUtil.gzoltarDir, data_dir, data_dir);
+		CmdUtil.runCmd(cmdSimplify);
+		slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.faulty.csv");
+		matrixList = FileUtil.readMatrixFile(flResultDir + "/filtered_matrix.txt", slSpecList.size(), testsList);
 	}
 	
 	/**
@@ -97,20 +144,22 @@ public class FaultLocalizer2 {
 		List<SuspiciousLocation> slSpecList;
 		List<Pair<List<Integer>, String>> matrixList;
 		
+		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
+		
 		// simplify
 		if (simplify){
 			String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", FileUtil.gzoltarDir, data_dir, data_dir);
 			String output = CmdUtil.runCmd(cmdSimplify);
 			slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.faulty.csv");
-			matrixList = FileUtil.readMatrixFile(flResultDir + "/filtered_matrix.txt", slSpecList.size());
+			matrixList = FileUtil.readMatrixFile(flResultDir + "/filtered_matrix.txt", slSpecList.size(), testsList);
 		}else{
 			// read spectra
 			slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.csv");
-			matrixList = FileUtil.readMatrixFile(flResultDir + "/matrix.txt", slSpecList.size());
+			matrixList = FileUtil.readMatrixFile(flResultDir + "/matrix.txt", slSpecList.size(), testsList);
 		}
 		
 //		List<String> testsList = FileUtil.readTestFile(data_dir + "/unit_tests.txt");
-		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
+//		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
 		
 		int totalPassedTests = FileUtil.totalPassedTests;
 		int totalFailedTests = FileUtil.totalFailedTests;
@@ -209,7 +258,7 @@ public class FaultLocalizer2 {
 		List<SuspiciousLocation> slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.csv");
 		
 		// parse matrix file
-		List<SuspiciousLocation> slList = FileUtil.parseMatrixFile(flResultDir + "/matrix.txt", slSpecList, testsList.size());
+		List<SuspiciousLocation> slList = FileUtil.parseMatrixFile(flResultDir + "/matrix.txt", slSpecList, testsList, this.failedMethods);
 
 		Collections.sort(slList, new Comparator<SuspiciousLocation>(){
 			@Override
@@ -234,32 +283,6 @@ public class FaultLocalizer2 {
 		}
 		
 		changeFL(slList);
-		
-//		for (int i = 0; i < matrixList.size(); i++){
-//			boolean testResult;
-//			if(matrixList.get(i).getRight().equals("+")){
-//				testResult = true;
-//			}else{
-//				testResult = false;
-//			}
-//			List<Integer> coveredStmtIndexList = matrixList.get(i).getLeft();
-//			
-//			TestResultImpl test = new TestResultImpl(TestCase.from(this.testsList.get(i)), testResult);
-//			
-//			for(int index : coveredStmtIndexList){
-//				SourceLocation sl = slList.get(index);
-//				
-//				if (!results.containsKey(sl)) {
-//					results.put(sl, new ArrayList<fr.inria.lille.localization.TestResult>());
-//				}
-//				results.get(sl).add(test);
-//			}
-//		}
-//		
-//		LinkedHashMap<SourceLocation, List<fr.inria.lille.localization.TestResult>> map = new LinkedHashMap<>();
-//		for (StatementSourceLocation ssl : sslList){
-//			map.put(ssl.getLocation(), results.get(ssl.getLocation()));
-//		}
 	}
 	
 	/** @Description  find buggy locs and move them into top positions
@@ -304,6 +327,14 @@ public class FaultLocalizer2 {
 			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
 		}
 		logger.debug("bp here");
+	}
+	
+	public List<String> getFailedMethods() {
+		return failedMethods;
+	}
+
+	public void setFailedMethods(List<String> failedMethods) {
+		this.failedMethods = failedMethods;
 	}
 
 	public String getData_dir() {
@@ -382,6 +413,14 @@ public class FaultLocalizer2 {
 
 	public void setJunit_jar(String junit_jar) {
 		this.junit_jar = junit_jar;
+	}
+
+	public String getUnitTestsPath() {
+		return unitTestsPath;
+	}
+
+	public void setUnitTestsPath(String unitTestsPath) {
+		this.unitTestsPath = unitTestsPath;
 	}
 	
 }

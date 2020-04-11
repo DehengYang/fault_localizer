@@ -322,7 +322,7 @@ public class FileUtil {
         return testsList;
 	}
 	
-	public static List<Pair<List<Integer>, String>> readMatrixFile(String path, int specSize){
+	public static List<Pair<List<Integer>, String>> readMatrixFile(String path, int specSize, List<String> testsList){
 		List<Pair<List<Integer>, String>> matrixList = new ArrayList<>();
 		try {
             final BufferedReader in = new BufferedReader(
@@ -348,14 +348,6 @@ public class FileUtil {
 //            		logger.error("Unknown testResult: %s", testResult);
 //            	}
             	
-            	if (testResult.equals("+")){
-            		totalPassedTests += 1;
-            	}else if(testResult.equals("-")){
-            		totalFailedTests += 1;
-            	}else{
-            		logger.error(String.format("Unknown testResult: %s", testResult));
-            	}
-            	
 //            	List<String coverageList = Arrays.asList(line.substring(0, line.length() - 1).trim().split(" "));
 //            	String coverage = line.substring(0, line.length() - 1).replace(" ", "");
             	List<Integer> coveredStmtIndexList = new ArrayList<>();
@@ -369,11 +361,22 @@ public class FileUtil {
             		unrelatedTestCnt ++;
             	}
             	
+            	if (testResult.equals("+")){
+            		totalPassedTests += 1;
+            	}else if(testResult.equals("-")){
+            		totalFailedTests += 1;
+            		FileUtil.writeToFile(String.format("[Matrix Simplification] failed method: %s\n", testsList.get(cnt)));
+            		FileUtil.writeToFile(String.format("[Matrix Simplification] Indexes of stmts covered by failed method: %s\n", coveredStmtIndexList.toString()));
+            	}else{
+            		logger.error(String.format("Unknown testResult: %s", testResult));
+            	}
+            	
             	cnt ++;
             	matrixList.add(new Pair<>(coveredStmtIndexList, testResult)); // add test
             }
-            logger.info(String.format("The unrelated test cases: %d", unrelatedTestCnt));
-            logger.info(String.format("The total test cases: %d", cnt));
+            logger.info(String.format("[Matrix Simplification] The unrelated test cases: %d\n", unrelatedTestCnt));
+            logger.info(String.format("[Matrix Simplification] The total test cases: %d\n", cnt));
+            logger.info(String.format("[Matrix Simplification] The total stmts: %d\n", specSize));
             
             in.close();
         } catch (final IOException e) {

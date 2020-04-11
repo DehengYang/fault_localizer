@@ -1,6 +1,5 @@
 package apr.apr.repair.localization;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -8,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -19,8 +17,6 @@ import com.gzoltar.core.components.Component;
 import com.gzoltar.core.components.Statement;
 import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
-
-import apr.apr.repair.utils.ClassFinder;
 import apr.apr.repair.utils.FileUtil;
 
 public class FaultLocalizer  {
@@ -30,7 +26,7 @@ public class FaultLocalizer  {
 	private int totalPassed = 0;
 	private int totalFailed = 0;
 	
-	private List<String> failedTestsMethods = new ArrayList<>();
+	private List<String> failedMethods = new ArrayList<>();
 	
 	private List<SuspiciousLocation> suspList = new ArrayList<>();
 	
@@ -52,12 +48,12 @@ public class FaultLocalizer  {
 		localize(null);
 	}
 	
-	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, List<String> extraFailedTests) {
+	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, HashSet<String> extraFailedMethods) {
 		this.savePath = savePath;
 		this.logPath = logPath;
 		this.testClasses.addAll(testClasses);
 		this.srcClasses.addAll(srcClasses);
-		localize(extraFailedTests);
+		localize(extraFailedMethods);
 	}
 	
 //	public FaultLocalizer(List<String> oriFailedTests, List<String> extraFailedTests) {
@@ -82,35 +78,35 @@ public class FaultLocalizer  {
 		return suspList;
 	}
 	
-	public Set<String> getExtraFailedTests(List<String> oriFailedTests){
-		Set<String> extraFailedTests = new HashSet<>();
-		
-		Set<String> failedTests = new HashSet<>();
-		for(String method : failedTestsMethods){
-			String testName = method.split("#")[0];
-			failedTests.add(testName);
-			logger.info("fl failed test method: {}", testName);
-		}
-		logger.info("fl failed test methods size: {}, fl failed test size: {}", failedTestsMethods.size(), failedTests.size());
-		
-		for(String test : failedTests){
-			if (! oriFailedTests.contains(test)){
-				extraFailedTests.add(test);
-				logger.info("extra failed test: {}", test);
-			}
-		}
-		
-		for(String test : oriFailedTests){
-//			logger.info();
-			if (! failedTests.contains(test)){
-				logger.warn("original failed test ({}) does not fail!", test);
-			}
-		}
-		
-		return extraFailedTests;
-	}
+//	public Set<String> getExtraFailedTests(List<String> oriFailedTests){
+//		Set<String> extraFailedTests = new HashSet<>();
+//		
+//		Set<String> failedTests = new HashSet<>();
+//		for(String method : failedMethods){
+//			String testName = method.split("#")[0];
+//			failedTests.add(testName);
+//			logger.info("fl failed test method: {}", testName);
+//		}
+//		logger.info("fl failed test methods size: {}, fl failed test size: {}", failedMethods.size(), failedTests.size());
+//		
+//		for(String test : failedTests){
+//			if (! oriFailedTests.contains(test)){
+//				extraFailedTests.add(test);
+//				logger.info("extra failed test: {}", test);
+//			}
+//		}
+//		
+//		for(String test : oriFailedTests){
+////			logger.info();
+//			if (! failedTests.contains(test)){
+//				logger.warn("original failed test ({}) does not fail!", test);
+//			}
+//		}
+//		
+//		return extraFailedTests;
+//	}
 	
-	public void localize(List<String> extraFailedTests){
+	public void localize(HashSet<String> extraFailedMethods){
 		logger.info("FL starts.");
 		
 		GZoltar gz = null;
@@ -144,15 +140,19 @@ public class FaultLocalizer  {
 //					gz.addTestNotToExecute(test);
 //				}
 //			}
-			if (extraFailedTests != null && extraFailedTests.contains(testClass)){
-				continue; 
-			}
+//			if (extraFailedTests != null && extraFailedTests.contains(testClass)){
+//				continue; 
+//			}
 			
 			if (testClass.contains("junit.framework")){
 				continue;
 			}
 			
 			gz.addTestToExecute(testClass);
+		}
+		
+		for(String extraFailedMethod : extraFailedMethods){
+			gz.addTestNotToExecute(extraFailedMethod);
 		}
 		
 		gz.addPackageNotToInstrument("org.junit");
@@ -187,12 +187,12 @@ public class FaultLocalizer  {
 					String firstLine = fullTrace.split("\n")[0];
 					if (firstLine.startsWith("junit.framework.AssertionFailedError: Class ")){
 						String failedClass = firstLine.substring("junit.framework.AssertionFailedError: Class ".length()).split(" ")[0];
-						failedTestsMethods.add(failedClass);
+						failedMethods.add(failedClass);
 					}else{
-						failedTestsMethods.add(tr.getName());
+						failedMethods.add(tr.getName());
 					}
 				}else{
-					failedTestsMethods.add(tr.getName());
+					failedMethods.add(tr.getName());
 				}
 				
 				if (fullTrace.length() > 150){
@@ -280,7 +280,7 @@ public class FaultLocalizer  {
 			if (index >= 0){
 				buggyLocIndex.add(index);
 //				repairLocs.add(se);
-				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is localized, its rank index is: %d .\n", sl.toString(), index));
+				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, sl.getSuspValue()));
 			}else{
 				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is not localized.\n", sl.toString()));
 			}
@@ -310,5 +310,13 @@ public class FaultLocalizer  {
 
 	public void setLogPath(String logPath) {
 		this.logPath = logPath;
+	}
+	
+	public List<String> getFailedMethods() {
+		return failedMethods;
+	}
+
+	public void setFailedMethods(List<String> failedMethods) {
+		this.failedMethods = failedMethods;
 	}
 }
