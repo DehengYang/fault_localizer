@@ -174,7 +174,7 @@ public class FaultLocalizer  {
 		// get test result
 		List<TestResult> testResults = spectra.getTestResults();
 		logger.info("Total tests executed: {}, total componenets (stmts) obtained: {}", testResults.size(), spectra.getNumberOfComponents());
-		FileUtil.writeToFile(logPath, String.format("[localize] total tests executed: %s, total componenets (stmts) obtained: %s", testResults.size(), spectra.getNumberOfComponents()));
+		FileUtil.writeToFile(logPath, String.format("[localize] total tests executed: %s, total componenets (stmts) obtained: %s\n", testResults.size(), spectra.getNumberOfComponents()));
 				
 		for (TestResult tr : testResults){
 			if (tr.wasSuccessful()){
@@ -198,15 +198,15 @@ public class FaultLocalizer  {
 					failedMethods.add(tr.getName());
 				}
 				
-				if (fullTrace.length() > 150){
-					fullTrace = fullTrace.substring(0, 150);
-				}
-				logger.info("Failed test: {}. \nTrace: \n{}", tr.getName(), fullTrace);
-				FileUtil.writeToFile(logPath, String.format("[localize] Failed test: %s\nTrace:\n%s", tr.getName(), fullTrace));
+//				if (fullTrace.length() > 150){
+//					fullTrace = fullTrace.substring(0, 150);
+//				}
+//				logger.info("Failed test: {}. \nTrace: \n{}", tr.getName(), fullTrace);
+//				FileUtil.writeToFile(logPath, String.format("[localize] Failed test: %s\nTrace:\n%s\n", tr.getName(), fullTrace));
 			}
 		}
 		
-		FileUtil.writeToFile(logPath, String.format("Total passed tests: %d , total failed tests: %d\n", totalPassed, totalFailed)); //apr. record
+		FileUtil.writeToFile(logPath, String.format("[localize] Total passed tests: %d , total failed tests: %d\n", totalPassed, totalFailed)); //apr. record
 		
 		// for each component (suspicious stmt)
 		for(Component component : spectra.getComponents()){
@@ -254,9 +254,15 @@ public class FaultLocalizer  {
 			}
 		});
 		
+		int posCnt = 0;
 		for (SuspiciousLocation sl : suspList){
 			FileUtil.writeToFile(savePath, sl.toString() + "\n");
+			
+			if(sl.getSuspValue() > 0){
+				posCnt ++;
+			}
 		}
+		FileUtil.writeToFile(logPath, String.format("[localize] total suspList size: %d, total positive suspList size: %d\n", suspList.size(), posCnt)); //apr. record
 		
 		changeFL(suspList);
 		

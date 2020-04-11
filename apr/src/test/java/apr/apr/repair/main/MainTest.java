@@ -147,6 +147,16 @@ Jackrabbit-Oak-2426deae
 	 * 4) QuixBugs: TO_BASE
 	 * 
 	 * I plan to run the five bugs in RepairThemAll APR.py. This is a good idea as I can directly watch the results and judge if the results are as expected.
+	 * 
+	 * Math 12:
+	 * gzoltar 0.1.1
+	 * /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Math_12/MY_APR/oriFL.log
+	 * /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Math_12/MY_APR/fl_log.txt
+	 * 
+	 * gzoltar 1.7.3
+	 * /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Math_12/MY_APR/FL/fl_time.txt
+	 * /mnt/benchmarks/buggylocs/Defects4J/Defects4J_Math_12/MY_APR/FL/fl.log
+	 * 
 	 */
 
 }
