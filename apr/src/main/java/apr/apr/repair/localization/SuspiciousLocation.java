@@ -127,6 +127,9 @@ public class SuspiciousLocation {
 	 * @return
 	 */
 	public double calculateSuspicious(){
+		if (execFailed+execPassed == 0 || totalFailed == 0){
+			return 0;
+		}
 		return execFailed/Math.sqrt((execFailed+execPassed)*totalFailed);
 	}
 	

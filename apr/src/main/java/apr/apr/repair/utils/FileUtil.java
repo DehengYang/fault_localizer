@@ -365,8 +365,8 @@ public class FileUtil {
             		totalPassedTests += 1;
             	}else if(testResult.equals("-")){
             		totalFailedTests += 1;
-            		FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] failed method: %s\n", testsList.get(cnt)));
-            		FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] Indexes of stmts covered by failed method: %s\n", coveredStmtIndexList.toString()));
+            		FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] failed method (index: %d): %s\n", cnt, testsList.get(cnt)));
+            		FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] Indexes of stmts covered by failed method (total number: %d): %s\n", coveredStmtIndexList.size(), coveredStmtIndexList.toString()));
             	}else{
             		logger.error(String.format("Unknown testResult: %s", testResult));
             	}
@@ -374,9 +374,9 @@ public class FileUtil {
             	cnt ++;
             	matrixList.add(new Pair<>(coveredStmtIndexList, testResult)); // add test
             }
-            logger.info(String.format("[readMatrixFile] [Matrix Simplification] the unrelated test cases: %d\n", unrelatedTestCnt));
-            logger.info(String.format("[readMatrixFile] [Matrix Simplification] the total test cases: %d\n", cnt));
-            logger.info(String.format("[readMatrixFile] [Matrix Simplification] the total stmts: %d\n", specSize));
+            FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] the unrelated test cases: %d\n", unrelatedTestCnt));
+            FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] the total test cases: %d\n", cnt));
+            FileUtil.writeToFile(String.format("[readMatrixFile] [Matrix Simplification] the total stmts: %d\n", specSize));
             
             in.close();
         } catch (final IOException e) {

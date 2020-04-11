@@ -284,7 +284,7 @@ public class FaultLocalizer2 {
 			FileUtil.writeToFile(writePath, line);
 			
 			List<Integer> coveredTestIndexList = sl.getCoveredTestIndexList();
-			line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + " " + coveredTestIndexList.toString() + "\n";
+			line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + " (" + coveredTestIndexList.size() + ")" + coveredTestIndexList.toString() + "\n";
 			FileUtil.writeToFile(detailFLPath, line);
 		}
 		
