@@ -172,13 +172,14 @@ public class FaultLocalizer  {
 		// get test result
 		List<TestResult> testResults = spectra.getTestResults();
 		logger.info("Total tests executed: {}, total componenets (stmts) obtained: {}", testResults.size(), spectra.getNumberOfComponents());
-		
+		FileUtil.writeToFile(logPath, String.format("[localize] total tests executed: %s, total componenets (stmts) obtained: %s", testResults.size(), spectra.getNumberOfComponents()));
+				
 		for (TestResult tr : testResults){
 			if (tr.wasSuccessful()){
 				totalPassed ++;
 			}else{
 				totalFailed ++;
-				FileUtil.writeToFile(logPath, String.format("Failed test: %s, trace: \n%s \n\n", tr.getName(), tr.getTrace()));
+				FileUtil.writeToFile(logPath, String.format("[localize] failed test: %s, trace: \n%s\n\n", tr.getName(), tr.getTrace()));
 				String fullTrace = tr.getTrace();
 				
 				
@@ -199,11 +200,11 @@ public class FaultLocalizer  {
 					fullTrace = fullTrace.substring(0, 150);
 				}
 				logger.info("Failed test: {}. \nTrace: \n{}", tr.getName(), fullTrace);
+				FileUtil.writeToFile(logPath, String.format("[localize] Failed test: %s\nTrace:\n%s", tr.getName(), fullTrace));
 			}
 		}
 		
-		FileUtil.writeToFile(logPath, String.format("Total passed tests: %d , total failed tests: %d\n", 
-				totalPassed, totalFailed)); //apr. record
+		FileUtil.writeToFile(logPath, String.format("Total passed tests: %d , total failed tests: %d\n", totalPassed, totalFailed)); //apr. record
 		
 		// for each component (suspicious stmt)
 		for(Component component : spectra.getComponents()){
@@ -280,9 +281,9 @@ public class FaultLocalizer  {
 			if (index >= 0){
 				buggyLocIndex.add(index);
 //				repairLocs.add(se);
-				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, sl.getSuspValue()));
+				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, sl.getSuspValue()));
 			}else{
-				FileUtil.writeToFile(logPath, String.format("Buggy location: %s is not localized.\n", sl.toString()));
+				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is not localized.\n", sl.toString()));
 			}
 		}
 		
@@ -301,7 +302,7 @@ public class FaultLocalizer  {
 		for (SuspiciousLocation sl : changedSuspList){
 			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
 		}
-		logger.debug("bp here");
+//		logger.debug("bp here");
 	}
 
 	public String getLogPath() {

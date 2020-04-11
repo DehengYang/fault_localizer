@@ -40,23 +40,28 @@ public class Main {
 	final static Logger logger = LoggerFactory.getLogger(Main.class);
 	
 	public static void main(String[] args){
+		long mainStartTime = System.currentTimeMillis();
+		
 		// get parameters
 		setParameters(args);
 		
-		// get src & test clasess
+		// get src & test clasess, and then save them to file
+		long startTime = System.currentTimeMillis();
 		ClassFinder cf = new ClassFinder();
 		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
 		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
-		// for debug
 		String testClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
-		FileUtil.writeLinesToFile(new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt", srcClasses);
+		String srcClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
+		FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
 		FileUtil.writeLinesToFile(testClassesPath, testClasses);
+		FileUtil.writeToFile(String.format("[Main] [time cost] of src and test classes collection: %s\n", FileUtil.countTime(startTime)));
 		
-//		 fault localization v0.1.1
+		// fault localization v0.1.1
 		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
 		faultLocalize2(testClasses, srcClasses);
+		// old version, not used now.
 //		long startTime = System.currentTimeMillis();
 //		FaultLocalizer2 fl = new FaultLocalizer2();
 ////		fl.localize();
@@ -66,11 +71,12 @@ public class Main {
 ////		System.exit(0);
 		
 		// replicate all tests
-//		replicateTests(testClasses);
-		long startTime = System.currentTimeMillis();
+//		replicateTests(testClasses); // old version, not used now
+		startTime = System.currentTimeMillis();
 		replicateTests(testClassesPath);
-		FileUtil.writeToFile(String.format("replicateTests time cost: %s\n", FileUtil.countTime(startTime)));
+		FileUtil.writeToFile(String.format("[Main] [time cost] of replicateTests: %s\n", FileUtil.countTime(startTime)));
 		
+		FileUtil.writeToFile(String.format("[Main] [time cost] of whole main(): %s\n", FileUtil.countTime(mainStartTime)));
 		System.exit(0);
 		
 		
@@ -146,7 +152,7 @@ public class Main {
 	}
 
 	/**
-	 * @Description for gzoltar 1.7.3. repeated runs if there exist extra failed methods 
+	 * @Description for gzoltar 1.7.3, conduct a second run if there exist extra failed methods 
 	 * @author apr
 	 * @version Apr 10, 2020
 	 *
@@ -157,24 +163,25 @@ public class Main {
 		// first fl run
 		long startTime = System.currentTimeMillis();
 		FaultLocalizer2 fl = new FaultLocalizer2();
-//		fl.localize();
-//		fl.logFL(true); // simplify
+		fl.localize();
+//		fl.logFL(true); // simplify [not used now]
 		fl.logFL(); // no simplification
+		fl.getCoveredStmtsInfo();
 		List<String> failedMethods = fl.getFailedMethods();
-		FileUtil.writeToFile(String.format("First fl (v1.7.3) time cost: %s\n", FileUtil.countTime(startTime)));
+		FileUtil.writeToFile(String.format("[faultLocalize2] [time cost] of first fl (v1.7.3): %s\n", FileUtil.countTime(startTime)));
 		
 		// get extra failed cases (copy from replicate, and then modify)
 		List<String> extraFailedMethods = new ArrayList<>();
 		for (String failedMethod : failedMethods){
 			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
 				extraFailedMethods.add(failedMethod);
-				FileUtil.writeToFile(String.format("First fl (v1.7.3) extra failed test method: %s\n", failedMethod));
+				FileUtil.writeToFile(String.format("[faultLocalize2] First fl (v1.7.3) extra failed test method: %s\n", failedMethod));
 			}
 		}
-		FileUtil.writeToFile(String.format("First fl (v1.7.3) extra failed test method count: %s\n", extraFailedMethods.size()));
+		FileUtil.writeToFile(String.format("[faultLocalize2] First fl (v1.7.3) extra failed test method count: %s\n", extraFailedMethods.size()));
 		// check if there is any expected failed test.
 		if (extraFailedMethods.size() == failedMethods.size()){
-			FileUtil.writeToFile("First fl (v1.7.3) no expected failed tests are found. Exit now.\n");
+			FileUtil.writeToFile("[faultLocalize2] First fl (v1.7.3) no expected failed tests are found. Exit now.\n");
 			System.exit(0);
 		}
 		
@@ -190,6 +197,12 @@ public class Main {
 		int oriUnitTestsSize = oriUnitTests.size();
 		oriUnitTests.removeAll(extraFailedMethods);
 		
+		// extra check if extraFailedMethods are contained in oriUnitTests
+		if(oriUnitTestsSize == oriUnitTests.size()){
+			FileUtil.writeToFile("[faultLocalize2] Second fl (v1.7.3) extraFailedMethods are not found in oriUnitTests. Exit now.\n");
+			System.exit(0);
+		}
+		
 		// write new unit_test file
 		FileUtil.writeToFile(newUnitTestsFile, "", false); //init
 		for (String unitTest : oriUnitTests){
@@ -197,26 +210,27 @@ public class Main {
 		}
 		
 		// new fl
+		startTime = System.currentTimeMillis();
 		FaultLocalizer2 secondFl = new FaultLocalizer2(newUnitTestsFile);
 		secondFl.localize();
 		secondFl.logFL(); // no simplification
+		secondFl.getCoveredStmtsInfo();
 		List<String> secondFailedMethods = fl.getFailedMethods();
 		List<String> secExtraFailedMethods = new ArrayList<>();
+		FileUtil.writeToFile(String.format("[faultLocalize2] [time cost] of second fl (v1.7.3): %s\n", FileUtil.countTime(startTime)));
 		
 		for (String failedMethod : secondFailedMethods){
 			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
 				secExtraFailedMethods.add(failedMethod);
-				FileUtil.writeToFile(String.format("Second fl (v1.7.3) extra failed test method: %s\n", failedMethod));
+				FileUtil.writeToFile(String.format("[faultLocalize2] Second fl (v1.7.3) extra failed test method: %s\n", failedMethod));
 			}
 		}
-		FileUtil.writeToFile(String.format("Second fl (v1.7.3) extra failed test method count: %s\n", secExtraFailedMethods.size()));
+		FileUtil.writeToFile(String.format("[faultLocalize2] second fl (v1.7.3) extra failed test method count: %s\n", secExtraFailedMethods.size()));
 		
 		if (secExtraFailedMethods.size() == secondFailedMethods.size()){
-			FileUtil.writeToFile("Second fl (v1.7.3) no expected failed tests are found. Exit now.\n");
+			FileUtil.writeToFile("[faultLocalize2] second fl (v1.7.3) no expected failed tests are found. Exit now.\n");
 			System.exit(0);
 		}
-		
-		
 	}
 	
 	/** @Description fault localization & re-fl if extra failed tests found
@@ -234,17 +248,17 @@ public class Main {
 		for (String failedMethod : failedMethods){
 			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
 				extraFailedMethods.add(failedMethod);
-				FileUtil.writeToFile(String.format("First fl (v0.1.1) extra failed test method: %s\n", failedMethod));
+				FileUtil.writeToFile(String.format("[faultLocalize] First fl (v0.1.1) extra failed test method: %s\n", failedMethod));
 			}
 		}
-		FileUtil.writeToFile(String.format("First fl (v0.1.1) extra failed test method count: %s\n", extraFailedMethods.size()));
+		FileUtil.writeToFile(String.format("[faultLocalize] First fl (v0.1.1) extra failed test method count: %s\n", extraFailedMethods.size()));
 		// check if there is any expected failed test.
 		if (extraFailedMethods.size() == failedMethods.size()){
-			FileUtil.writeToFile("First fl (v0.1.1) no expected failed tests are found. Exit now.\n");
+			FileUtil.writeToFile("[faultLocalize] First fl (v0.1.1) no expected failed tests are found. Exit now.\n");
 			System.exit(0);
 		}
 		
-		FileUtil.writeToFile(String.format("First fl (v0.1.1) time cost: %s\n", FileUtil.countTime(startTime)));
+		FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of first fl (v0.1.1): %s\n", FileUtil.countTime(startTime)));
 		
 		if (! extraFailedMethods.isEmpty()){
 			startTime = System.currentTimeMillis();
@@ -256,17 +270,17 @@ public class Main {
 			for (String failedMethod : secFailedMethods){
 				if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
 					secExtraFailedMethods.add(failedMethod);
-					FileUtil.writeToFile(String.format("Second fl (v0.1.1) extra failed test method: %s\n", failedMethod));
+					FileUtil.writeToFile(String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method: %s\n", failedMethod));
 				}
 			}
-			FileUtil.writeToFile(String.format("Second fl (v0.1.1) extra failed test method count: %s\n", secExtraFailedMethods.size()));
+			FileUtil.writeToFile(String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method count: %s\n", secExtraFailedMethods.size()));
 			// check if there is any expected failed test.
 			if (secExtraFailedMethods.size() == secFailedMethods.size()){
-				FileUtil.writeToFile("Second fl (v0.1.1) no expected failed tests are found. Exit now.\n");
+				FileUtil.writeToFile("[faultLocalize] Second fl (v0.1.1) no expected failed tests are found. Exit now.\n");
 				System.exit(0);
 			}
 			
-			FileUtil.writeToFile(String.format("Second fl (v0.1.1) time cost: %s\n", FileUtil.countTime(startTime)));
+			FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of second fl (v0.1.1): %s\n", FileUtil.countTime(startTime)));
 		}
 	}
 
@@ -522,7 +536,7 @@ public class Main {
 		FileUtil.writeToFile(String.format("fakeCnt: %s\n", fakeCnt));
 		// check if there is any expected failed test.
 		if (fakeCnt == failedMethodsAfterTest.size()){
-			FileUtil.writeToFile("expected failed tests are not found. Exit now.\n");
+			FileUtil.writeToFile("[replicateTests] expected failed tests are not found. Exit now.\n");
 			System.exit(0);
 		}
 	}

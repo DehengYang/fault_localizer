@@ -110,7 +110,7 @@ public class FaultLocalizer2 {
 		
 		CmdUtil.runCmdNoOutput(cmd);
 		
-		FileUtil.writeToFile(String.format("fl (v1.7.3) (run gzoltar cmd) time cost: %s\n", FileUtil.countTime(startTime)));
+		FileUtil.writeToFile(data_dir + "/fl.log", String.format("[localize] time cost of running gzoltar v1.7.3 shell script: %s\n", FileUtil.countTime(startTime)));
 	}
 	
 	/**
@@ -120,6 +120,8 @@ public class FaultLocalizer2 {
 	 *
 	 */
 	public void getCoveredStmtsInfo(){
+		long startTime = System.currentTimeMillis();
+		
 		String flResultDir = data_dir + "/sfl/txt";
 		List<SuspiciousLocation> slSpecList;
 		List<String> testsList = FileUtil.readTestFile(flResultDir + "/tests.csv");
@@ -130,6 +132,8 @@ public class FaultLocalizer2 {
 		CmdUtil.runCmd(cmdSimplify);
 		slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.faulty.csv");
 		matrixList = FileUtil.readMatrixFile(flResultDir + "/filtered_matrix.txt", slSpecList.size(), testsList);
+		
+		FileUtil.writeToFile(data_dir + "/fl.log", String.format("[getCoveredStmtsInfo] time cost of getCoveredStmtsInfo (simplify & collect test info): %s\n", FileUtil.countTime(startTime)));
 	}
 	
 	/**
@@ -248,6 +252,8 @@ public class FaultLocalizer2 {
 	 *
 	 */
 	public void logFL(){
+		long startTime = System.currentTimeMillis();
+		
 		// dir containing fl results files
 		String flResultDir = data_dir + "/sfl/txt";
 		
@@ -283,6 +289,8 @@ public class FaultLocalizer2 {
 		}
 		
 		changeFL(slList);
+		
+		FileUtil.writeToFile(String.format("[logFL] time cost of parsing gzoltar result files, calculating suspValues, and changing fl: %s\n", FileUtil.countTime(startTime)));
 	}
 	
 	/** @Description  find buggy locs and move them into top positions
@@ -305,9 +313,9 @@ public class FaultLocalizer2 {
 			if (index >= 0){
 				buggyLocIndex.add(index);
 //				repairLocs.add(se);
-				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, suspList.get(index).getSuspValue()));
+				FileUtil.writeToFile(data_dir + "/fl.log", String.format("[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, suspList.get(index).getSuspValue()));
 			}else{
-				FileUtil.writeToFile(data_dir + "/fl.log", String.format("Buggy location: %s is not localized.\n", sl.toString()));
+				FileUtil.writeToFile(data_dir + "/fl.log", String.format("[changeFL] buggy location: %s is not localized.\n", sl.toString()));
 			}
 		}
 		
@@ -326,7 +334,7 @@ public class FaultLocalizer2 {
 		for (SuspiciousLocation sl : changedSuspList){
 			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
 		}
-		logger.debug("bp here");
+//		logger.debug("bp here");
 	}
 	
 	public List<String> getFailedMethods() {
