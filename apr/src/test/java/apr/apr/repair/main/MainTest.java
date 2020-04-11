@@ -134,4 +134,19 @@ randomly failed test: org.apache.commons.math3.random.ValueServerTest#testNextDi
 	 * 
 	 * 
 	 */
+
+	// 2020, Apr 11
+	/* Now I have almost finished the code of FL and tests replication module. In this process, there are so many errors and challenges, but fortunately
+	 * I finally overcame them.
+	 * Now start final tests before experimental execution.
+	 * 
+	 * 1) Defects4J: Math-12
+	 * 2) Bugs.jar: Camel-597883fa
+Jackrabbit-Oak-2426deae
+	 * 3) Bears: webfirmframework-wff-453188520-453188718
+	 * 4) QuixBugs: TO_BASE
+	 * 
+	 * I plan to run the five bugs in RepairThemAll APR.py. This is a good idea as I can directly watch the results and judge if the results are as expected.
+	 */
+
 }

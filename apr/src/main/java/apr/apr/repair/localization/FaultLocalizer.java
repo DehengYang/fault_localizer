@@ -151,8 +151,10 @@ public class FaultLocalizer  {
 			gz.addTestToExecute(testClass);
 		}
 		
-		for(String extraFailedMethod : extraFailedMethods){
-			gz.addTestNotToExecute(extraFailedMethod);
+		if (extraFailedMethods != null){
+			for(String extraFailedMethod : extraFailedMethods){
+				gz.addTestNotToExecute(extraFailedMethod);
+			}
 		}
 		
 		gz.addPackageNotToInstrument("org.junit");
