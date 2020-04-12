@@ -57,7 +57,7 @@ public class Main {
 		FileUtil.writeToFile(String.format("[Main] [time cost] of src and test classes collection: %s\n", FileUtil.countTime(startTime)));
 		
 		// fault localization v0.1.1
-//		faultLocalize(testClasses, srcClasses);
+		faultLocalize(testClasses, srcClasses);
 		
 		// fl v1.7.3
 		faultLocalize2(testClasses, srcClasses);
@@ -163,7 +163,7 @@ public class Main {
 		// first fl run
 		long startTime = System.currentTimeMillis();
 		FaultLocalizer2 fl = new FaultLocalizer2();
-//		fl.localize();
+		fl.localize();
 //		fl.logFL(true); // simplify [not used now]
 		fl.logFL(); // no simplification
 		fl.getCoveredStmtsInfo();
