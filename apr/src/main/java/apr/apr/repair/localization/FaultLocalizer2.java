@@ -212,7 +212,7 @@ public class FaultLocalizer2 {
 		for (SuspiciousLocation sl : slList){
 			// debug
 //			String line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + String.format(" %d %", args)"\n";
-			String line = sl.getClassName() + ":" + sl.getLineNo() + ";" + sl.getSuspValue() + "\n";
+			String line = sl.getClassName() + ":" + sl.getLineNo() + "," + sl.getSuspValue() + "\n";
 			FileUtil.writeToFile(writePath, line);
 		}
 		
