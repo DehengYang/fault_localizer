@@ -76,8 +76,8 @@ public class ClassFinderTest {
 		
 		// test getJavaClasses
 		String javaSrcDir = "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/";
-		Set<String> javaClasses1 = cf.getJavaClasses(javaSrcDir, "java");
-		Set<String> javaClasses2 = cf.getJavaClasses(srcDir); //"class"
+		Set<String> javaClasses1 = cf.getJavaClassesOldVersion(javaSrcDir, "java");
+		Set<String> javaClasses2 = cf.getJavaClassesOldVersion(srcDir); //"class"
 		
 //		System.out.println(javaClasses1.removeAll(javaClasses2));
 //		System.out.println();

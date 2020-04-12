@@ -33,9 +33,9 @@ public class ClassFinder {
 		return testMethods;
 	}
 	
-//	public Set<String> getJavaClasses(String path){
-//		return getJavaClasses(path, "class");
-//	}
+	public Set<String> getJavaClassesOldVersion(String path){
+		return getJavaClassesOldVersion(path, "class");
+	}
 	
 	/**
 	 * 
@@ -44,6 +44,7 @@ public class ClassFinder {
 	 * // I cannot exactly remember why I use "java" suffix as the filter rather than "class" just like testClasses.
 		// Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no coresponding folder.
 		// Therefore, I decide to use "class" filter to find all src classes.
+		// Just now I find there is a test in /home/apr/apr_tools/automated-program-repair/apr/src/test/java/apr/apr/repair/utils/ClassFinderTest.java, which may help us understand it better.
 	 * 
 	 * @author apr
 	 * @version Mar 17, 2020
@@ -52,26 +53,26 @@ public class ClassFinder {
 	 * @param filter
 	 * @return
 	 */
-//	public Set<String> getJavaClasses(String path, String filter){
-//		// refer to: https://www.geeksforgeeks.org/set-in-java/
-//		Set<String> classes = new HashSet<>();
-//		
-//		// get all files
-//		File directory = new File(path);
-//		// refer to: https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FileUtils.html#listFiles(java.io.File,%20java.lang.String[],%20boolean)
-//		Collection<File> files = FileUtils.listFiles(directory, new String[]{filter}, true);
-//		
-//		// get all classes
-//		for (File file : files){
-//			//refer to : https://stackoverflow.com/questions/204784/how-to-construct-a-relative-path-in-java-from-two-absolute-paths-or-urls
-//			String relativePath = directory.toURI().relativize(file.toURI()).getPath();
-//			String className = relativePath.replace("/", ".").substring(0, relativePath.length() - filter.length() - 1 ); // .class len = 6
-//			
-//			classes.add(className);
-//		}
-//		
-//		return classes;
-//	}
+	public Set<String> getJavaClassesOldVersion(String path, String filter){
+		// refer to: https://www.geeksforgeeks.org/set-in-java/
+		Set<String> classes = new HashSet<>();
+		
+		// get all files
+		File directory = new File(path);
+		// refer to: https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FileUtils.html#listFiles(java.io.File,%20java.lang.String[],%20boolean)
+		Collection<File> files = FileUtils.listFiles(directory, new String[]{filter}, true);
+		
+		// get all classes
+		for (File file : files){
+			//refer to : https://stackoverflow.com/questions/204784/how-to-construct-a-relative-path-in-java-from-two-absolute-paths-or-urls
+			String relativePath = directory.toURI().relativize(file.toURI()).getPath();
+			String className = relativePath.replace("/", ".").substring(0, relativePath.length() - filter.length() - 1 ); // .class len = 6
+			
+			classes.add(className);
+		}
+		
+		return classes;
+	}
 	
 	/**
 	 * @Description get all java src classes using "class" suffix filter. 

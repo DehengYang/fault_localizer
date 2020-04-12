@@ -49,16 +49,32 @@ public class Main {
 		long startTime = System.currentTimeMillis();
 		ClassFinder cf = new ClassFinder();
 		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
-		// I cannot exactly remember why I use "java" suffix as the filter rather than "class" just like testClasses.
-		// Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no coresponding folder.
-		// Therefore, I decide to use "class" filter to find all src classes.
-		//Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+		/* I cannot exactly remember why I use "java" suffix as the filter rather than "class" just like testClasses.
+		* Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no coresponding folder.
+		* Therefore, I decide to use "class" filter to find all src classes.
+		* 
+		* I now understand why. Refer to: /home/apr/apr_tools/automated-program-repair/apr/src/test/java/apr/apr/repair/utils/ClassFinderTest.java, which may help us understand it better.
+		* Closure 18 has src classes in test classes dir. 
+		* 
+		* Actually, I don't need to use "java" filter, as this is not my fault, this is the fault of Closure which compiles src classes into test classesDir.
+		* Therefore, there is no need for me to change code for these exceptional cases, which, I reckon, only accounts for a small percentage.
+		* 
+		* So, finally I decide to preserve the "java" filter method. But do not use it in the next fl.
+		* 
+		*/
+		
+		Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(FileUtil.srcJavaDir, "java");
+		
 		Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir, FileUtil.depsList);
 		String testClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
 		String srcClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
+		String srcClassesFromSrcDirPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClassesFromSrcDir.txt";
 		FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
+		FileUtil.writeLinesToFile(srcClassesFromSrcDirPath, srcClassesFromSrcDir);
 		FileUtil.writeLinesToFile(testClassesPath, testClasses);
 		FileUtil.writeToFile(String.format("[Main] [time cost] of src and test classes collection: %s\n", FileUtil.countTime(startTime)));
+		FileUtil.writeToFile(String.format("[Main] size. srcClassesFromSrcDir:%d, srcClasses:%d, testClasses:%d\n", 
+				srcClassesFromSrcDir.size(), srcClasses.size(), testClasses.size()));
 		
 		// fault localization v0.1.1
 		faultLocalize(testClasses, srcClasses);

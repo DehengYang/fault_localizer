@@ -106,6 +106,18 @@ public class FaultLocalizer  {
 //		return extraFailedTests;
 //	}
 	
+	/**
+	 * @Description this fl is different from that of nopol.
+	 * 1) this instruments the src classes found in the src classes dir, but nopol does not instruments junit test classes. This is a slight difference.
+	 * 2) this considers extra failed test methods.
+	 * 
+	 * Also, I learned from that: no software can avoid bugs. So we don't have to persue 100% perfect sometimes, especially in the experiments, which may cost huge time.
+	 * 
+	 * @author apr
+	 * @version Apr 12, 2020
+	 *
+	 * @param extraFailedMethods
+	 */
 	public void localize(HashSet<String> extraFailedMethods){
 		logger.info("FL starts.");
 		
