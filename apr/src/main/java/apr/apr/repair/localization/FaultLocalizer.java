@@ -301,7 +301,7 @@ public class FaultLocalizer  {
 			if (index >= 0){
 				buggyLocIndex.add(index);
 //				repairLocs.add(se);
-				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, sl.getSuspValue()));
+				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, suspList.get(index).getSuspValue()));
 			}else{
 				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is not localized.\n", sl.toString()));
 			}
