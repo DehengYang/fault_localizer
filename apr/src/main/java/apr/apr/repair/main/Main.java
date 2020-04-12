@@ -49,7 +49,11 @@ public class Main {
 		long startTime = System.currentTimeMillis();
 		ClassFinder cf = new ClassFinder();
 		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
-		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+		// I cannot exactly remember why I use "java" suffix as the filter rather than "class" just like testClasses.
+		// Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no coresponding folder.
+		// Therefore, I decide to use "class" filter to find all src classes.
+		//Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+		Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir, FileUtil.depsList);
 		String testClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
 		String srcClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
 		FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
