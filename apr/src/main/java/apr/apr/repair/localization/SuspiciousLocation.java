@@ -114,7 +114,12 @@ public class SuspiciousLocation {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
+        
+        // debugging
+//        String name1 = "spoon.reflect.visitor.chain.CtQueryImpl$CurrentStep";
+//        String name2 = "spoon.reflect.visitor.chain.CtQueryImpl:282";
+//        String name3 = getName(name1);
+//        System.out.println("");
         return getName(this.getClassName()).equals( getName(  ((SuspiciousLocation) o).getClassName()  ))  &&  
     		   this.getLineNo()     ==    ((SuspiciousLocation) o).getLineNo();
     }
@@ -131,7 +136,7 @@ spoon.support.compiler.jdt.JDTCommentBuilder$1:219,0.0 contains 1 $
      */
     public String getName(String fullClassName){
     	if(fullClassName.contains("$")){
-    		return fullClassName.split("$")[0];
+    		return fullClassName.split("\\$")[0];
     	}else{
     		return fullClassName;
     	}

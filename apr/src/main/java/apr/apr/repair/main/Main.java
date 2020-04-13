@@ -549,11 +549,11 @@ public class Main {
 			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
 				FileUtil.fakedPosTests.add(failedMethod);
 				fakeCnt ++;
-				FileUtil.writeToFile(String.format("fake pos test method: %s\n", failedMethod));
+				FileUtil.writeToFile(String.format("[replicateTests] fake pos test method: %s\n", failedMethod));
 			}
 		}
 		
-		FileUtil.writeToFile(String.format("fakeCnt: %s\n", fakeCnt));
+		FileUtil.writeToFile(String.format("[replicateTests] fakeCnt: %s\n", fakeCnt));
 		// check if there is any expected failed test.
 		if (fakeCnt == failedMethodsAfterTest.size()){
 			FileUtil.writeToFile("[replicateTests] expected failed tests are not found. Exit now.\n");
@@ -586,13 +586,13 @@ public class Main {
 			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
 				FileUtil.fakedPosTests.add(failedMethod);
 				fakeCnt ++;
-				FileUtil.writeToFile(String.format("fake pos test method: %s\n", failedMethod));
+				FileUtil.writeToFile(String.format("[replicateTests] fake pos test method: %s\n", failedMethod));
 			}
 		}
 		
-		FileUtil.writeToFile(String.format("fakeCnt: %s\n", fakeCnt));
+		FileUtil.writeToFile(String.format("[replicateTests] fakeCnt: %s\n", fakeCnt));
 		if (fakeCnt == failedMethodsAfterTest.size()){
-			FileUtil.writeToFile("expected failed tests are not found. Exit now.\n");
+			FileUtil.writeToFile("[replicateTests] expected failed tests are not found. Exit now.\n");
 			System.exit(0);
 		}
 		
