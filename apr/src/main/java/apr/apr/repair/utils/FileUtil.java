@@ -488,4 +488,39 @@ public class FileUtil {
 		
 		return slList;
 	}
+
+	/** @Description 
+	 * @author apr
+	 * @version Apr 13, 2020
+	 *
+	 * @param index
+	 * @param bugSuspValue
+	 * @param suspList
+	 * @return
+	 */
+	public static Pair<Integer, Integer> getTieRange(int index, double bugSuspValue,
+			List<SuspiciousLocation> suspList) {
+		int begin = -1;
+		int end = -1;
+		
+		// get begin index
+		for(int i = index; i >= 0; i--){
+			if (suspList.get(i).getSuspValue() == bugSuspValue){
+				begin = i;
+			}else{
+				break;
+			}
+		}
+		
+		// get end index
+		for(int i = index; i < suspList.size(); i++){
+			if (suspList.get(i).getSuspValue() == bugSuspValue){
+				end = i;
+			}else{
+				break;
+			}
+		}
+		
+		return new Pair<Integer, Integer>(begin, end);
+	}
 }

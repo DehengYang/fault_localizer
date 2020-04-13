@@ -18,6 +18,7 @@ import com.gzoltar.core.components.Statement;
 import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
 import apr.apr.repair.utils.FileUtil;
+import apr.apr.repair.utils.Pair;
 
 public class FaultLocalizer  {
 	private String workDir = System.getProperty("user.dir");
@@ -300,8 +301,15 @@ public class FaultLocalizer  {
 			int index = suspList.indexOf(sl);
 			if (index >= 0){
 				buggyLocIndex.add(index);
+				
+				double bugSuspValue = suspList.get(index).getSuspValue();
+				Pair <Integer, Integer> range =  FileUtil.getTieRange(index, bugSuspValue, suspList);
+				
 //				repairLocs.add(se);
-				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, suspList.get(index).getSuspValue()));
+				FileUtil.writeToFile(logPath, 
+						String.format(
+						"[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s, tie size:[%d, %d]\n", 
+						sl.toString(), index, bugSuspValue, range.getLeft(), range.getRight()));
 			}else{
 				FileUtil.writeToFile(logPath, String.format("[changeFL] buggy location: %s is not localized.\n", sl.toString()));
 			}

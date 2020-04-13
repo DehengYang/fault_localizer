@@ -312,8 +312,15 @@ public class FaultLocalizer2 {
 			int index = suspList.indexOf(sl);
 			if (index >= 0){
 				buggyLocIndex.add(index);
+				
+				double bugSuspValue = suspList.get(index).getSuspValue();
+				Pair <Integer, Integer> range =  FileUtil.getTieRange(index, bugSuspValue, suspList);
+				
 //				repairLocs.add(se);
-				FileUtil.writeToFile(data_dir + "/fl.log", String.format("[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s\n", sl.toString(), index, suspList.get(index).getSuspValue()));
+				FileUtil.writeToFile(data_dir + "/fl.log", 
+						String.format(
+						"[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s, tie size:[%d, %d]\n", 
+						sl.toString(), index, bugSuspValue, range.getLeft(), range.getRight()));
 			}else{
 				FileUtil.writeToFile(data_dir + "/fl.log", String.format("[changeFL] buggy location: %s is not localized.\n", sl.toString()));
 			}
