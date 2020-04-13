@@ -115,10 +115,28 @@ public class SuspiciousLocation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-       return this.getClassName().equals(((SuspiciousLocation) o).getClassName())  &&  
+        return getName(this.getClassName()).equals(((SuspiciousLocation) o).getClassName())  &&  
     		   this.getLineNo()     ==    ((SuspiciousLocation) o).getLineNo();
     }
 	
+    /**
+     * @Description this is to get rid of $ character.
+     * e.g., spoon.generating.CloneVisitorGenerator$2$1:421,0.0    contains two $
+spoon.support.compiler.jdt.JDTCommentBuilder$1:219,0.0 contains 1 $
+     * @author apr
+     * @version Apr 12, 2020
+     *
+     * @param fullClassName
+     * @return
+     */
+    public String getName(String fullClassName){
+    	if(fullClassName.contains("$")){
+    		return fullClassName.split("$")[0];
+    	}else{
+    		return fullClassName;
+    	}
+    }
+    
 	/**
 	 * @Description calculate suspiciousness using Ochiai formula 
 	 * @author apr

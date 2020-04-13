@@ -245,7 +245,12 @@ public class FileUtil {
             while ((line = in.readLine()) != null) {
             	// e.g., org.jfree.data.general$AbstractDataset#AbstractDataset():95
             	if (line.length() == 0) logger.error("Empty line in %s", path);
-            	SuspiciousLocation sl = new SuspiciousLocation(line.split(":")[0].split("#")[0].replace("$", "."), Integer.parseInt(line.split(":")[1]));
+            	
+            	// bug fix: some cases have more than one $:
+            	// spoon$Launcher$1#accept(java.io.File):676
+            	String[] tmps = line.split(":")[0].split("#")[0].split("$");
+            	String className = tmps[0] + "." + tmps[1];
+            	SuspiciousLocation sl = new SuspiciousLocation(className, Integer.parseInt(line.split(":")[1])); //line.split(":")[0].split("#")[0].replace("$", ".")
             	stmtList.add(sl); // add test
             }
             logger.info(String.format("The total suspicious statements: %d", stmtList.size()));
