@@ -115,7 +115,7 @@ public class SuspiciousLocation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        return getName(this.getClassName()).equals(((SuspiciousLocation) o).getClassName())  &&  
+        return getName(this.getClassName()).equals( getName(  ((SuspiciousLocation) o).getClassName()  ))  &&  
     		   this.getLineNo()     ==    ((SuspiciousLocation) o).getLineNo();
     }
 	
