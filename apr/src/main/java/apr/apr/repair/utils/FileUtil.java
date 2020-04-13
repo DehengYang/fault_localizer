@@ -248,8 +248,10 @@ public class FileUtil {
             	
             	// bug fix: some cases have more than one $:
             	// spoon$Launcher$1#accept(java.io.File):676
-            	String[] tmps = line.split(":")[0].split("#")[0].split("$");
-            	String className = tmps[0] + "." + tmps[1];
+            	// bug fix: Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 1 (about tmps[1])            	
+            	String[] tmps = line.split(":")[0].split("#")[0].split("\\$");
+	            String className = tmps[0] + "." + tmps[1];
+            	
             	SuspiciousLocation sl = new SuspiciousLocation(className, Integer.parseInt(line.split(":")[1])); //line.split(":")[0].split("#")[0].replace("$", ".")
             	stmtList.add(sl); // add test
             }

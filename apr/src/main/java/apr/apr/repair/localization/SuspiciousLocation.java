@@ -120,8 +120,16 @@ public class SuspiciousLocation {
 //        String name2 = "spoon.reflect.visitor.chain.CtQueryImpl:282";
 //        String name3 = getName(name1);
 //        System.out.println("");
-        return getName(this.getClassName()).equals( getName(  ((SuspiciousLocation) o).getClassName()  ))  &&  
-    		   this.getLineNo()     ==    ((SuspiciousLocation) o).getLineNo();
+        String classNameThis = getName(this.getClassName());
+        String classNameO = getName(  ((SuspiciousLocation) o).getClassName()  );
+        
+        //spoon.reflect.visitor.chain.CtQueryImpl$CurrentStep:282,0.07694837640638656
+//        if (((SuspiciousLocation) o).getClassName().equals("spoon.reflect.visitor.chain.CtQueryImpl$CurrentStep")){
+//        	System.out.println("");
+//        }
+        
+        return classNameThis.equals(classNameO)  &&  
+    		   this.getLineNo() == ((SuspiciousLocation) o).getLineNo();
     }
 	
     /**
