@@ -235,7 +235,7 @@ public class Main {
 		secondFl.localize();
 		secondFl.logFL(); // no simplification
 		secondFl.getCoveredStmtsInfo();
-		List<String> secondFailedMethods = fl.getFailedMethods();
+		List<String> secondFailedMethods = secondFl.getFailedMethods();
 		List<String> secExtraFailedMethods = new ArrayList<>();
 		FileUtil.writeToFile(String.format("[faultLocalize2] [time cost] of second fl (v1.7.3): %s\n", FileUtil.countTime(startTime)));
 		
