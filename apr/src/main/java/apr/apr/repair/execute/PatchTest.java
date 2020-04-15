@@ -99,7 +99,7 @@ public class PatchTest {
 		}
 		
 		// save path
-		cmd += " -savePath " + savePath;
+		cmd += " -savePath " + savePath + " >/dev/null 2>&1";
 		
 		// run cmd
 		System.out.println(cmd);

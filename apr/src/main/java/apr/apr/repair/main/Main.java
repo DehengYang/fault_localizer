@@ -538,10 +538,13 @@ public class Main {
 	private static void replicateTests(String testPath) {
 		// run all test methods
 		String savePath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/failedMethods_replicate.txt";
+		logger.info("replicateTests starts");
 		PatchTest pt = new PatchTest(testPath, false, savePath); // do not run test methods, just run tests. So false.
 		pt.runTests();
 //		List<String> failedMethodsAfterTest = pt.getFailedTestMethods();
 		List<String> failedMethodsAfterTest = FileUtil.readFile(savePath);
+		
+		logger.info("replicateTests ends");
 		
 		// check if there is extra tests
 		int fakeCnt = 0;
