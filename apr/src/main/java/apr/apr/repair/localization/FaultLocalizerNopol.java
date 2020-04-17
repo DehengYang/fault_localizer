@@ -1,6 +1,8 @@
 package apr.apr.repair.localization;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -20,9 +22,9 @@ import com.gzoltar.core.spectra.Spectra;
 import apr.apr.repair.utils.FileUtil;
 import apr.apr.repair.utils.Pair;
 
-public class FaultLocalizer  {
-	private String workDir = System.getProperty("user.dir");
-	final static Logger logger = LoggerFactory.getLogger(FaultLocalizer.class);
+public final class FaultLocalizerNopol extends GZoltar {
+	private static String workDir = System.getProperty("user.dir");
+	final static Logger logger = LoggerFactory.getLogger(FaultLocalizerNopol.class);
 	
 	private int totalPassed = 0;
 	private int totalFailed = 0;
@@ -36,12 +38,26 @@ public class FaultLocalizer  {
 	private String savePath;
 	private String logPath;
 	
-	public FaultLocalizer(){
-		
+	public static FaultLocalizerNopol createInstance(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses) {
+		try {
+			return new FaultLocalizerNopol(savePath, logPath, testClasses, srcClasses);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses) {
+	public static FaultLocalizerNopol createInstance(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, HashSet<String> extraFailedMethods) {
+		try {
+			return new FaultLocalizerNopol(savePath, logPath, testClasses, srcClasses, extraFailedMethods);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private FaultLocalizerNopol(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses) throws FileNotFoundException, IOException {
 //		this(null, null);
+		super(workDir);
+		
 		this.savePath = savePath;
 		this.logPath = logPath;
 		this.testClasses.addAll(testClasses);
@@ -49,7 +65,9 @@ public class FaultLocalizer  {
 		localize(null);
 	}
 	
-	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, HashSet<String> extraFailedMethods) {
+	private FaultLocalizerNopol(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, HashSet<String> extraFailedMethods) throws FileNotFoundException, IOException {
+		super(workDir);
+		
 		this.savePath = savePath;
 		this.logPath = logPath;
 		this.testClasses.addAll(testClasses);
@@ -122,68 +140,62 @@ public class FaultLocalizer  {
 	public void localize(HashSet<String> extraFailedMethods){
 		logger.info("FL starts.");
 		
-		GZoltar gz = null;
-		try {
-			gz = new GZoltar(workDir);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 		// set classpath
-		gz.setClassPaths(FileUtil.depsList);
+		this.setClassPaths(FileUtil.depsList);
 		
-//		FileUtil.writeLinesToFile("/mnt/benchmarks/buggylocs/Bears/Bears_openmrs-openmrs-module-webservices.rest_455565885-458312291/MY_APR/deps.txt", FileUtil.depsList, false);
-		
-		gz.addTestPackageNotToExecute("junit.framework"); // prevent extra unrelated failed tests 
-		gz.addTestPackageNotToExecute("org.junit");
-		gz.addTestPackageNotToExecute("org.easymock");
+		this.addPackageNotToInstrument("org.junit");
+		this.addPackageNotToInstrument("junit.framework");
+		this.addPackageNotToInstrument("org.easymock");
+		this.addTestPackageNotToExecute("junit.framework");
+		this.addTestPackageNotToExecute("org.junit");
+		this.addTestPackageNotToExecute("org.easymock");
 		
 		// seems does not work.
-		gz.addTestPackageNotToExecute("junit.framework.TestSuite$1#warning");
-		gz.addTestPackageNotToExecute("junit.framework.TestSuite$1");
-		gz.addTestPackageNotToExecute("junit.framework.TestSuite");
+		this.addTestPackageNotToExecute("junit.framework.TestSuite$1#warning");
+		this.addTestPackageNotToExecute("junit.framework.TestSuite$1");
+		this.addTestPackageNotToExecute("junit.framework.TestSuite");
+
 		// test classes to execute
-//		ClassFinder cf = new ClassFinder();
-//		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
-//		Set<String> testMethods = cf.getTestMethods();
-		for(String testClass : testClasses){
-			// filter extra failed tests
-//			if (extraFailedTests != null){
-//				for(String test : extraFailedTests){
-//					gz.addTestNotToExecute(test);
-//				}
-//			}
-//			if (extraFailedTests != null && extraFailedTests.contains(testClass)){
-//				continue; 
-//			}
-			
+		for(String testClass : testClasses){			
 			if (testClass.contains("junit.framework")){
 				continue;
 			}
 			
-			gz.addTestToExecute(testClass);
+			this.addTestToExecute(testClass);
+			this.addClassNotToInstrument(testClass);
 		}
 		
 		if (extraFailedMethods != null){
 			for(String extraFailedMethod : extraFailedMethods){
-				gz.addTestNotToExecute(extraFailedMethod);
+				this.addTestNotToExecute(extraFailedMethod);
 			}
 		}
 		
-		gz.addPackageNotToInstrument("org.junit");
-		gz.addPackageNotToInstrument("junit.framework");
-		gz.addPackageNotToInstrument("org.easymock");
-		// src classes to instrument
-//		Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir);
-//		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
 		for(String srcClass : srcClasses){
-			gz.addClassToInstrument(srcClass);
+			this.addClassToInstrument(srcClass);
 		}
 		
 		logger.debug("FL starts gz.run()");
-		gz.run();
+		final String systemClasspath = System.getProperty("java.class.path");
+
+		// remove classpath noise
+		String[] deps = systemClasspath.split(":");
+		StringBuilder cl = new StringBuilder();
+		for (int i = 0; i < deps.length; i++) {
+			String dep = deps[i];
+			if (dep.contains("jre") || dep.contains("gzoltar") || dep.contains("nopol")) {
+				cl.append(dep).append(":");
+			}
+		}
+		try {
+			System.setProperty("java.class.path", cl.toString());
+			setGzoltarDebug(false);
+			this.run();
+		} finally {
+			System.setProperty("java.class.path", systemClasspath);
+		}
 		logger.debug("FL ends gz.run()");
-		Spectra spectra = gz.getSpectra();
+		Spectra spectra = this.getSpectra();
 //		System.out.println(spectra.toString());
 	
 		// get test result
@@ -222,6 +234,7 @@ public class FaultLocalizer  {
 		}
 		
 		FileUtil.writeToFile(logPath, String.format("[localize] Total passed tests: %d , total failed tests: %d\n", totalPassed, totalFailed)); //apr. record
+		logger.info(String.format("[localize] Total passed tests: %d , total failed tests: %d\n", totalPassed, totalFailed));
 		
 		// for each component (suspicious stmt)
 		for(Component component : spectra.getComponents()){
@@ -282,6 +295,16 @@ public class FaultLocalizer  {
 		changeFL(suspList);
 		
 		logger.info("FL ends.");
+	}
+	
+	protected void setGzoltarDebug(boolean debugValue) {
+		try {
+			Field debug = com.gzoltar.core.agent.Launcher.class.getDeclaredField("debug");
+			debug.setAccessible(true);
+			debug.setBoolean(null, debugValue);
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/** @Description  find buggy locs and move them into top positions

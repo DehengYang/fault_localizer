@@ -24,6 +24,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import apr.apr.repair.execute.PatchTest;
 import apr.apr.repair.localization.FaultLocalizer;
 import apr.apr.repair.localization.FaultLocalizer2;
+import apr.apr.repair.localization.FaultLocalizerNopol;
 import apr.apr.repair.localization.SuspiciousLocation;
 import apr.apr.repair.parser.AttemptFileParser;
 import apr.apr.repair.parser.ClassNode;
@@ -77,7 +78,10 @@ public class Main {
 				srcClassesFromSrcDir.size(), srcClasses.size(), testClasses.size()));
 		
 		// fault localization v0.1.1
-		faultLocalize(testClasses, srcClasses);
+//		faultLocalize(testClasses, srcClasses);
+		
+		// fault localization v0.1.1 from nopol 
+		faultLocalizeNopol(testClasses, srcClasses);
 		
 		// fl v1.7.3
 		faultLocalize2(testClasses, srcClasses);
@@ -304,6 +308,60 @@ public class Main {
 		}
 	}
 
+	/**
+	 * @Description this is to support another gz implementation. This is mainly due to the fact that 
+	 * `/mnt/benchmarks/repairResults/Bugs.jar/Accumulo/df4b1985/APR/0/repair.log` hangs on at gz 0.1.1 
+	 * @author apr
+	 * @version Apr 15, 2020
+	 *
+	 * @param args
+	 */
+	private static void faultLocalizeNopol(Set<String> testClasses, Set<String> srcClasses) {
+		long startTime = System.currentTimeMillis();
+		
+		FaultLocalizerNopol fl = FaultLocalizerNopol.createInstance(FileUtil.oriFLPath, FileUtil.oriFlLogPath, testClasses, srcClasses);
+		List<String> failedMethods = fl.getFailedMethods();
+		
+		List<String> extraFailedMethods = new ArrayList<>();
+		for (String failedMethod : failedMethods){
+			if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
+				extraFailedMethods.add(failedMethod);
+				FileUtil.writeToFile(String.format("[faultLocalize] First fl (v0.1.1) extra failed test method: %s\n", failedMethod));
+			}
+		}
+		FileUtil.writeToFile(String.format("[faultLocalize] First fl (v0.1.1) extra failed test method count: %s\n", extraFailedMethods.size()));
+		// check if there is any expected failed test.
+		if (extraFailedMethods.size() == failedMethods.size()){
+			FileUtil.writeToFile("[faultLocalize] First fl (v0.1.1) no expected failed tests are found. Exit now.\n");
+			System.exit(0);
+		}
+		
+		FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of first fl (v0.1.1): %s\n", FileUtil.countTime(startTime)));
+		
+		if (! extraFailedMethods.isEmpty()){
+			startTime = System.currentTimeMillis();
+			
+//			logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
+			FaultLocalizerNopol flSecond = FaultLocalizerNopol.createInstance(FileUtil.filteredFLPath, FileUtil.filteredFlLogPath, testClasses, srcClasses, new HashSet<>(extraFailedMethods));			
+			List<String> secFailedMethods = flSecond.getFailedMethods();
+			List<String> secExtraFailedMethods = new ArrayList<>();
+			for (String failedMethod : secFailedMethods){
+				if( ! FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])){
+					secExtraFailedMethods.add(failedMethod);
+					FileUtil.writeToFile(String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method: %s\n", failedMethod));
+				}
+			}
+			FileUtil.writeToFile(String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method count: %s\n", secExtraFailedMethods.size()));
+			// check if there is any expected failed test.
+			if (secExtraFailedMethods.size() == secFailedMethods.size()){
+				FileUtil.writeToFile("[faultLocalize] Second fl (v0.1.1) no expected failed tests are found. Exit now.\n");
+				System.exit(0);
+			}
+			
+			FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of second fl (v0.1.1): %s\n", FileUtil.countTime(startTime)));
+		}
+	}
+	
 	/*
 	 * receive parameters
 	 */
@@ -379,6 +437,7 @@ public class Main {
 	        }
 	        if(cli.hasOption("dependences")){
 	        	FileUtil.dependencies = cli.getOptionValue("dependences");
+	        	logger.debug("current dir: {}", System.getProperty("user.dir"));
 	        	for(String dep : FileUtil.dependencies.split(":")){
 	        		if(! dep.isEmpty() && new File(dep).exists()){
 	        			
