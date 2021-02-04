@@ -50,7 +50,7 @@
 		    <version>1.7.25</version>
 		</dependency>
 			
-		<!-- embrace JavaParser, as I did not find enought document support from JDT.dom, and I find it much more difficult to parse (including getting variable) & modify than I thought -->
+		<!-- embrace JavaParser, as I did not find enough document support from JDT.dom, and I find it much more difficult to parse (including getting variable) & modify than I thought -->
 		<dependency>
 		    <groupId>com.github.javaparser</groupId>
 		    <artifactId>javaparser-symbol-solver-core</artifactId>
