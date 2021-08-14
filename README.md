@@ -20,3 +20,7 @@ Date:   Fri Apr 17 02:22:51 2020 -0700
 ## New version 
 
 I will further develop new version(s) based on the present version mentioned above.
+
+## Changelog
+
+2021-8-15 05:19:52 I have create a repo for this localizer branch exclusively. Other branches are deleted, and the fl branch is renamed to master now.
