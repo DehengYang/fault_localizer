@@ -1,7 +1,7 @@
 /**
  * 
  */
-package apr.apr.repair.localization;
+package apr.module.fl.localization;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import apr.apr.repair.utils.CmdUtil;
-import apr.apr.repair.utils.FileUtil;
-import apr.apr.repair.utils.Pair;
+import apr.module.fl.utils.CmdUtil;
+import apr.module.fl.utils.FileUtil;
+import apr.module.fl.utils.Pair;
 
 
 /**
@@ -24,7 +24,7 @@ import apr.apr.repair.utils.Pair;
  *
  */
 public class FaultLocalizer2 {
-	final static Logger logger = LoggerFactory.getLogger(FaultLocalizer2.class);
+	final static Logger logger = LogManager.getLogger(FaultLocalizer2.class);
 	
 	// parameters we need
 	private String data_dir; //to save fl results

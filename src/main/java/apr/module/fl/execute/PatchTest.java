@@ -1,12 +1,12 @@
-package apr.apr.repair.execute;
+package apr.module.fl.execute;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import apr.apr.repair.utils.CmdUtil;
-import apr.apr.repair.utils.FileUtil;
+import apr.module.fl.utils.CmdUtil;
+import apr.module.fl.utils.FileUtil;
 
 /*
  * to run tests of buggy program (invoking "PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar")

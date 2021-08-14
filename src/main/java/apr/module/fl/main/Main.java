@@ -1,4 +1,4 @@
-package apr.apr.repair.main;
+package apr.module.fl.main;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -15,30 +14,19 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.github.javaparser.ast.CompilationUnit;
-
-import apr.apr.repair.execute.PatchTest;
-import apr.apr.repair.localization.FaultLocalizer;
-import apr.apr.repair.localization.FaultLocalizer2;
-import apr.apr.repair.localization.FaultLocalizerNopol;
-import apr.apr.repair.localization.SuspiciousLocation;
-import apr.apr.repair.parser.AttemptFileParser;
-import apr.apr.repair.parser.ClassNode;
-import apr.apr.repair.parser.ClassVarParser;
-import apr.apr.repair.parser.CodeBlocks;
-import apr.apr.repair.parser.CodeFragment;
-import apr.apr.repair.parser.NodeFinder;
-import apr.apr.repair.utils.ClassFinder;
-import apr.apr.repair.utils.FileUtil;
-import apr.apr.repair.utils.NodeUtil;
+import apr.module.fl.execute.PatchTest;
+import apr.module.fl.localization.FaultLocalizer;
+import apr.module.fl.localization.FaultLocalizer2;
+import apr.module.fl.localization.FaultLocalizerNopol;
+import apr.module.fl.utils.ClassFinder;
+import apr.module.fl.utils.FileUtil;
 
 
 public class Main {
-	final static Logger logger = LoggerFactory.getLogger(Main.class);
+	final static Logger logger = LogManager.getLogger(Main.class);
 	
 	public static void main(String[] args){
 		long mainStartTime = System.currentTimeMillis();
@@ -54,7 +42,7 @@ public class Main {
 		* Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no coresponding folder.
 		* Therefore, I decide to use "class" filter to find all src classes.
 		* 
-		* I now understand why. Refer to: /home/apr/apr_tools/automated-program-repair/apr/src/test/java/apr/apr/repair/utils/ClassFinderTest.java, which may help us understand it better.
+		* I now understand why. Refer to: /home/apr/apr_tools/automated-program-repair/apr/src/test/java/apr.module.fl/utils/ClassFinderTest.java, which may help us understand it better.
 		* Closure 18 has src classes in test classes dir. 
 		* 
 		* Actually, I don't need to use "java" filter, as this is not my fault, this is the fault of Closure which compiles src classes into test classesDir.
@@ -107,73 +95,8 @@ public class Main {
 		// read fl results from file
 //		FaultLocalizer fl = new FaultLocalizer();
 //		List<SuspiciousLocation> suspList = fl.readFLResults(FileUtil.flPath);
-		
-		// parse java files into ast
-//		for(String srcClass : srcClasses){
-//			AttemptFileParser fp = new AttemptFileParser(srcClass, FileUtil.srcJavaDir);
-////			codeFinder.parse(srcClass, FileUtil.srcJavaDir, 88); //70, 215, 214, 64, 59, 60, 312, 382, 87
-//			// /mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/com/google/javascript/jscomp/CoalesceVariableNames.java
-//			break;
-//		}
-		
-		// get all vars defined in Classes
-		long startT = FileUtil.getTime();
-		ClassVarParser cvp =  new ClassVarParser(new ArrayList<>(srcClasses), FileUtil.srcJavaDir);
-		Map<String, ClassNode> classVarMap = cvp.getClassVarMap();
-		logger.debug("classVarMap collection time cost: {}", FileUtil.countTime(startT));
-//		cvp.printClassVarMap();
-		
-		// get all code blocks DataPackageResources_pl & ThermometerPlot
-		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
-			String className = entry.getKey();
-			logger.info("current class: {}", className);
-			startT = FileUtil.getTime();
-			ClassNode cn = entry.getValue();
-			
-//			cn = classVarMap.get("DialCap");
-			
-			CodeBlocks cbs = new CodeBlocks(cn.getCu());
-			
-			cn.setCbs(cbs);
-			
-			logger.debug("class for code block: {}, time cost: {}", className, FileUtil.countTime(startT));
-		}
-//		for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
-//			String className = entry.getKey();
-//			ClassNode cn = entry.getValue();
-//			logger.debug("a breakpoint");
-//		}
-		
-		// get/list all variables for the given file
-//		NodeFinder sf = new NodeFinder(78, "com.google.javascript.jscomp.CoalesceVariableNames", 
-//				"/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/", "/mnt/benchmarks/repairDir/Kali_Defects4J_Closure_18/src/"); 
-//		sf.getAllVariables(classVarMap);
-//		sf.printVars();
-		
-//		repairLocations(suspList, classVarMap);
 	}
 
-	/** @Description 
-	 * @author apr
-	 * @version Mar 22, 2020
-	 *
-	 * @param suspList
-	 */
-	private static void repairLocations(List<SuspiciousLocation> suspList, Map<String, ClassNode> classVarMap) {
-		for (SuspiciousLocation sl : suspList){
-			CodeFragment cf = new CodeFragment(sl.getLineNo(), sl.getClassName(), FileUtil.srcJavaDir);
-			
-			for (Map.Entry<String, ClassNode> entry : classVarMap.entrySet()){
-				String className = entry.getKey();
-				logger.info("current class: {}", className);
-//				startT = FileUtil.getTime();
-				ClassNode cn = entry.getValue();
-				
-				NodeUtil.getSimilarCode(cf, cn.getCbs());
-			}
-		}
-		
-	}
 
 	/**
 	 * @Description for gzoltar 1.7.3, conduct a second run if there exist extra failed methods 
@@ -401,8 +324,6 @@ public class Main {
         options.addOption(opt7);
         options.addOption(opt8);
         options.addOption(opt9);
-//        options.addOption(opt10);
-//        options.addOption(opt11);
 
         CommandLine cli = null;
         CommandLineParser cliParser = new DefaultParser();

@@ -1,10 +1,9 @@
-#for ast print
-ast.print
-ast.dot
+# build
+target/
 
-/target/
-
-#for log
+# log
 execution.log*
 
+# tmp files
 *~
+/bin/

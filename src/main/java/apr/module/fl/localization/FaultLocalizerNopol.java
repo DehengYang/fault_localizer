@@ -1,4 +1,4 @@
-package apr.apr.repair.localization;
+package apr.module.fl.localization;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,20 +11,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.gzoltar.core.GZoltar;
 import com.gzoltar.core.components.Component;
 import com.gzoltar.core.components.Statement;
 import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
-import apr.apr.repair.utils.FileUtil;
-import apr.apr.repair.utils.Pair;
+import apr.module.fl.utils.FileUtil;
+import apr.module.fl.utils.Pair;
 
 public final class FaultLocalizerNopol extends GZoltar {
 	private static String workDir = System.getProperty("user.dir");
-	final static Logger logger = LoggerFactory.getLogger(FaultLocalizerNopol.class);
+	final static Logger logger = LogManager.getLogger(FaultLocalizerNopol.class);
 	
 	private int totalPassed = 0;
 	private int totalFailed = 0;
