@@ -19,103 +19,104 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import apr.module.fl.global.Globals;
 import apr.module.fl.localization.SuspiciousLocation;
 
 public class FileUtil {
     final static Logger logger = LogManager.getLogger(FileUtil.class);
 	
-	// java/test classes
-	public static List<String> srcClasses = new ArrayList<>();
-	public static List<String> testClasses = new ArrayList<>();
-	public static List<String> testMethods = new ArrayList<>();
+//	// java/test classes
+//	public static List<String> srcClasses = new ArrayList<>();
+//	public static List<String> testClasses = new ArrayList<>();
+//	public static List<String> testMethods = new ArrayList<>();
 	
 	// parameter
-	public static String srcJavaDir;
-	public static String binJavaDir;
-	public static String binTestDir;
-	public static String dependencies;
-	public static String buggylocDir;
-	public static String changedFLPath;
-	public static String externalProjPath;
-	public static String jvmPath;
-	public static String failedTestsStr;
-	public static String gzoltarDir;
-//	public static String bugDir;
-//	public static String junitJar;
+//	public static String srcJavaDir;
+//	public static String binJavaDir;
+//	public static String binTestDir;
+//	public static String dependencies;
+//	public static String buggylocDir;
+//	public static String changedFLPath;
+//	public static String externalProjPath;
+//	public static String jvmPath;
+//	public static String failedTestsStr;
+//	public static String gzoltarDir;
+////	public static String bugDir;
+////	public static String junitJar;
 	
-	public static ArrayList<String> depsList = new ArrayList<>();
-	
-//	public static List<String> oriFailedTestMethods;
-	public static List<String> oriFailedTests;
-
-	//save all positive tests
-	public static String positiveTestsPath;
-	public static String filteredPositiveTestsPath;
-	public static List<String> fakedPosTests = new ArrayList<>();
-	
-	// buggy locs
-	public static List<String> buggylocs = new ArrayList<>();
-	public static List<String> relatedBuggylocs = new ArrayList<>();
-	public static List<Integer> buggyLocIndex = new ArrayList<>();
-	public static List<Integer> relatedBuggyLocIndex = new ArrayList<>();
-	
-	public static boolean getValidPatch = false;
-	
-	public static List<String> suspLocs = new ArrayList<>();
-	
-	
-	
+//	public static ArrayList<String> depsList = new ArrayList<>();
+//	
+////	public static List<String> oriFailedTestMethods;
+//	public static List<String> oriFailedTests;
+//
+//	//save all positive tests
+//	public static String positiveTestsPath;
+//	public static String filteredPositiveTestsPath;
+//	public static List<String> fakedPosTests = new ArrayList<>();
+//	
+//	// buggy locs
+//	public static List<String> buggylocs = new ArrayList<>();
+//	public static List<String> relatedBuggylocs = new ArrayList<>();
+//	public static List<Integer> buggyLocIndex = new ArrayList<>();
+//	public static List<Integer> relatedBuggyLocIndex = new ArrayList<>();
+//	
+//	public static boolean getValidPatch = false;
+//	
+//	public static List<String> suspLocs = new ArrayList<>();
+//	
+//	
+//	
 	public static int totalPassedTests = 0;
 	public static int totalFailedTests = 0;
-	
-//	public static String flOutputPath;
+//	
+////	public static String flOutputPath;
+////	public static String flLogPath;
+////	public static String changedFLPath;
+//	
+//	public static String flPath;
 //	public static String flLogPath;
-//	public static String changedFLPath;
-	
-	public static String flPath;
-	public static String flLogPath;
-	public static String oriFLPath;
-	public static String oriFlLogPath;
-	public static String filteredFLPath;
-	public static String filteredFlLogPath;
-	public static String buggylocPath;
-	public static String mpPath;
-	public static String toolName = "MY_APR";
-	// for simfix code search
-	public static String searchLogPath;
-	
-//	public static List<Integer> buggyLocIndex = new ArrayList<>();
-//	public static List<LCNode> buggyLocs = new ArrayList<>();
-//	public static List<LCNode> allLocs = new ArrayList<>();
-//	public static List<LCNode> positiveLocs = new ArrayList<>();
-//	public static List<LCNode> localizedBuggyLocs = new ArrayList<>();
-//	public static List<LCNode> mpLocs = new ArrayList<>();
-//	public static List<LCNode> gzLocs = new ArrayList<>();
-	
-//	public static List<TestResult> testClasses = new ArrayList<fr.inria.lille.localization.TestResult>();
-	// tbar not used
-	public static long preBeforeFLStart; // before fl -> not used
-	public static long flStart; //fl -> not used 
-	public static long betweenFlPGStart; // between fl and pg. // PG: patch generation -> not used
-	
-	// tbar used
-	public static long preBeforePGStart; // before pg -> used for tbar
-	public static long pgAndVStart;// pg and pv // pgAndV: patch generation and validation
-	
-	// tbar not used
-	public static long postPGStart;// after pg and pv preBeforeFLStart
-	
-	public static long stmtPGVStart;//total time cost on repairing a stmt including pg and pv
-	public static long stmtPGStart; // patch generation time
-	public static long stmtPVStart;// only covered tests
-	public static long stmtCompileStart; //compile src code
-	public static long stmtRunTestStart; //run covered/failed/partail tests
-	public static long stmtRunAllTestsStart; //run all tests
-	
-	public static long allStart; // for total time cost of repairing a bug.
-	public static long saveFlStart; // write fl results time start
-	
-	public static int patchCnt;
+//	public static String oriFLPath;
+//	public static String oriFlLogPath;
+//	public static String filteredFLPath;
+//	public static String filteredFlLogPath;
+//	public static String buggylocPath;
+//	public static String mpPath;
+//	public static String toolName = "MY_APR";
+//	// for simfix code search
+//	public static String searchLogPath;
+//	
+////	public static List<Integer> buggyLocIndex = new ArrayList<>();
+////	public static List<LCNode> buggyLocs = new ArrayList<>();
+////	public static List<LCNode> allLocs = new ArrayList<>();
+////	public static List<LCNode> positiveLocs = new ArrayList<>();
+////	public static List<LCNode> localizedBuggyLocs = new ArrayList<>();
+////	public static List<LCNode> mpLocs = new ArrayList<>();
+////	public static List<LCNode> gzLocs = new ArrayList<>();
+//	
+////	public static List<TestResult> testClasses = new ArrayList<fr.inria.lille.localization.TestResult>();
+//	// tbar not used
+//	public static long preBeforeFLStart; // before fl -> not used
+//	public static long flStart; //fl -> not used 
+//	public static long betweenFlPGStart; // between fl and pg. // PG: patch generation -> not used
+//	
+//	// tbar used
+//	public static long preBeforePGStart; // before pg -> used for tbar
+//	public static long pgAndVStart;// pg and pv // pgAndV: patch generation and validation
+//	
+//	// tbar not used
+//	public static long postPGStart;// after pg and pv preBeforeFLStart
+//	
+//	public static long stmtPGVStart;//total time cost on repairing a stmt including pg and pv
+//	public static long stmtPGStart; // patch generation time
+//	public static long stmtPVStart;// only covered tests
+//	public static long stmtCompileStart; //compile src code
+//	public static long stmtRunTestStart; //run covered/failed/partail tests
+//	public static long stmtRunAllTestsStart; //run all tests
+//	
+//	public static long allStart; // for total time cost of repairing a bug.
+//	public static long saveFlStart; // write fl results time start
+//	
+//	public static int patchCnt;
 	
 	public static void printTime(){
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -174,7 +175,7 @@ public class FileUtil {
 	
 	// default: flLogPath
 	public static void writeToFile(String content){
-		writeToFile(FileUtil.flLogPath, content, true);
+		writeToFile(Globals.flLogPath, content, true);
 	}
 	
 	public static void writeToFile(String path, String content){

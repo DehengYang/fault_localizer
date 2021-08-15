@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import apr.module.fl.global.Globals;
 import apr.module.fl.utils.CmdUtil;
 import apr.module.fl.utils.FileUtil;
 
@@ -54,11 +55,11 @@ public class PatchTest {
 	public void runTests(){
 		String cmd = "";
 		// add java
-		cmd += FileUtil.jvmPath + " -cp ";
+		cmd += Globals.jvmPath + " -cp ";
 		
 		// add external jar
 		try {
-			cmd += new File(FileUtil.externalProjPath).getCanonicalPath() + File.pathSeparator;
+			cmd += new File(Globals.externalProjPath).getCanonicalPath() + File.pathSeparator;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -70,13 +71,13 @@ public class PatchTest {
 //		dependencies = Arrays.asList("/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/build/lib/rhino.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/args4j.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/junit.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/json.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/ant-launcher.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/jarjar.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/jsr305.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/protobuf-java.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/ant.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/guava.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/caja-r4314.jar:/mnt/benchmarks/repairDir/Nopol_Defects4J_Closure_8/lib/rhino/testsrc/org/mozilla/javascript/tests/commonjs/module/modules.jar".split(":"));
 		
 		// add src & test classes & dependencies
-		if (!FileUtil.dependencies.contains(FileUtil.binJavaDir)){
-			cmd += FileUtil.binJavaDir + File.pathSeparator;
+		if (!Globals.dependencies.contains(Globals.binJavaDir)){
+			cmd += Globals.binJavaDir + File.pathSeparator;
 		}
-		if (!FileUtil.dependencies.contains(FileUtil.binTestDir)){
-			cmd += FileUtil.binTestDir + File.pathSeparator;
+		if (!Globals.dependencies.contains(Globals.binTestDir)){
+			cmd += Globals.binTestDir + File.pathSeparator;
 		}
-		cmd += FileUtil.dependencies; // + File.pathSeparator;//bug fix
+		cmd += Globals.dependencies; // + File.pathSeparator;//bug fix
 //		for (String dep : FLUtil.dependences){
 //			cmd += dep + File.pathSeparator;
 //		}

@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import apr.module.fl.global.Globals;
 import apr.module.fl.utils.CmdUtil;
 import apr.module.fl.utils.FileUtil;
 import apr.module.fl.utils.Pair;
@@ -44,38 +45,38 @@ public class FaultLocalizer2 {
 	// 1) other benchmark bugs
 	
 	public FaultLocalizer2(){
-		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL";
+		data_dir = new File(Globals.workingDir).getAbsolutePath() + "/FL";
 //		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/FL"; // direcory
 //		bug_dir = FileUtil.bugDir;
 		
 		//test_classpath = FileUtil.dependencies;
 		test_classpath = "";
-		for (String dep : FileUtil.depsList){
+		for (String dep : Globals.depList){
 			test_classpath += dep + ":";
 		}
 		
-		test_classes_dir = FileUtil.binTestDir;
-		src_classes_dir = FileUtil.binJavaDir;
-		src_classes_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
-		all_tests_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
+		test_classes_dir = Globals.binTestDir;
+		src_classes_dir = Globals.binJavaDir;
+		src_classes_file = new File(Globals.workingDir).getAbsolutePath() + "/srcClasses.txt";
+		all_tests_file = new File(Globals.workingDir).getAbsolutePath() + "/testClasses.txt";
 //		junit_jar = FileUtil.junitJar;
 	}
 	
 	public FaultLocalizer2(String unitTestsPath){
-		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/secondFL";
+		data_dir = new File(Globals.workingDir).getAbsolutePath() + "/secondFL";
 //		data_dir = new File(FileUtil.buggylocDir).getAbsolutePath() + "/FL"; // direcory
 //		bug_dir = FileUtil.bugDir;
 		
 		//test_classpath = FileUtil.dependencies;
 		test_classpath = "";
-		for (String dep : FileUtil.depsList){
+		for (String dep : Globals.depList){
 			test_classpath += dep + ":";
 		}
 		
-		test_classes_dir = FileUtil.binTestDir;
-		src_classes_dir = FileUtil.binJavaDir;
-		src_classes_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
-		all_tests_file = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
+		test_classes_dir = Globals.binTestDir;
+		src_classes_dir = Globals.binJavaDir;
+		src_classes_file = new File(Globals.workingDir).getAbsolutePath() + "/srcClasses.txt";
+		all_tests_file = new File(Globals.workingDir).getAbsolutePath() + "/testClasses.txt";
 		
 		this.unitTestsPath = unitTestsPath;
 //		junit_jar = FileUtil.junitJar;
@@ -96,11 +97,11 @@ public class FaultLocalizer2 {
 //				+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + " >/dev/null 2>&1";
 		// junit_jar + 
 		
-		String cmd = FileUtil.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + test_classpath + " " + test_classes_dir + " "
+		String cmd = Globals.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + test_classpath + " " + test_classes_dir + " "
 				+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + " >/dev/null 2>&1";
 		
 		if (unitTestsPath != null && new File(unitTestsPath).exists()){
-			cmd = FileUtil.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + test_classpath + " " + test_classes_dir + " "
+			cmd = Globals.gzoltarDir + "/runGZoltar.sh" + " " + data_dir + " " + test_classpath + " " + test_classes_dir + " "
 					+ src_classes_dir + " " + src_classes_file + " " + all_tests_file + " " + unitTestsPath + " >/dev/null 2>&1";
 		}
 		
@@ -128,7 +129,7 @@ public class FaultLocalizer2 {
 		List<Pair<List<Integer>, String>> matrixList;
 		
 		// simplify
-		String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", FileUtil.gzoltarDir, data_dir, data_dir);
+		String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", Globals.gzoltarDir, data_dir, data_dir);
 		CmdUtil.runCmd(cmdSimplify);
 		slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.faulty.csv");
 		matrixList = FileUtil.readMatrixFile(flResultDir + "/filtered_matrix.txt", slSpecList.size(), testsList);
@@ -152,7 +153,7 @@ public class FaultLocalizer2 {
 		
 		// simplify
 		if (simplify){
-			String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", FileUtil.gzoltarDir, data_dir, data_dir);
+			String cmdSimplify = String.format("cp %s/matrix_simplify.py %s && cd %s && python3.6 matrix_simplify.py", Globals.gzoltarDir, data_dir, data_dir);
 			String output = CmdUtil.runCmd(cmdSimplify);
 			slSpecList = FileUtil.readStmtFile(flResultDir + "/spectra.faulty.csv");
 			matrixList = FileUtil.readMatrixFile(flResultDir + "/filtered_matrix.txt", slSpecList.size(), testsList);
@@ -300,7 +301,7 @@ public class FaultLocalizer2 {
 	 * @param suspList
 	 */
 	private void changeFL(List<SuspiciousLocation> suspList) {
-		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(FileUtil.buggylocPath);
+		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(Globals.workingDir);
 		List <Integer> buggyLocIndex = new ArrayList<>();
 		
 		List<SuspiciousLocation> suspListBackup = new ArrayList<>();

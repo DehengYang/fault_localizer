@@ -19,6 +19,8 @@ import com.gzoltar.core.components.Component;
 import com.gzoltar.core.components.Statement;
 import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
+
+import apr.module.fl.global.Globals;
 import apr.module.fl.utils.FileUtil;
 import apr.module.fl.utils.Pair;
 
@@ -141,7 +143,7 @@ public final class FaultLocalizerNopol extends GZoltar {
 		logger.info("FL starts.");
 		
 		// set classpath
-		this.setClassPaths(FileUtil.depsList);
+		this.setClassPaths(Globals.depList);
 		
 		this.addPackageNotToInstrument("org.junit");
 		this.addPackageNotToInstrument("junit.framework");
@@ -314,7 +316,7 @@ public final class FaultLocalizerNopol extends GZoltar {
 	 * @param suspList
 	 */
 	private void changeFL(List<SuspiciousLocation> suspList) {
-		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(FileUtil.buggylocPath);
+		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(Globals.workingDir);
 		List <Integer> buggyLocIndex = new ArrayList<>();
 		
 		List<SuspiciousLocation> suspListBackup = new ArrayList<>();

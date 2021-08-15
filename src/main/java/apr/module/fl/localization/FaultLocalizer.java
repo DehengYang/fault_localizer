@@ -17,6 +17,8 @@ import com.gzoltar.core.components.Component;
 import com.gzoltar.core.components.Statement;
 import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
+
+import apr.module.fl.global.Globals;
 import apr.module.fl.utils.FileUtil;
 import apr.module.fl.utils.Pair;
 
@@ -130,7 +132,7 @@ public class FaultLocalizer  {
 		}
 		
 		// set classpath
-		gz.setClassPaths(FileUtil.depsList);
+		gz.setClassPaths(Globals.depList);
 		
 //		FileUtil.writeLinesToFile("/mnt/benchmarks/buggylocs/Bears/Bears_openmrs-openmrs-module-webservices.rest_455565885-458312291/MY_APR/deps.txt", FileUtil.depsList, false);
 		
@@ -291,7 +293,7 @@ public class FaultLocalizer  {
 	 * @param suspList
 	 */
 	private void changeFL(List<SuspiciousLocation> suspList) {
-		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(FileUtil.buggylocPath);
+		List <SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(Globals.workingDir);
 		List <Integer> buggyLocIndex = new ArrayList<>();
 		
 		List<SuspiciousLocation> suspListBackup = new ArrayList<>();

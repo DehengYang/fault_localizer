@@ -2,6 +2,7 @@ package apr.module.fl.main;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,19 +28,16 @@ public class Main {
     final static Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        long mainStartTime = System.currentTimeMillis();
-
-        // get parameters
-        setParameters(args);
+        // get args
+        parseCommandLine(args);
 
         // get src & test clasess, and then save them to file
-        long startTime = System.currentTimeMillis();
         ClassFinder cf = new ClassFinder();
-        Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir,
-                FileUtil.depsList);
+        Set<String> testClasses = cf.getTestClasses(Globals.binTestDir, Globals.binJavaDir,
+                Globals.depList);
         /*
          * I cannot exactly remember why I use "java" suffix as the filter rather than "class" just like testClasses.
-         * Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no coresponding folder.
+         * Now QuixBugs expose this problem. It's src class has extra package: javaprograms, but has no corresponding folder.
          * Therefore, I decide to use "class" filter to find all src classes.
          * I now understand why. Refer to: /home/apr/apr_tools/automated-program-repair/apr/src/test/java/apr.module.fl/utils/ClassFinderTest.java, which may help us understand it better.
          * Closure 18 has src classes in test classes dir.
@@ -47,25 +45,18 @@ public class Main {
          * Therefore, there is no need for me to change code for these exceptional cases, which, I reckon, only accounts for a small percentage.
          * So, finally I decide to preserve the "java" filter method. But do not use it in the next fl.
          */
-
-        Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(FileUtil.srcJavaDir, "java");
-
-        Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir, FileUtil.depsList);
-        String testClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/testClasses.txt";
-        String srcClassesPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/srcClasses.txt";
-        String srcClassesFromSrcDirPath = new File(FileUtil.buggylocDir).getAbsolutePath()
+        Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(Globals.srcJavaDir, "java");
+        Set<String> srcClasses = cf.getJavaClasses(Globals.binJavaDir, Globals.depList);
+        String testClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/testClasses.txt";
+        String srcClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/srcClasses.txt";
+        String srcClassesFromSrcDirPath = new File(Globals.workingDir).getAbsolutePath()
                 + "/srcClassesFromSrcDir.txt";
         FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
         FileUtil.writeLinesToFile(srcClassesFromSrcDirPath, srcClassesFromSrcDir);
         FileUtil.writeLinesToFile(testClassesPath, testClasses);
-        FileUtil.writeToFile(String.format("[Main] [time cost] of src and test classes collection: %s\n",
-                FileUtil.countTime(startTime)));
-        FileUtil.writeToFile(
-                String.format("[Main] size. srcClassesFromSrcDir:%d, srcClasses:%d, testClasses:%d\n",
-                        srcClassesFromSrcDir.size(), srcClasses.size(), testClasses.size()));
 
         // fault localization v0.1.1
-        // faultLocalize(testClasses, srcClasses);
+        faultLocalize(testClasses, srcClasses);
 
         // fault localization v0.1.1 from nopol
         faultLocalizeNopol(testClasses, srcClasses);
@@ -83,14 +74,7 @@ public class Main {
 
         // replicate all tests
         // replicateTests(testClasses); // old version, not used now
-        startTime = System.currentTimeMillis();
         replicateTests(testClassesPath);
-        FileUtil.writeToFile(
-                String.format("[Main] [time cost] of replicateTests: %s\n", FileUtil.countTime(startTime)));
-
-        FileUtil.writeToFile(
-                String.format("[Main] [time cost] of whole main(): %s\n", FileUtil.countTime(mainStartTime)));
-        System.exit(0);
 
         // read fl results from file
         // FaultLocalizer fl = new FaultLocalizer();
@@ -120,7 +104,7 @@ public class Main {
         // get extra failed cases (copy from replicate, and then modify)
         List<String> extraFailedMethods = new ArrayList<>();
         for (String failedMethod : failedMethods) {
-            if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
+            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
                 extraFailedMethods.add(failedMethod);
                 FileUtil.writeToFile(String.format(
                         "[faultLocalize2] First fl (v1.7.3) extra failed test method: %s\n", failedMethod));
@@ -142,10 +126,8 @@ public class Main {
 
         // else, start second fl run
         // get new unit_test file for second run
-        String oriUnitTestsFile = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName
-                + "/FL/unit_tests.txt";
-        String newUnitTestsFile = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName
-                + "/FL/new_unit_tests.txt";
+        String oriUnitTestsFile = new File(Globals.workingDir).getAbsolutePath() + "/FL/unit_tests.txt";
+        String newUnitTestsFile = new File(Globals.workingDir).getAbsolutePath() + "/FL/new_unit_tests.txt";
         List<String> oriUnitTests = FileUtil.readTestFile(oriUnitTestsFile, false); // is not csv file -> false
         int oriUnitTestsSize = oriUnitTests.size();
         oriUnitTests.removeAll(extraFailedMethods);
@@ -175,7 +157,7 @@ public class Main {
                 FileUtil.countTime(startTime)));
 
         for (String failedMethod : secondFailedMethods) {
-            if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
+            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
                 secExtraFailedMethods.add(failedMethod);
                 FileUtil.writeToFile(String.format(
                         "[faultLocalize2] Second fl (v1.7.3) extra failed test method: %s\n", failedMethod));
@@ -200,13 +182,13 @@ public class Main {
     private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
         long startTime = System.currentTimeMillis();
 
-        FaultLocalizer fl = new FaultLocalizer(FileUtil.oriFLPath, FileUtil.oriFlLogPath, testClasses,
+        FaultLocalizer fl = new FaultLocalizer(Globals.oriFLPath, Globals.oriFlLogPath, testClasses,
                 srcClasses);
         List<String> failedMethods = fl.getFailedMethods();
 
         List<String> extraFailedMethods = new ArrayList<>();
         for (String failedMethod : failedMethods) {
-            if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
+            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
                 extraFailedMethods.add(failedMethod);
                 FileUtil.writeToFile(String.format(
                         "[faultLocalize] First fl (v0.1.1) extra failed test method: %s\n", failedMethod));
@@ -229,12 +211,12 @@ public class Main {
             startTime = System.currentTimeMillis();
 
             // logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
-            FaultLocalizer flSecond = new FaultLocalizer(FileUtil.filteredFLPath, FileUtil.filteredFlLogPath,
+            FaultLocalizer flSecond = new FaultLocalizer(Globals.filteredFLPath, Globals.filteredFlLogPath,
                     testClasses, srcClasses, new HashSet<>(extraFailedMethods));
             List<String> secFailedMethods = flSecond.getFailedMethods();
             List<String> secExtraFailedMethods = new ArrayList<>();
             for (String failedMethod : secFailedMethods) {
-                if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
+                if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
                     secExtraFailedMethods.add(failedMethod);
                     FileUtil.writeToFile(
                             String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method: %s\n",
@@ -267,13 +249,13 @@ public class Main {
     private static void faultLocalizeNopol(Set<String> testClasses, Set<String> srcClasses) {
         long startTime = System.currentTimeMillis();
 
-        FaultLocalizerNopol fl = FaultLocalizerNopol.createInstance(FileUtil.oriFLPath, FileUtil.oriFlLogPath,
+        FaultLocalizerNopol fl = FaultLocalizerNopol.createInstance(Globals.oriFLPath, Globals.oriFlLogPath,
                 testClasses, srcClasses);
         List<String> failedMethods = fl.getFailedMethods();
 
         List<String> extraFailedMethods = new ArrayList<>();
         for (String failedMethod : failedMethods) {
-            if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
+            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
                 extraFailedMethods.add(failedMethod);
                 FileUtil.writeToFile(String.format(
                         "[faultLocalize] First fl (v0.1.1) extra failed test method: %s\n", failedMethod));
@@ -296,12 +278,12 @@ public class Main {
             startTime = System.currentTimeMillis();
 
             // logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
-            FaultLocalizerNopol flSecond = FaultLocalizerNopol.createInstance(FileUtil.filteredFLPath,
-                    FileUtil.filteredFlLogPath, testClasses, srcClasses, new HashSet<>(extraFailedMethods));
+            FaultLocalizerNopol flSecond = FaultLocalizerNopol.createInstance(Globals.filteredFLPath,
+                    Globals.filteredFlLogPath, testClasses, srcClasses, new HashSet<>(extraFailedMethods));
             List<String> secFailedMethods = flSecond.getFailedMethods();
             List<String> secExtraFailedMethods = new ArrayList<>();
             for (String failedMethod : secFailedMethods) {
-                if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
+                if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
                     secExtraFailedMethods.add(failedMethod);
                     FileUtil.writeToFile(
                             String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method: %s\n",
@@ -321,51 +303,6 @@ public class Main {
             FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of second fl (v0.1.1): %s\n",
                     FileUtil.countTime(startTime)));
         }
-    }
-
-    /*
-     * receive parameters
-     */
-    private static void setParameters(String[] args) {
-        Options options = new Options();
-        options.addRequiredOption("sjd", "srcJavaDir", true,
-                "src folder of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/src)");
-        options.addRequiredOption("bjd", "binJavaDir", true,
-                "bin folder of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/build/classes/main/)");
-        options.addRequiredOption("btd", "binTestDir", true,
-                "bin test folder of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/build/classes/test/ )");
-        options.addRequiredOption("dep", "dependencies", true,
-                "all dependencies (i.e., classpath)");
-        options.addRequiredOption("wd", "workingDir", true,
-                "path of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/)");
-        options.addRequiredOption("jp", "jvmPath", true,
-                "java path to run junit tests (e.g.,  /home/apr/env/jdk1.7.0_80/jre/bin/java)");
-        options.addRequiredOption("ft", "failedTests", true,
-                "expected bug triggering test(s) of the buggy program (e.g., com.google.javascript.jscomp.CollapseVariableDeclarationsTest)");
-        options.addOption("to", "timeout", true, "time budget (in minutes).");
-        
-        CommandLineParser parser = new DefaultParser();
-        HelpFormatter formatter = new HelpFormatter();
-        CommandLine cmd = null;
-
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.out.println(e.getMessage() + "\n");
-            formatter.printHelp(">>>>>>>>>> api_misuse_repair\n\n", options);
-
-            System.exit(1);
-        }
-        
-        Globals.srcJavaDir = cmd.getOptionValue("srcJavaDir");
-        Globals.binJavaDir = cmd.getOptionValue("binJavaDir");
-        Globals.binTestDir = cmd.getOptionValue("binTestDir");
-        Globals.dependencies = cmd.getOptionValue("dependencies");
-        Globals.classpath = cmd.getOptionValue("classpath");
-        Globals.jvmPath = cmd.getOptionValue("jvmPath");
-        Globals.failedTests = cmd.getOptionValue("failedTests");
-        if (cmd.hasOption("timeout"))
-            Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
     }
 
     // private static void replicateTests(Set<String> testClasses) {
@@ -436,8 +373,7 @@ public class Main {
      */
     private static void replicateTests(String testPath) {
         // run all test methods
-        String savePath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName
-                + "/FL/failedMethods_replicate.txt";
+        String savePath = new File(Globals.workingDir).getAbsolutePath() + "/FL/failedMethods_replicate.txt";
         logger.info("replicateTests starts");
         PatchTest pt = new PatchTest(testPath, false, savePath); // do not run test methods, just run tests. So false.
         pt.runTests();
@@ -449,8 +385,8 @@ public class Main {
         // check if there is extra tests
         int fakeCnt = 0;
         for (String failedMethod : failedMethodsAfterTest) {
-            if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
-                FileUtil.fakedPosTests.add(failedMethod);
+            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
+                Globals.fakedPosTests.add(failedMethod);
                 fakeCnt++;
                 FileUtil.writeToFile(
                         String.format("[replicateTests] fake pos test method: %s\n", failedMethod));
@@ -473,13 +409,10 @@ public class Main {
      */
     private static void replicateTests() {
         // get all test methods
-        String savePath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName
-                + "/FL/failedMethods_replicate.txt";
-        String unitPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName
-                + "/FL/unit_tests.txt";
+        String savePath = new File(Globals.workingDir).getAbsolutePath() + "/FL/failedMethods_replicate.txt";
+        String unitPath = new File(Globals.workingDir).getAbsolutePath() + "/FL/unit_tests.txt";
         List<String> testMethods = FileUtil.readTestMethodFile(unitPath);
-        String testMethodsPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName
-                + "/FL/test_methods.txt";
+        String testMethodsPath = new File(Globals.workingDir).getAbsolutePath() + "/FL/test_methods.txt";
         FileUtil.writeLinesToFile(testMethodsPath, testMethods, false);
 
         // run all test methods
@@ -490,8 +423,8 @@ public class Main {
         // check if there is extra tests
         int fakeCnt = 0;
         for (String failedMethod : failedMethodsAfterTest) {
-            if (!FileUtil.oriFailedTests.contains(failedMethod.split("#")[0])) {
-                FileUtil.fakedPosTests.add(failedMethod);
+            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
+                Globals.fakedPosTests.add(failedMethod);
                 fakeCnt++;
                 FileUtil.writeToFile(
                         String.format("[replicateTests] fake pos test method: %s\n", failedMethod));
@@ -508,4 +441,79 @@ public class Main {
         // String nonFakePosTestPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/non_fake_pos_tests.txt";
         // FileUtil.writeLinesToFile(nonFakePosTestPath, testMethods, false);
     }
+
+    /*
+     * receive parameters
+     */
+    private static void parseCommandLine(String[] args) {
+        Options options = new Options();
+        options.addRequiredOption("sjd", "srcJavaDir", true,
+                "src folder of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/src)");
+        options.addRequiredOption("bjd", "binJavaDir", true,
+                "bin folder of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/build/classes/main/)");
+        options.addRequiredOption("btd", "binTestDir", true,
+                "bin test folder of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/build/classes/test/ )");
+        options.addRequiredOption("dep", "dependencies", true,
+                "all dependencies (i.e., classpath)");
+        options.addRequiredOption("wd", "workingDir", true,
+                "path of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/)");
+        options.addRequiredOption("jp", "jvmPath", true,
+                "java path to run junit tests (e.g.,  /home/apr/env/jdk1.7.0_80/jre/bin/java)");
+        options.addRequiredOption("ft", "failedTests", true,
+                "expected bug triggering test(s) of the buggy program (e.g., com.google.javascript.jscomp.CollapseVariableDeclarationsTest)");
+        options.addOption("to", "timeout", true, "time budget (in minutes).");
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage() + "\n");
+            formatter.printHelp(">>>>>>>>>> api_misuse_repair\n\n", options);
+
+            System.exit(1);
+        }
+
+        Globals.srcJavaDir = cmd.getOptionValue("srcJavaDir");
+        Globals.binJavaDir = cmd.getOptionValue("binJavaDir");
+        Globals.binTestDir = cmd.getOptionValue("binTestDir");
+        Globals.dependencies = cmd.getOptionValue("dependencies");
+        Globals.classpath = cmd.getOptionValue("classpath");
+        Globals.jvmPath = cmd.getOptionValue("jvmPath");
+        Globals.failedTests = cmd.getOptionValue("failedTests");
+        Globals.workingDir = cmd.getOptionValue("workingDir");
+        if (cmd.hasOption("timeout"))
+            Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
+
+        // post actions
+        Globals.depList.addAll(Arrays.asList(Globals.dependencies.split(":")));
+        // make sure that src/ test-classes/ src-classes/ are contained
+        if (!Globals.depList.contains(Globals.srcJavaDir)) 
+            Globals.depList.add(Globals.srcJavaDir);
+        if (!Globals.depList.contains(Globals.binJavaDir))
+            Globals.depList.add(Globals.binJavaDir);
+        if (!Globals.depList.contains(Globals.binTestDir)) 
+            Globals.depList.add(Globals.binTestDir);
+        Globals.oriFailedTestList = Arrays.asList(Globals.failedTests.split(":"));
+
+        // save fl list for first fl.
+        String toolOutputDir = new File(Globals.workingDir).getAbsolutePath();
+        Globals.oriFLPath = toolOutputDir + "/oriFL.txt";
+        Globals.oriFlLogPath = toolOutputDir + "/oriFL.log";
+        FileUtil.writeToFile(Globals.oriFLPath, "", false); // init
+        FileUtil.writeToFile(Globals.oriFlLogPath, "", false);
+
+        // second fl
+        Globals.filteredFLPath = toolOutputDir + "/filteredFL.txt";
+        Globals.filteredFlLogPath = toolOutputDir + "/filteredFL.log";
+        FileUtil.writeToFile(Globals.filteredFLPath, "", false); // init
+        FileUtil.writeToFile(Globals.filteredFlLogPath, "", false);
+
+        Globals.flLogPath = toolOutputDir + "/fl_log.txt";
+        FileUtil.writeToFile(Globals.flLogPath, "", false);
+
+    }
+
 }
