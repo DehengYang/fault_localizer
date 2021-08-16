@@ -5,7 +5,9 @@
 package apr.module.fl.global;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author apr
@@ -34,15 +36,22 @@ public class Globals {
 
     // for fl
     public static String rankListPath;
-    
+
     // matrix
     public static String matrixPath;
     public static String testListPath;
     public static String stmtListPath;
     
-    // log
-    public static String flLogPath;
+    // matrix again
+    public static String matrixPathAgain;
+    public static String testListPathAgain;
+    public static String rankListPathAgain;
     
 
-    
+    // log
+    public static String flLogPath;
+
+    // output yaml
+    public static Map<String, Object> outputData = new HashMap<>(); 
+    public static String outputDataPath;
 }

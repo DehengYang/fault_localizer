@@ -338,20 +338,9 @@ public class FileUtil {
         return testsList;
     }
 
-    public static void writeMatrixFile(int[][] matrix, List<String> testList, List<String> stmtList) {
+    public static void writeMatrixFile(List<String> matrixList, List<String> testList, List<String> stmtList) {
         FileUtil.writeLinesToFile(Globals.testListPath, testList);
         FileUtil.writeLinesToFile(Globals.stmtListPath, stmtList);
-
-        List<String> matrixList = new ArrayList<>();
-
-        int row_size = matrix.length;
-        for (int row = 0; row < row_size; row++) { // row. Test result
-            StringBuilder sb = new StringBuilder();
-            for (int col = 0; col < matrix[row].length; col++) { // col, stmts
-                sb.append(String.format("%s ", matrix[row][col]));
-            }
-            matrixList.add(sb.toString().trim());
-        }
         FileUtil.writeLinesToFile(Globals.matrixPath, matrixList);
     }
 

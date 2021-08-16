@@ -16,7 +16,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import apr.module.fl.execute.PatchTest;
+import com.gzoltar.core.GZoltar;
+
+import apr.module.fl.execute.Replicate;
 import apr.module.fl.global.Globals;
 import apr.module.fl.localization.FaultLocalizer;
 import apr.module.fl.utils.ClassFinder;
@@ -57,8 +59,7 @@ public class Main {
         faultLocalize(testClasses, srcClasses);
 
         // replicate all tests
-        // replicateTests(testClasses); // old version, not used now
-        // replicateTests(testClassesPath);
+        // Replicate.replicateTests(testClassesPath);
 
         // read fl results from file
         // FaultLocalizer fl = new FaultLocalizer();
@@ -71,111 +72,10 @@ public class Main {
      *
      */
     private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
-        long startTime = System.currentTimeMillis();
-
-        FaultLocalizer fl = new FaultLocalizer(Globals.rankListPath, testClasses,
-                srcClasses);
-        fl.localize();
-        List<String> failedMethods = fl.getFailedMethods();
-
-        List<String> extraFailedMethods = new ArrayList<>();
-        for (String failedMethod : failedMethods) {
-            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
-                extraFailedMethods.add(failedMethod);
-                FileUtil.writeToFile(String.format(
-                        "[faultLocalize] First fl (v0.1.1) extra failed test method: %s\n", failedMethod));
-            }
-        }
-        FileUtil.writeToFile(
-                String.format("[faultLocalize] First fl (v0.1.1) extra failed test method count: %s\n",
-                        extraFailedMethods.size()));
-
-        // check if there is any expected failed test.
-        if (extraFailedMethods.size() == failedMethods.size()) {
-            FileUtil.writeToFile(
-                    "[faultLocalize] First fl (v0.1.1) no expected failed tests are found. Exit now.\n");
-            System.exit(0);
-        }
-
-        FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of first fl (v0.1.1): %s\n",
-                FileUtil.countTime(startTime)));
-    }
-
-    /**
-     * @Description replicate tests given by testClasses
-     * @author apr
-     * @version Apr 8, 2020
-     *
-     */
-    private static void replicateTests(String testPath) {
-        // run all test methods
-        String savePath = new File(Globals.workingDir).getAbsolutePath() + "/FL/failedMethods_replicate.txt";
-        logger.info("replicateTests starts");
-        PatchTest pt = new PatchTest(testPath, false, savePath); // do not run test methods, just run tests. So false.
-        pt.runTests();
-        // List<String> failedMethodsAfterTest = pt.getFailedTestMethods();
-        List<String> failedMethodsAfterTest = FileUtil.readFile(savePath);
-
-        logger.info("replicateTests ends");
-
-        // check if there is extra tests
-        int fakeCnt = 0;
-        for (String failedMethod : failedMethodsAfterTest) {
-            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
-                Globals.fakedPosTests.add(failedMethod);
-                fakeCnt++;
-                FileUtil.writeToFile(
-                        String.format("[replicateTests] fake pos test method: %s\n", failedMethod));
-            }
-        }
-
-        FileUtil.writeToFile(String.format("[replicateTests] fakeCnt: %s\n", fakeCnt));
-        // check if there is any expected failed test.
-        if (fakeCnt == failedMethodsAfterTest.size()) {
-            FileUtil.writeToFile("[replicateTests] expected failed tests are not found. Exit now.\n");
-            System.exit(0);
-        }
-    }
-
-    /**
-     * @Description replicate tests according to the test methods listed by gzoltar v1.7.3 
-     * @author apr
-     * @version Apr 4, 2020
-     *
-     */
-    private static void replicateTests() {
-        // get all test methods
-        String savePath = new File(Globals.workingDir).getAbsolutePath() + "/FL/failedMethods_replicate.txt";
-        String unitPath = new File(Globals.workingDir).getAbsolutePath() + "/FL/unit_tests.txt";
-        List<String> testMethods = FileUtil.readTestMethodFile(unitPath);
-        String testMethodsPath = new File(Globals.workingDir).getAbsolutePath() + "/FL/test_methods.txt";
-        FileUtil.writeLinesToFile(testMethodsPath, testMethods, false);
-
-        // run all test methods
-        PatchTest pt = new PatchTest(testMethodsPath, true, savePath);
-        pt.runTests();
-        List<String> failedMethodsAfterTest = pt.getFailedTestMethods();
-
-        // check if there is extra tests
-        int fakeCnt = 0;
-        for (String failedMethod : failedMethodsAfterTest) {
-            if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
-                Globals.fakedPosTests.add(failedMethod);
-                fakeCnt++;
-                FileUtil.writeToFile(
-                        String.format("[replicateTests] fake pos test method: %s\n", failedMethod));
-            }
-        }
-
-        FileUtil.writeToFile(String.format("[replicateTests] fakeCnt: %s\n", fakeCnt));
-        if (fakeCnt == failedMethodsAfterTest.size()) {
-            FileUtil.writeToFile("[replicateTests] expected failed tests are not found. Exit now.\n");
-            System.exit(0);
-        }
-
-        // testMethods.removeAll(FileUtil.fakedPosTests);
-        // String nonFakePosTestPath = new File(FileUtil.buggylocDir).getAbsolutePath() + "/" + FileUtil.toolName + "/FL/non_fake_pos_tests.txt";
-        // FileUtil.writeLinesToFile(nonFakePosTestPath, testMethods, false);
+        FaultLocalizer fl = new FaultLocalizer(Globals.rankListPath, testClasses, srcClasses);
+        GZoltar gz = fl.runGzoltar();
+        fl.calculateSusp(gz);
+        fl.calculateSuspAgain(gz);
     }
 
     /*
@@ -233,12 +133,15 @@ public class Main {
         Globals.flLogPath = Paths.get(toolOutputDir, "fl.log").toString();
         Globals.rankListPath = Paths.get(toolOutputDir, "ranking_list.txt").toString();
         FileUtil.writeToFile(Globals.flLogPath, "", false);
-        FileUtil.writeToFile(Globals.rankListPath, "", false);
 
         Globals.matrixPath = Paths.get(toolOutputDir, "matrix.txt").toString();
         Globals.testListPath = Paths.get(toolOutputDir, "test_list.txt").toString();
         Globals.stmtListPath = Paths.get(toolOutputDir, "stmt_list.txt").toString();
-
+        
+        Globals.matrixPathAgain = Paths.get(toolOutputDir, "matrix_again.txt").toString();
+        Globals.testListPathAgain = Paths.get(toolOutputDir, "test_list_again.txt").toString();
+        Globals.rankListPathAgain = Paths.get(toolOutputDir, "rank_list_again.txt").toString();
+        
+        Globals.outputDataPath = Paths.get(toolOutputDir, "output_data.yaml").toString();
     }
-
 }
