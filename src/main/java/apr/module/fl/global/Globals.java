@@ -17,13 +17,12 @@ public class Globals {
     public static String binJavaDir;
     public static String binTestDir;
     public static String dependencies;
-    public static String classpath;
     public static String jvmPath;
     public static String failedTests;
     public static String workingDir;
 
     // optional
-    public static int timeout; // in minutes
+    public static int timeout = 360; // in minutes
 
     // 
     public static ArrayList<String> depList = new ArrayList<>();

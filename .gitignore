@@ -2,7 +2,7 @@
 target/
 
 # log
-execution.log*
+logs/
 
 # tmp files
 *~

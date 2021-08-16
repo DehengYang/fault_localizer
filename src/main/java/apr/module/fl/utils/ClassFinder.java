@@ -163,14 +163,12 @@ public class ClassFinder {
 				urls[cnt] = new File(path).toURI().toURL();
 				cnt ++;
 			}
-//			url = new File(testPath).toURI().toURL();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 		
 		// get classloader
 		// refer to: https://stackoverflow.com/questions/31324558/is-there-a-way-to-initialize-a-single-element-in-an-array-java
-//		URL[] urls = {url};
 		URLClassLoader classLoader = new URLClassLoader(urls);
 		
 		// get all files
@@ -191,7 +189,6 @@ public class ClassFinder {
 			}
 			
 			// judge if a junit test
-//			String name = clazz.getSuperclass().getName(); //NPE
 			if (isTest(clazz)){
 				classes.add(className);
 			}
@@ -224,22 +221,12 @@ public class ClassFinder {
 		boolean isTest = false;
 		
 		for (Method method : methods){
-//			if (method.getAnnotations().length > 1){
-//				System.out.println("method.getAnnotations() size:" + method.getAnnotations().length);
-//			}
 			for (Annotation a : method.getAnnotations()){
-//				org.junit.Ignore
-//				org.junit.Test
-//				System.out.println(a.annotationType().getCanonicalName());
-//				System.out.println(a.annotationType().getName());
-				
 				// junit4
 				if (a.annotationType().getCanonicalName().equals("org.junit.Test")){
 					testMethods.add(clazz.getName() + "#" + method.getName());
-//					testMethods.add(clazz.getName() + "#" + method.getName());// test if uniq
 					isTest = true;
 					break;
-//					return true;
 				}
 			}
 			
@@ -248,7 +235,6 @@ public class ClassFinder {
 				Modifier.isPublic(method.getModifiers())){
 				testMethods.add(clazz.getName() + "#" + method.getName());
 				isTest = true;
-//				return true;	
 			}
 		}
 		

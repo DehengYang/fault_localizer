@@ -184,6 +184,7 @@ public class Main {
 
         FaultLocalizer fl = new FaultLocalizer(Globals.oriFLPath, Globals.oriFlLogPath, testClasses,
                 srcClasses);
+        fl.localize();
         List<String> failedMethods = fl.getFailedMethods();
 
         List<String> extraFailedMethods = new ArrayList<>();
@@ -197,6 +198,7 @@ public class Main {
         FileUtil.writeToFile(
                 String.format("[faultLocalize] First fl (v0.1.1) extra failed test method count: %s\n",
                         extraFailedMethods.size()));
+        
         // check if there is any expected failed test.
         if (extraFailedMethods.size() == failedMethods.size()) {
             FileUtil.writeToFile(
@@ -206,36 +208,6 @@ public class Main {
 
         FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of first fl (v0.1.1): %s\n",
                 FileUtil.countTime(startTime)));
-
-        if (!extraFailedMethods.isEmpty()) {
-            startTime = System.currentTimeMillis();
-
-            // logger.info("re-run fl due to {} extra failed test(s) in current FL.", extraFailedTests.size());
-            FaultLocalizer flSecond = new FaultLocalizer(Globals.filteredFLPath, Globals.filteredFlLogPath,
-                    testClasses, srcClasses, new HashSet<>(extraFailedMethods));
-            List<String> secFailedMethods = flSecond.getFailedMethods();
-            List<String> secExtraFailedMethods = new ArrayList<>();
-            for (String failedMethod : secFailedMethods) {
-                if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
-                    secExtraFailedMethods.add(failedMethod);
-                    FileUtil.writeToFile(
-                            String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method: %s\n",
-                                    failedMethod));
-                }
-            }
-            FileUtil.writeToFile(
-                    String.format("[faultLocalize] Second fl (v0.1.1) extra failed test method count: %s\n",
-                            secExtraFailedMethods.size()));
-            // check if there is any expected failed test.
-            if (secExtraFailedMethods.size() == secFailedMethods.size()) {
-                FileUtil.writeToFile(
-                        "[faultLocalize] Second fl (v0.1.1) no expected failed tests are found. Exit now.\n");
-                System.exit(0);
-            }
-
-            FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of second fl (v0.1.1): %s\n",
-                    FileUtil.countTime(startTime)));
-        }
     }
 
     /**
@@ -471,7 +443,7 @@ public class Main {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             System.out.println(e.getMessage() + "\n");
-            formatter.printHelp(">>>>>>>>>> api_misuse_repair\n\n", options);
+            formatter.printHelp(">>>>>>>>>> fault localization: \n\n", options);
 
             System.exit(1);
         }
@@ -480,22 +452,16 @@ public class Main {
         Globals.binJavaDir = cmd.getOptionValue("binJavaDir");
         Globals.binTestDir = cmd.getOptionValue("binTestDir");
         Globals.dependencies = cmd.getOptionValue("dependencies");
-        Globals.classpath = cmd.getOptionValue("classpath");
         Globals.jvmPath = cmd.getOptionValue("jvmPath");
         Globals.failedTests = cmd.getOptionValue("failedTests");
         Globals.workingDir = cmd.getOptionValue("workingDir");
-        if (cmd.hasOption("timeout"))
+        if (cmd.hasOption("timeout")) {
             Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
+        } 
 
         // post actions
         Globals.depList.addAll(Arrays.asList(Globals.dependencies.split(":")));
-        // make sure that src/ test-classes/ src-classes/ are contained
-        if (!Globals.depList.contains(Globals.srcJavaDir)) 
-            Globals.depList.add(Globals.srcJavaDir);
-        if (!Globals.depList.contains(Globals.binJavaDir))
-            Globals.depList.add(Globals.binJavaDir);
-        if (!Globals.depList.contains(Globals.binTestDir)) 
-            Globals.depList.add(Globals.binTestDir);
+
         Globals.oriFailedTestList = Arrays.asList(Globals.failedTests.split(":"));
 
         // save fl list for first fl.

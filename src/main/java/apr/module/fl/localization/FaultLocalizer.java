@@ -48,7 +48,7 @@ public class FaultLocalizer  {
 		this.logPath = logPath;
 		this.testClasses.addAll(testClasses);
 		this.srcClasses.addAll(srcClasses);
-		localize(null);
+//		localize(null);
 	}
 	
 	public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses, HashSet<String> extraFailedMethods) {
@@ -58,10 +58,6 @@ public class FaultLocalizer  {
 		this.srcClasses.addAll(srcClasses);
 		localize(extraFailedMethods);
 	}
-	
-//	public FaultLocalizer(List<String> oriFailedTests, List<String> extraFailedTests) {
-//		localize();
-//	}
 	
 	/** @Description 
 	 * @author apr
@@ -109,6 +105,10 @@ public class FaultLocalizer  {
 //		return extraFailedTests;
 //	}
 	
+	public void localize() {
+	    localize(null);
+	}
+	
 	/**
 	 * @Description this fl is different from that of nopol.
 	 * 1) this instruments the src classes found in the src classes dir, but nopol does not instruments junit test classes. This is a slight difference.
@@ -134,8 +134,6 @@ public class FaultLocalizer  {
 		// set classpath
 		gz.setClassPaths(Globals.depList);
 		
-//		FileUtil.writeLinesToFile("/mnt/benchmarks/buggylocs/Bears/Bears_openmrs-openmrs-module-webservices.rest_455565885-458312291/MY_APR/deps.txt", FileUtil.depsList, false);
-		
 		gz.addTestPackageNotToExecute("junit.framework"); // prevent extra unrelated failed tests 
 		gz.addTestPackageNotToExecute("org.junit");
 		gz.addTestPackageNotToExecute("org.easymock");
@@ -144,21 +142,8 @@ public class FaultLocalizer  {
 		gz.addTestPackageNotToExecute("junit.framework.TestSuite$1#warning");
 		gz.addTestPackageNotToExecute("junit.framework.TestSuite$1");
 		gz.addTestPackageNotToExecute("junit.framework.TestSuite");
-		// test classes to execute
-//		ClassFinder cf = new ClassFinder();
-//		Set<String> testClasses = cf.getTestClasses(FileUtil.binTestDir, FileUtil.binJavaDir, FileUtil.depsList);
-//		Set<String> testMethods = cf.getTestMethods();
+
 		for(String testClass : testClasses){
-			// filter extra failed tests
-//			if (extraFailedTests != null){
-//				for(String test : extraFailedTests){
-//					gz.addTestNotToExecute(test);
-//				}
-//			}
-//			if (extraFailedTests != null && extraFailedTests.contains(testClass)){
-//				continue; 
-//			}
-			
 			if (testClass.contains("junit.framework")){
 				continue;
 			}
@@ -175,9 +160,7 @@ public class FaultLocalizer  {
 		gz.addPackageNotToInstrument("org.junit");
 		gz.addPackageNotToInstrument("junit.framework");
 		gz.addPackageNotToInstrument("org.easymock");
-		// src classes to instrument
-//		Set<String> srcClasses = cf.getJavaClasses(FileUtil.binJavaDir);
-//		Set<String> srcClasses = cf.getJavaClasses(FileUtil.srcJavaDir, "java");
+
 		for(String srcClass : srcClasses){
 			gz.addClassToInstrument(srcClass);
 		}
@@ -186,7 +169,6 @@ public class FaultLocalizer  {
 		gz.run();
 		logger.debug("FL ends gz.run()");
 		Spectra spectra = gz.getSpectra();
-//		System.out.println(spectra.toString());
 	
 		// get test result
 		List<TestResult> testResults = spectra.getTestResults();
@@ -281,7 +263,7 @@ public class FaultLocalizer  {
 		}
 		FileUtil.writeToFile(logPath, String.format("[localize] total suspList size: %d, total positive suspList size: %d\n", suspList.size(), posCnt)); //apr. record
 		
-		changeFL(suspList);
+//		changeFL(suspList);
 		
 		logger.info("FL ends.");
 	}
@@ -334,7 +316,6 @@ public class FaultLocalizer  {
 		for (SuspiciousLocation sl : changedSuspList){
 			FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
 		}
-//		logger.debug("bp here");
 	}
 
 	public String getLogPath() {
