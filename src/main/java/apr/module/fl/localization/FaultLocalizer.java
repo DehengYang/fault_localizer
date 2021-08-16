@@ -20,7 +20,6 @@ import com.gzoltar.core.spectra.Spectra;
 
 import apr.module.fl.global.Globals;
 import apr.module.fl.utils.FileUtil;
-import apr.module.fl.utils.Pair;
 
 public class FaultLocalizer {
     private String workDir = System.getProperty("user.dir");
@@ -76,34 +75,6 @@ public class FaultLocalizer {
         }
         return suspList;
     }
-
-    // public Set<String> getExtraFailedTests(List<String> oriFailedTests){
-    // Set<String> extraFailedTests = new HashSet<>();
-    //
-    // Set<String> failedTests = new HashSet<>();
-    // for(String method : failedMethods){
-    // String testName = method.split("#")[0];
-    // failedTests.add(testName);
-    // logger.info("fl failed test method: {}", testName);
-    // }
-    // logger.info("fl failed test methods size: {}, fl failed test size: {}", failedMethods.size(), failedTests.size());
-    //
-    // for(String test : failedTests){
-    // if (! oriFailedTests.contains(test)){
-    // extraFailedTests.add(test);
-    // logger.info("extra failed test: {}", test);
-    // }
-    // }
-    //
-    // for(String test : oriFailedTests){
-    //// logger.info();
-    // if (! failedTests.contains(test)){
-    // logger.warn("original failed test ({}) does not fail!", test);
-    // }
-    // }
-    //
-    // return extraFailedTests;
-    // }
 
     public void localize() {
         localize(null);
@@ -194,28 +165,6 @@ public class FaultLocalizer {
 
                 totalFailed++;
                 failedMethods.add(tr.getName());
-                
-                // String fullTrace = tr.getTrace();
-                // consider junit.framework.TestSuite$1
-                // if (tr.getName().startsWith("junit.framework.TestSuite$1")) {
-                // String firstLine = fullTrace.split("\n")[0];
-                // if (firstLine.startsWith("junit.framework.AssertionFailedError: Class ")) {
-                // String failedClass = firstLine
-                // .substring("junit.framework.AssertionFailedError: Class ".length())
-                // .split(" ")[0];
-                // failedMethods.add(failedClass);
-                // } else {
-                // failedMethods.add(tr.getName());
-                // }
-                // } else {
-                // failedMethods.add(tr.getName());
-                // }
-
-                // if (fullTrace.length() > 150){
-                // fullTrace = fullTrace.substring(0, 150);
-                // }
-                // logger.info("Failed test: {}. \nTrace: \n{}", tr.getName(), fullTrace);
-                // FileUtil.writeToFile(logPath, String.format("[localize] Failed test: %s\nTrace:\n%s\n", tr.getName(), fullTrace));
             }
         }
 
@@ -226,9 +175,6 @@ public class FaultLocalizer {
             String className = stmt.getClazz().getLabel();
             int lineNo = stmt.getLineNumber();
             BitSet coverage = stmt.getCoverage();
-            // Map<Integer, Integer> countMap = stmt.getCountMap();
-
-            // logger.info("check coverage bitset size: {}", coverage.size());
 
             int execPassed = 0;
             int execFailed = 0;
@@ -277,55 +223,9 @@ public class FaultLocalizer {
                 posCnt++;
             }
         }
-        // changeFL(suspList);
-
+        
         FileUtil.writeMatrixFile(matrix, testList, stmtList);
-
         logger.info("FL ends.");
-    }
-
-    /** @Description  find buggy locs and move them into top positions
-     * @author apr
-     * @version Apr 2, 2020
-     *
-     * @param suspList
-     */
-    private void changeFL(List<SuspiciousLocation> suspList) {
-        List<SuspiciousLocation> buggyLocs = FileUtil.readBuggylocFile(Globals.workingDir);
-        List<Integer> buggyLocIndex = new ArrayList<>();
-
-        List<SuspiciousLocation> suspListBackup = new ArrayList<>();
-        suspListBackup.addAll(suspList);
-
-        List<SuspiciousLocation> changedSuspList = new ArrayList<>();
-
-        for (SuspiciousLocation sl : buggyLocs) {
-            int index = suspList.indexOf(sl);
-            if (index >= 0) {
-                buggyLocIndex.add(index);
-
-                double bugSuspValue = suspList.get(index).getSuspValue();
-                Pair<Integer, Integer> range = FileUtil.getTieRange(index, bugSuspValue, suspList);
-
-                // repairLocs.add(se);
-            }
-        }
-
-        Collections.sort(buggyLocIndex);
-
-        // firstly add buggy locs
-        for (int index : buggyLocIndex) {
-            changedSuspList.add(suspListBackup.get(index));
-        }
-
-        suspListBackup.removeAll(buggyLocs);
-        changedSuspList.addAll(suspListBackup);
-
-        String changedFlPath = savePath.replaceFirst(".txt", "_changed.txt");
-        FileUtil.writeToFile(changedFlPath, "", false);
-        for (SuspiciousLocation sl : changedSuspList) {
-            FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
-        }
     }
 
     public List<String> getFailedMethods() {
