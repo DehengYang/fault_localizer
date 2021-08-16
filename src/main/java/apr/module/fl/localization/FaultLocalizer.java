@@ -230,14 +230,8 @@ public class FaultLocalizer {
         long startTime = System.currentTimeMillis();
         int row_size = matrix.length;
         for (int row = 0; row < row_size; row++) { // row. Test result
-//            StringBuilder sb = new StringBuilder();
-//            for (int col = 0; col < matrix[row].length; col++) { // col, stmts
-//                sb.append(String.format("%s ", matrix[row][col]));
-//            }
-//            matrixList.add(sb.toString().trim());
             matrixList.add(new String(matrix[row]));
         }
-
         FileUtil.writeMatrixFile(matrixList, testList, stmtList);
         Globals.outputData.put("time_cost_save_matrix", FileUtil.countTime(startTime));
         logger.info("FL ends.");
@@ -268,6 +262,7 @@ public class FaultLocalizer {
 
         List<String> matrixListAgain = new ArrayList<>();
         List<String> testListAgain = new ArrayList<>();
+        
         for (int index = 0; index < matrixList.size(); index++) {
             String line = matrixList.get(index);
             if (!extraFailedMethodsIndices.contains(index)) {
