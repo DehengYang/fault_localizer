@@ -330,6 +330,10 @@ public class FileUtil {
         return testsList;
 	}
 	
+	public static void writeMatrixFile(String path, int[][] matrix, List<String> testList, List<String> stmtList) {
+	    
+	}
+	
 	public static List<Pair<List<Integer>, String>> readMatrixFile(String path, int specSize, List<String> testsList){
 		List<Pair<List<Integer>, String>> matrixList = new ArrayList<>();
 		try {
