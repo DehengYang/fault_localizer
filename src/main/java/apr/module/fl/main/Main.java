@@ -1,6 +1,7 @@
 package apr.module.fl.main;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,14 +58,12 @@ public class Main {
 
         // replicate all tests
         // replicateTests(testClasses); // old version, not used now
-        replicateTests(testClassesPath);
+        // replicateTests(testClassesPath);
 
         // read fl results from file
         // FaultLocalizer fl = new FaultLocalizer();
         // List<SuspiciousLocation> suspList = fl.readFLResults(FileUtil.flPath);
     }
-
-  
 
     /** @Description fault localization & re-fl if extra failed tests found
      * @author apr
@@ -74,7 +73,7 @@ public class Main {
     private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
         long startTime = System.currentTimeMillis();
 
-        FaultLocalizer fl = new FaultLocalizer(Globals.oriFLPath, Globals.oriFlLogPath, testClasses,
+        FaultLocalizer fl = new FaultLocalizer(Globals.rankListPath, testClasses,
                 srcClasses);
         fl.localize();
         List<String> failedMethods = fl.getFailedMethods();
@@ -90,7 +89,7 @@ public class Main {
         FileUtil.writeToFile(
                 String.format("[faultLocalize] First fl (v0.1.1) extra failed test method count: %s\n",
                         extraFailedMethods.size()));
-        
+
         // check if there is any expected failed test.
         if (extraFailedMethods.size() == failedMethods.size()) {
             FileUtil.writeToFile(
@@ -101,8 +100,6 @@ public class Main {
         FileUtil.writeToFile(String.format("[faultLocalize] [time cost] of first fl (v0.1.1): %s\n",
                 FileUtil.countTime(startTime)));
     }
-
-  
 
     /**
      * @Description replicate tests given by testClasses
@@ -224,7 +221,7 @@ public class Main {
         Globals.workingDir = cmd.getOptionValue("workingDir");
         if (cmd.hasOption("timeout")) {
             Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
-        } 
+        }
 
         // post actions
         Globals.depList.addAll(Arrays.asList(Globals.dependencies.split(":")));
@@ -233,19 +230,14 @@ public class Main {
 
         // save fl list for first fl.
         String toolOutputDir = new File(Globals.workingDir).getAbsolutePath();
-        Globals.oriFLPath = toolOutputDir + "/oriFL.txt";
-        Globals.oriFlLogPath = toolOutputDir + "/oriFL.log";
-        FileUtil.writeToFile(Globals.oriFLPath, "", false); // init
-        FileUtil.writeToFile(Globals.oriFlLogPath, "", false);
-
-        // second fl
-        Globals.filteredFLPath = toolOutputDir + "/filteredFL.txt";
-        Globals.filteredFlLogPath = toolOutputDir + "/filteredFL.log";
-        FileUtil.writeToFile(Globals.filteredFLPath, "", false); // init
-        FileUtil.writeToFile(Globals.filteredFlLogPath, "", false);
-
-        Globals.flLogPath = toolOutputDir + "/fl_log.txt";
+        Globals.flLogPath = Paths.get(toolOutputDir, "fl.log").toString();
+        Globals.rankListPath = Paths.get(toolOutputDir, "ranking_list.txt").toString();
         FileUtil.writeToFile(Globals.flLogPath, "", false);
+        FileUtil.writeToFile(Globals.rankListPath, "", false);
+
+        Globals.matrixPath = Paths.get(toolOutputDir, "matrix.txt").toString();
+        Globals.testListPath = Paths.get(toolOutputDir, "test_list.txt").toString();
+        Globals.stmtListPath = Paths.get(toolOutputDir, "stmt_list.txt").toString();
 
     }
 

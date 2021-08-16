@@ -24,19 +24,25 @@ public class Globals {
     // optional
     public static int timeout = 360; // in minutes
 
-    // 
+    //
     public static ArrayList<String> depList = new ArrayList<>();
     public static List<String> oriFailedTestList;
-    public static String oriFLPath;
-    public static String oriFlLogPath;
-    public static String filteredFLPath;
-    public static String filteredFlLogPath;
-    
-    // save all positive tests
+
+    // for replicateTests
     public static List<String> fakedPosTests = new ArrayList<>();
+    public static String externalProjPath;
+
+    // for fl
+    public static String rankListPath;
+    
+    // matrix
+    public static String matrixPath;
+    public static String testListPath;
+    public static String stmtListPath;
+    
+    // log
     public static String flLogPath;
     
-    // for faultlocalizer2.java
-    public static String gzoltarDir = "";
-    public static String externalProjPath = "";
+
+    
 }

@@ -36,7 +36,6 @@ public class FaultLocalizer {
     private Set<String> testClasses = new HashSet<>();
     private Set<String> srcClasses = new HashSet<>();
     private String savePath;
-    private String logPath;
 
     private int[][] matrix;
 
@@ -44,10 +43,9 @@ public class FaultLocalizer {
 
     }
 
-    public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses) {
+    public FaultLocalizer(String savePath, Set<String> testClasses, Set<String> srcClasses) {
         // this(null, null);
         this.savePath = savePath;
-        this.logPath = logPath;
         this.testClasses.addAll(testClasses);
         this.srcClasses.addAll(srcClasses);
         // localize(null);
@@ -56,7 +54,6 @@ public class FaultLocalizer {
     public FaultLocalizer(String savePath, String logPath, Set<String> testClasses, Set<String> srcClasses,
             HashSet<String> extraFailedMethods) {
         this.savePath = savePath;
-        this.logPath = logPath;
         this.testClasses.addAll(testClasses);
         this.srcClasses.addAll(srcClasses);
         localize(extraFailedMethods);
@@ -177,46 +174,42 @@ public class FaultLocalizer {
         List<TestResult> testResults = spectra.getTestResults();
         logger.info("Total tests executed: {}, total componenets (stmts) obtained: {}", testResults.size(),
                 spectra.getNumberOfComponents());
-        FileUtil.writeToFile(logPath,
-                String.format("[localize] total tests executed: %s, total componenets (stmts) obtained: %s\n",
-                        testResults.size(), spectra.getNumberOfComponents()));
 
         // init matrix
         matrix = new int[testResults.size()][spectra.getComponents().size() + 1];
         List<String> testList = new ArrayList<>();
         List<String> stmtList = new ArrayList<>();
 
-        for (int index = 0 ; index < testResults.size(); index++) {
+        for (int index = 0; index < testResults.size(); index++) {
             TestResult tr = testResults.get(index);
-            
+
             testList.add(tr.getName());
-            
+
             if (tr.wasSuccessful()) {
                 totalPassed++;
                 matrix[index][spectra.getComponents().size()] = 2;
             } else {
-                
-                matrix[index][spectra.getComponents().size()] = -2;
-                
-                totalFailed++;
-                FileUtil.writeToFile(logPath, String.format("[localize] failed test: %s, trace: \n%s\n\n",
-                        tr.getName(), tr.getTrace()));
-                String fullTrace = tr.getTrace();
 
+                matrix[index][spectra.getComponents().size()] = -2;
+
+                totalFailed++;
+                failedMethods.add(tr.getName());
+                
+                // String fullTrace = tr.getTrace();
                 // consider junit.framework.TestSuite$1
-                if (tr.getName().startsWith("junit.framework.TestSuite$1")) {
-                    String firstLine = fullTrace.split("\n")[0];
-                    if (firstLine.startsWith("junit.framework.AssertionFailedError: Class ")) {
-                        String failedClass = firstLine
-                                .substring("junit.framework.AssertionFailedError: Class ".length())
-                                .split(" ")[0];
-                        failedMethods.add(failedClass);
-                    } else {
-                        failedMethods.add(tr.getName());
-                    }
-                } else {
-                    failedMethods.add(tr.getName());
-                }
+                // if (tr.getName().startsWith("junit.framework.TestSuite$1")) {
+                // String firstLine = fullTrace.split("\n")[0];
+                // if (firstLine.startsWith("junit.framework.AssertionFailedError: Class ")) {
+                // String failedClass = firstLine
+                // .substring("junit.framework.AssertionFailedError: Class ".length())
+                // .split(" ")[0];
+                // failedMethods.add(failedClass);
+                // } else {
+                // failedMethods.add(tr.getName());
+                // }
+                // } else {
+                // failedMethods.add(tr.getName());
+                // }
 
                 // if (fullTrace.length() > 150){
                 // fullTrace = fullTrace.substring(0, 150);
@@ -226,12 +219,9 @@ public class FaultLocalizer {
             }
         }
 
-        FileUtil.writeToFile(logPath, String.format(
-                "[localize] Total passed tests: %d , total failed tests: %d\n", totalPassed, totalFailed)); // apr. record
-
         // for each component (suspicious stmt)
-        for (int index = 0; index < spectra.getComponents().size(); index ++) {
-            Component component  = spectra.getComponents().get(index);
+        for (int index = 0; index < spectra.getComponents().size(); index++) {
+            Component component = spectra.getComponents().get(index);
             Statement stmt = (Statement) component;
             String className = stmt.getClazz().getLabel();
             int lineNo = stmt.getLineNumber();
@@ -287,13 +277,9 @@ public class FaultLocalizer {
                 posCnt++;
             }
         }
-        FileUtil.writeToFile(logPath,
-                String.format("[localize] total suspList size: %d, total positive suspList size: %d\n",
-                        suspList.size(), posCnt)); // apr. record
-
         // changeFL(suspList);
-        
-        FileUtil.writeMatrixFile(Globals.workingDir + "/matrix.txt", matrix, testList, stmtList);
+
+        FileUtil.writeMatrixFile(matrix, testList, stmtList);
 
         logger.info("FL ends.");
     }
@@ -322,13 +308,6 @@ public class FaultLocalizer {
                 Pair<Integer, Integer> range = FileUtil.getTieRange(index, bugSuspValue, suspList);
 
                 // repairLocs.add(se);
-                FileUtil.writeToFile(logPath,
-                        String.format(
-                                "[changeFL] buggy location: %s is localized, its rank index is: %d, suspiciousness: %s, tie size:[%d, %d]\n",
-                                sl.toString(), index, bugSuspValue, range.getLeft(), range.getRight()));
-            } else {
-                FileUtil.writeToFile(logPath,
-                        String.format("[changeFL] buggy location: %s is not localized.\n", sl.toString()));
             }
         }
 
@@ -347,14 +326,6 @@ public class FaultLocalizer {
         for (SuspiciousLocation sl : changedSuspList) {
             FileUtil.writeToFile(changedFlPath, sl.toString() + "\n");
         }
-    }
-
-    public String getLogPath() {
-        return logPath;
-    }
-
-    public void setLogPath(String logPath) {
-        this.logPath = logPath;
     }
 
     public List<String> getFailedMethods() {
