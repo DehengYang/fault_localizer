@@ -6,6 +6,7 @@ package apr.module.fl.global;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,6 @@ public class Globals {
     public static String flLogPath;
 
     // output yaml
-    public static Map<String, Object> outputData = new HashMap<>(); 
+    public static Map<String, Object> outputData = new LinkedHashMap<>(); 
     public static String outputDataPath;
 }

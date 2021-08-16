@@ -150,7 +150,7 @@ public class FaultLocalizer {
                 spectra.getNumberOfComponents());
 
         // init matrix
-        int[][] matrix = new int[testResults.size()][spectra.getComponents().size() + 1];
+        char[][] matrix = new char[testResults.size()][spectra.getComponents().size() + 1];
 
         for (int index = 0; index < testResults.size(); index++) {
             TestResult tr = testResults.get(index);
@@ -160,10 +160,10 @@ public class FaultLocalizer {
 
             if (tr.wasSuccessful()) {
                 totalPassed++;
-                matrix[index][spectra.getComponents().size()] = 2;
+                matrix[index][spectra.getComponents().size()] = '1';
             } else {
                 totalFailed++;
-                matrix[index][spectra.getComponents().size()] = -2;
+                matrix[index][spectra.getComponents().size()] = '0';
                 failedMethods.add(failedMethod);
 
                 if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
@@ -202,7 +202,7 @@ public class FaultLocalizer {
                     execPassed++;
                     execPassedMethods.add(tr.getName());
                 } else {
-                    matrix[i][index] = 1;
+                    matrix[i][index] = '1';
                     execFailed++;
                     execFailedMethods.add(tr.getName());
                 }
@@ -227,16 +227,19 @@ public class FaultLocalizer {
             FileUtil.writeToFile(savePath, sl.toString() + "\n");
         }
 
+        long startTime = System.currentTimeMillis();
         int row_size = matrix.length;
         for (int row = 0; row < row_size; row++) { // row. Test result
-            StringBuilder sb = new StringBuilder();
-            for (int col = 0; col < matrix[row].length; col++) { // col, stmts
-                sb.append(String.format("%s ", matrix[row][col]));
-            }
-            matrixList.add(sb.toString().trim());
+//            StringBuilder sb = new StringBuilder();
+//            for (int col = 0; col < matrix[row].length; col++) { // col, stmts
+//                sb.append(String.format("%s ", matrix[row][col]));
+//            }
+//            matrixList.add(sb.toString().trim());
+            matrixList.add(new String(matrix[row]));
         }
 
         FileUtil.writeMatrixFile(matrixList, testList, stmtList);
+        Globals.outputData.put("time_cost_save_matrix", FileUtil.countTime(startTime));
         logger.info("FL ends.");
 
         Globals.outputData.put("extra_failed_methods", extraFailedMethods);

@@ -57,7 +57,7 @@ public class Main {
         FileUtil.writeLinesToFile(srcClassesFromSrcDirPath, srcClassesFromSrcDir);
         FileUtil.writeLinesToFile(testClassesPath, testClasses);
         
-        Globals.outputData.put("time_cost_classes_collection", FileUtil.countTime(startTime));
+        Globals.outputData.put("time_cost_classes_collection_1", FileUtil.countTime(startTime));
 
         // fault localization v0.1.1
         faultLocalize(testClasses, srcClasses);
@@ -83,15 +83,15 @@ public class Main {
         long startTime = System.currentTimeMillis();
         FaultLocalizer fl = new FaultLocalizer(Globals.rankListPath, testClasses, srcClasses);
         GZoltar gz = fl.runGzoltar();
-        Globals.outputData.put("time_cost_run_fl", FileUtil.countTime(startTime));
+        Globals.outputData.put("time_cost_run_fl_2", FileUtil.countTime(startTime));
         
         startTime = System.currentTimeMillis();
         fl.calculateSusp(gz);
-        Globals.outputData.put("time_cost_calculate_susp", FileUtil.countTime(startTime));
+        Globals.outputData.put("time_cost_calculate_susp_3", FileUtil.countTime(startTime));
         
         startTime = System.currentTimeMillis();
         fl.calculateSuspAgain(gz);
-        Globals.outputData.put("time_cost_calculate_susp_again", FileUtil.countTime(startTime));
+        Globals.outputData.put("time_cost_calculate_susp_again_4", FileUtil.countTime(startTime));
     }
 
     /*
