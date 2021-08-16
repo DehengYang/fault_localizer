@@ -23,6 +23,7 @@ public class Globals {
     public static String jvmPath;
     public static String failedTests;
     public static String workingDir;
+    public static String outputDir;
 
     // optional
     public static int timeout = 360; // in minutes

@@ -109,6 +109,8 @@ public class Main {
                 "all dependencies (i.e., classpath)");
         options.addRequiredOption("wd", "workingDir", true,
                 "path of the buggy program (e.g., /mnt/benchmarks/repairDir/Defects4J_Mockito_10/)");
+        options.addRequiredOption("od", "outputDir", true,
+                "directory to save the fl results.");
         options.addRequiredOption("jp", "jvmPath", true,
                 "java path to run junit tests (e.g.,  /home/apr/env/jdk1.7.0_80/jre/bin/java)");
         options.addRequiredOption("ft", "failedTests", true,
@@ -135,6 +137,7 @@ public class Main {
         Globals.jvmPath = cmd.getOptionValue("jvmPath");
         Globals.failedTests = cmd.getOptionValue("failedTests");
         Globals.workingDir = cmd.getOptionValue("workingDir");
+        Globals.outputDir = cmd.getOptionValue("outputDir");
         if (cmd.hasOption("timeout")) {
             Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
         }
@@ -145,7 +148,7 @@ public class Main {
         Globals.oriFailedTestList = Arrays.asList(Globals.failedTests.split(":"));
 
         // save fl list for first fl.
-        String toolOutputDir = new File(Globals.workingDir).getAbsolutePath();
+        String toolOutputDir = new File(Globals.outputDir).getAbsolutePath();
         Globals.flLogPath = Paths.get(toolOutputDir, "fl.log").toString();
         Globals.rankListPath = Paths.get(toolOutputDir, "ranking_list.txt").toString();
         FileUtil.writeToFile(Globals.flLogPath, "", false);
