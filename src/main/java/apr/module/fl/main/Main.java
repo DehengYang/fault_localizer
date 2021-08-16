@@ -23,11 +23,13 @@ import apr.module.fl.global.Globals;
 import apr.module.fl.localization.FaultLocalizer;
 import apr.module.fl.utils.ClassFinder;
 import apr.module.fl.utils.FileUtil;
+import apr.module.fl.utils.YamlUtil;
 
 public class Main {
     final static Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
         // get args
         parseCommandLine(args);
 
@@ -47,17 +49,23 @@ public class Main {
          */
         Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(Globals.srcJavaDir, "java");
         Set<String> srcClasses = cf.getJavaClasses(Globals.binJavaDir, Globals.depList);
-        String testClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/testClasses.txt";
-        String srcClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/srcClasses.txt";
+        String testClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/test_classes.txt";
+        String srcClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/src_classes.txt";
         String srcClassesFromSrcDirPath = new File(Globals.workingDir).getAbsolutePath()
-                + "/srcClassesFromSrcDir.txt";
+                + "/src_classes_from_src_dir.txt";
         FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
         FileUtil.writeLinesToFile(srcClassesFromSrcDirPath, srcClassesFromSrcDir);
         FileUtil.writeLinesToFile(testClassesPath, testClasses);
+        
+        Globals.outputData.put("time_cost_classes_collection", FileUtil.countTime(startTime));
 
         // fault localization v0.1.1
         faultLocalize(testClasses, srcClasses);
-
+        
+        // write data
+        Globals.outputData.put("time_cost_in_total", FileUtil.countTime(startTime));
+        YamlUtil.writeYaml(Globals.outputData, Globals.outputDataPath);
+        
         // replicate all tests
         // Replicate.replicateTests(testClassesPath);
 
@@ -72,10 +80,18 @@ public class Main {
      *
      */
     private static void faultLocalize(Set<String> testClasses, Set<String> srcClasses) {
+        long startTime = System.currentTimeMillis();
         FaultLocalizer fl = new FaultLocalizer(Globals.rankListPath, testClasses, srcClasses);
         GZoltar gz = fl.runGzoltar();
+        Globals.outputData.put("time_cost_run_fl", FileUtil.countTime(startTime));
+        
+        startTime = System.currentTimeMillis();
         fl.calculateSusp(gz);
+        Globals.outputData.put("time_cost_calculate_susp", FileUtil.countTime(startTime));
+        
+        startTime = System.currentTimeMillis();
         fl.calculateSuspAgain(gz);
+        Globals.outputData.put("time_cost_calculate_susp_again", FileUtil.countTime(startTime));
     }
 
     /*
@@ -135,13 +151,13 @@ public class Main {
         FileUtil.writeToFile(Globals.flLogPath, "", false);
 
         Globals.matrixPath = Paths.get(toolOutputDir, "matrix.txt").toString();
-        Globals.testListPath = Paths.get(toolOutputDir, "test_list.txt").toString();
+        Globals.testListPath = Paths.get(toolOutputDir, "test_method_list.txt").toString();
         Globals.stmtListPath = Paths.get(toolOutputDir, "stmt_list.txt").toString();
-        
+
         Globals.matrixPathAgain = Paths.get(toolOutputDir, "matrix_again.txt").toString();
-        Globals.testListPathAgain = Paths.get(toolOutputDir, "test_list_again.txt").toString();
+        Globals.testListPathAgain = Paths.get(toolOutputDir, "test_method_list_again.txt").toString();
         Globals.rankListPathAgain = Paths.get(toolOutputDir, "rank_list_again.txt").toString();
-        
+
         Globals.outputDataPath = Paths.get(toolOutputDir, "output_data.yaml").toString();
     }
 }

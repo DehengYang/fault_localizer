@@ -43,11 +43,6 @@ public class FaultLocalizer {
     private String savePath;
 
     private List<String> matrixList = new ArrayList<>();
-    // private int[][] matrix;
-
-    public FaultLocalizer() {
-
-    }
 
     public FaultLocalizer(String savePath, Set<String> testClasses, Set<String> srcClasses) {
         this.savePath = savePath;

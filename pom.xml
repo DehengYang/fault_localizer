@@ -68,6 +68,13 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- read and write yaml file -->
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.29</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
