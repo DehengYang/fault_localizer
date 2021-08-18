@@ -47,25 +47,25 @@ public class Main {
          * Therefore, there is no need for me to change code for these exceptional cases, which, I reckon, only accounts for a small percentage.
          * So, finally I decide to preserve the "java" filter method. But do not use it in the next fl.
          */
-        Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(Globals.srcJavaDir, "java");
+        // Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(Globals.srcJavaDir, "java");
         Set<String> srcClasses = cf.getJavaClasses(Globals.binJavaDir, Globals.depList);
         String testClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/test_classes.txt";
         String srcClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/src_classes.txt";
-        String srcClassesFromSrcDirPath = new File(Globals.workingDir).getAbsolutePath()
-                + "/src_classes_from_src_dir.txt";
+        // String srcClassesFromSrcDirPath = new File(Globals.workingDir).getAbsolutePath()
+        // + "/src_classes_from_src_dir.txt";
         FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
-        FileUtil.writeLinesToFile(srcClassesFromSrcDirPath, srcClassesFromSrcDir);
+        // FileUtil.writeLinesToFile(srcClassesFromSrcDirPath, srcClassesFromSrcDir);
         FileUtil.writeLinesToFile(testClassesPath, testClasses);
-        
+
         Globals.outputData.put("time_cost_classes_collection_1", FileUtil.countTime(startTime));
 
         // fault localization v0.1.1
         faultLocalize(testClasses, srcClasses);
-        
+
         // write data
         Globals.outputData.put("time_cost_in_total", FileUtil.countTime(startTime));
         YamlUtil.writeYaml(Globals.outputData, Globals.outputDataPath);
-        
+
         // replicate all tests
         // Replicate.replicateTests(testClassesPath);
 
@@ -84,11 +84,11 @@ public class Main {
         FaultLocalizer fl = new FaultLocalizer(Globals.rankListPath, testClasses, srcClasses);
         GZoltar gz = fl.runGzoltar();
         Globals.outputData.put("time_cost_run_fl_2", FileUtil.countTime(startTime));
-        
+
         startTime = System.currentTimeMillis();
         fl.calculateSusp(gz);
         Globals.outputData.put("time_cost_calculate_susp_3", FileUtil.countTime(startTime));
-        
+
         startTime = System.currentTimeMillis();
         fl.calculateSuspAgain(gz);
         Globals.outputData.put("time_cost_calculate_susp_again_4", FileUtil.countTime(startTime));
@@ -115,7 +115,7 @@ public class Main {
                 "java path to run junit tests (e.g.,  /home/apr/env/jdk1.7.0_80/jre/bin/java)");
         options.addRequiredOption("ft", "failedTests", true,
                 "expected bug triggering test(s) of the buggy program (e.g., com.google.javascript.jscomp.CollapseVariableDeclarationsTest)");
-        options.addOption("to", "timeout", true, "time budget (in minutes).");
+//        options.addOption("to", "timeout", true, "time budget (in minutes).");
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -138,9 +138,9 @@ public class Main {
         Globals.failedTests = cmd.getOptionValue("failedTests");
         Globals.workingDir = cmd.getOptionValue("workingDir");
         Globals.outputDir = cmd.getOptionValue("outputDir");
-        if (cmd.hasOption("timeout")) {
-            Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
-        }
+        // if (cmd.hasOption("timeout")) {
+        // Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
+        // }
 
         // post actions
         Globals.depList.addAll(Arrays.asList(Globals.dependencies.split(":")));

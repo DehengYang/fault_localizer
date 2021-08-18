@@ -26,7 +26,7 @@ public class Globals {
     public static String outputDir;
 
     // optional
-    public static int timeout = 360; // in minutes
+    // public static int timeout = 360; // in minutes
 
     //
     public static ArrayList<String> depList = new ArrayList<>();
@@ -43,17 +43,16 @@ public class Globals {
     public static String matrixPath;
     public static String testListPath;
     public static String stmtListPath;
-    
+
     // matrix again
     public static String matrixPathAgain;
     public static String testListPathAgain;
     public static String rankListPathAgain;
-    
 
     // log
     public static String flLogPath;
 
     // output yaml
-    public static Map<String, Object> outputData = new LinkedHashMap<>(); 
+    public static Map<String, Object> outputData = new LinkedHashMap<>();
     public static String outputDataPath;
 }
