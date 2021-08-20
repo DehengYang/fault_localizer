@@ -49,8 +49,8 @@ public class Main {
          */
         // Set<String> srcClassesFromSrcDir = cf.getJavaClassesOldVersion(Globals.srcJavaDir, "java");
         Set<String> srcClasses = cf.getJavaClasses(Globals.binJavaDir, Globals.depList);
-        String testClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/test_classes.txt";
-        String srcClassesPath = new File(Globals.workingDir).getAbsolutePath() + "/src_classes.txt";
+        String testClassesPath = new File(Globals.outputDir).getAbsolutePath() + "/test_classes.txt";
+        String srcClassesPath = new File(Globals.outputDir).getAbsolutePath() + "/src_classes.txt";
         // String srcClassesFromSrcDirPath = new File(Globals.workingDir).getAbsolutePath()
         // + "/src_classes_from_src_dir.txt";
         FileUtil.writeLinesToFile(srcClassesPath, srcClasses);
@@ -62,12 +62,15 @@ public class Main {
         // fault localization v0.1.1
         faultLocalize(testClasses, srcClasses);
 
+        // replicate all tests
+        startTime = System.currentTimeMillis();
+        // Replicate.replicateTests(testClassesPath);
+        Replicate.replicateTests(Globals.testListPath);
+        Globals.outputData.put("time_cost_in_replication", FileUtil.countTime(startTime));
+
         // write data
         Globals.outputData.put("time_cost_in_total", FileUtil.countTime(startTime));
         YamlUtil.writeYaml(Globals.outputData, Globals.outputDataPath);
-
-        // replicate all tests
-        // Replicate.replicateTests(testClassesPath);
 
         // read fl results from file
         // FaultLocalizer fl = new FaultLocalizer();
@@ -89,9 +92,9 @@ public class Main {
         fl.calculateSusp(gz);
         Globals.outputData.put("time_cost_calculate_susp_3", FileUtil.countTime(startTime));
 
-        startTime = System.currentTimeMillis();
-        fl.calculateSuspAgain(gz);
-        Globals.outputData.put("time_cost_calculate_susp_again_4", FileUtil.countTime(startTime));
+//        startTime = System.currentTimeMillis();
+//        fl.calculateSuspAgain(gz);
+//        Globals.outputData.put("time_cost_calculate_susp_again_4", FileUtil.countTime(startTime));
     }
 
     /*
@@ -115,7 +118,9 @@ public class Main {
                 "java path to run junit tests (e.g.,  /home/apr/env/jdk1.7.0_80/jre/bin/java)");
         options.addRequiredOption("ft", "failedTests", true,
                 "expected bug triggering test(s) of the buggy program (e.g., com.google.javascript.jscomp.CollapseVariableDeclarationsTest)");
-//        options.addOption("to", "timeout", true, "time budget (in minutes).");
+        // options.addOption("to", "timeout", true, "time budget (in minutes).");
+        options.addRequiredOption("epp", "externalProjPath", true,
+                "test case executor.");
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -138,6 +143,7 @@ public class Main {
         Globals.failedTests = cmd.getOptionValue("failedTests");
         Globals.workingDir = cmd.getOptionValue("workingDir");
         Globals.outputDir = cmd.getOptionValue("outputDir");
+        Globals.externalProjPath = cmd.getOptionValue("externalProjPath");
         // if (cmd.hasOption("timeout")) {
         // Globals.timeout = Integer.parseInt(cmd.getOptionValue("timeout"));
         // }

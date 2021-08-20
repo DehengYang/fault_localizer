@@ -5,7 +5,6 @@
 package apr.module.fl.global;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,7 @@ public class Globals {
 
     // for replicateTests
     public static List<String> fakedPosTests = new ArrayList<>();
+    public static List<String> expectedFailedTests = new ArrayList<>();
     public static String externalProjPath;
 
     // for fl

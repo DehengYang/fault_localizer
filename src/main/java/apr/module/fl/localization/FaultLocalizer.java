@@ -2,6 +2,7 @@ package apr.module.fl.localization;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,6 +35,7 @@ public class FaultLocalizer {
     private List<Integer> extraFailedMethodsIndices = new ArrayList<>();
     private List<String> expectedFailedMethod = new ArrayList<>();
     private List<String> testList = new ArrayList<>();
+    private List<String> testResultList = new ArrayList<>();
     private List<String> stmtList = new ArrayList<>();
 
     private List<SuspiciousLocation> suspList = new ArrayList<>();
@@ -151,26 +153,33 @@ public class FaultLocalizer {
 
         // init matrix
         char[][] matrix = new char[testResults.size()][spectra.getComponents().size() + 1];
+        // int[][] matrix = new int[testResults.size()][spectra.getComponents().size() + 1];
+        for (int i = 0; i < testResults.size(); i++) {
+            for (int j = 0; j < spectra.getComponents().size() + 1; j++) {
+                matrix[i][j] = '0';
+            }
+        }
 
         for (int index = 0; index < testResults.size(); index++) {
             TestResult tr = testResults.get(index);
-            String failedMethod = tr.getName();
+            String methodName = tr.getName();
 
-            testList.add(failedMethod);
+            testList.add(methodName);
+            testResultList.add(String.format("%s,%s", methodName, tr.wasSuccessful()));
 
             if (tr.wasSuccessful()) {
                 totalPassed++;
-                matrix[index][spectra.getComponents().size()] = '1';
+                matrix[index][spectra.getComponents().size()] = '1'; // '1';
             } else {
                 totalFailed++;
-                matrix[index][spectra.getComponents().size()] = '0';
-                failedMethods.add(failedMethod);
+                matrix[index][spectra.getComponents().size()] = '0'; // '0';
+                failedMethods.add(methodName);
 
-                if (!Globals.oriFailedTestList.contains(failedMethod.split("#")[0])) {
-                    extraFailedMethods.add(failedMethod);
+                if (!Globals.oriFailedTestList.contains(methodName.split("#")[0])) {
+                    extraFailedMethods.add(methodName);
                     extraFailedMethodsIndices.add(index);
                 } else {
-                    expectedFailedMethod.add(failedMethod);
+                    expectedFailedMethod.add(methodName);
                 }
             }
         }
@@ -201,8 +210,9 @@ public class FaultLocalizer {
                 if (tr.wasSuccessful()) {
                     execPassed++;
                     execPassedMethods.add(tr.getName());
+                    matrix[i][index] = '1'; // '1'; // means covered
                 } else {
-                    matrix[i][index] = '1';
+                    matrix[i][index] = '1';// '1';
                     execFailed++;
                     execFailedMethods.add(tr.getName());
                 }
@@ -231,8 +241,9 @@ public class FaultLocalizer {
         int row_size = matrix.length;
         for (int row = 0; row < row_size; row++) { // row. Test result
             matrixList.add(new String(matrix[row]));
+            // matrixList.add(Arrays.toString(matrix[row]));
         }
-        FileUtil.writeMatrixFile(matrixList, testList, stmtList);
+        FileUtil.writeMatrixFile(matrixList, testResultList, stmtList);
         Globals.outputData.put("time_cost_save_matrix", FileUtil.countTime(startTime));
         logger.info("FL ends.");
 
@@ -262,7 +273,7 @@ public class FaultLocalizer {
 
         List<String> matrixListAgain = new ArrayList<>();
         List<String> testListAgain = new ArrayList<>();
-        
+
         for (int index = 0; index < matrixList.size(); index++) {
             String line = matrixList.get(index);
             if (!extraFailedMethodsIndices.contains(index)) {
