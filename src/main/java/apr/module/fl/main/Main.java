@@ -29,6 +29,7 @@ public class Main {
     final static Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        long mainStartTime = System.currentTimeMillis();
         long startTime = System.currentTimeMillis();
         // get args
         parseCommandLine(args);
@@ -69,7 +70,7 @@ public class Main {
         Globals.outputData.put("time_cost_in_replication", FileUtil.countTime(startTime));
 
         // write data
-        Globals.outputData.put("time_cost_in_total", FileUtil.countTime(startTime));
+        Globals.outputData.put("time_cost_in_total", FileUtil.countTime(mainStartTime));
         YamlUtil.writeYaml(Globals.outputData, Globals.outputDataPath);
 
         // read fl results from file

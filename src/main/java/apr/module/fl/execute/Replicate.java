@@ -6,7 +6,9 @@ package apr.module.fl.execute;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,11 +40,18 @@ public class Replicate {
         FileUtil.writeLinesToFile(realTestPath, testMethods, false);
         
         // run all test methods
-        String savePath = Globals.outputDir + "/all_failed_methods_replicate.txt";
-        PatchTest pt = new PatchTest(savePath, Globals.jvmPath, Globals.externalProjPath,
-                Globals.outputDir, Globals.binJavaDir, Globals.binTestDir, Globals.dependencies, null);
-        pt.configure(realTestPath, true);
-        List<String> failedMethodsAfterTest = pt.runTests();
+        Set<String> failedMethodsAfterTest = new HashSet<>(); 
+        for (int i = 0; i < 3; i++) {
+            long startTime = System.currentTimeMillis();
+            String savePath = Globals.outputDir + "/all_failed_methods_replicate.txt";
+            PatchTest pt = new PatchTest(savePath, Globals.jvmPath, Globals.externalProjPath,
+                    Globals.outputDir, Globals.binJavaDir, Globals.binTestDir, Globals.dependencies, null);
+            pt.configure(realTestPath, true);
+            List<String> failedMethods = pt.runTests();
+            System.out.format("[replication %s] failedMethods size: %s, failedMethods: %s\n", i, failedMethods.size(), failedMethods);
+            failedMethodsAfterTest.addAll(failedMethods);
+            Globals.outputData.put("time_cost_in_replication" + i, FileUtil.countTime(startTime));
+        }
 
         // check if there is extra tests
         int fakeCnt = 0;
@@ -65,6 +74,7 @@ public class Replicate {
                 testMethods, false);
         // check if there is any expected failed test.
         if (fakeCnt == failedMethodsAfterTest.size()) {
+            System.err.println("[replicateTests] expected failed tests are not found. Exit now.\n");
             FileUtil.writeToFile("[replicateTests] expected failed tests are not found. Exit now.\n");
             System.exit(0);
         }
