@@ -22,8 +22,8 @@ import apr.module.fl.global.Globals;
 import apr.module.fl.utils.FileUtil;
 
 public class FaultLocalizer {
-    // not used.
-    // private String workDir = System.getProperty("user.dir");
+    // must run gzoltar under the buggy dir! rather than in eclipse... otherwise spectra stmts will be empty
+    private String workDir = System.getProperty("user.dir");
     final static Logger logger = LogManager.getLogger(FaultLocalizer.class);
 
     private int totalPassed = 0;
@@ -98,8 +98,7 @@ public class FaultLocalizer {
 
         GZoltar gz = null;
         try {
-            // gz = new GZoltar(workDir);
-            gz = new GZoltar(Globals.workingDir);
+            gz = new GZoltar(workDir);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -37,20 +37,14 @@ public class MainTest {
 
     @Test
     public void testChart6() {
-        String mainArgs = " --externalProjPath /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../patch_validator/patch_validator/versions/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar \\\n"
-                +
-                "                --srcJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/source/ \\\n"
-                +
-                "                --binJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/ \\\n"
-                +
-                "                --binTestDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/ \\\n"
-                +
-                "                --jvmPath /home/apr/env/jdk1.7.0_80/bin/ \\\n" +
-                "                --failedTests org.jfree.chart.util.junit.ShapeListTests \\\n" +
-                "                --dependencies /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/junit.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/servlet.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/itext-2.0.6.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/datasets/defects4j/framework/projects/lib/junit-4.11.jar \\\n"
-                +
-                "                --outputDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../results_defects4j/defects4j_Chart_6/dataset/../gzoltar \\\n"
-                +
+        String mainArgs = " --externalProjPath /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../patch_validator/patch_validator/versions/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar \\\n" + 
+                "                --srcJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/source/ \\\n" + 
+                "                --binJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/ \\\n" + 
+                "                --binTestDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/ \\\n" + 
+                "                --jvmPath /home/apr/env/jdk1.7.0_80/bin/ \\\n" + 
+                "                --failedTests org.jfree.chart.util.junit.ShapeListTests \\\n" + 
+                "                --dependencies /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/junit.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/servlet.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/itext-2.0.6.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/datasets/defects4j/framework/projects/lib/junit-4.11.jar \\\n" + 
+                "                --outputDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../results_defects4j/defects4j_Chart_6/dataset/../gzoltar \\\n" + 
                 "                --workingDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6";
 
         String[] args = parseStringArgs(mainArgs);
