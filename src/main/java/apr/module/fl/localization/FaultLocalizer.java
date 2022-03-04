@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.gzoltar.core.GZoltar;
 import com.gzoltar.core.components.Component;
+import com.gzoltar.core.components.Method;
 import com.gzoltar.core.components.Statement;
 import com.gzoltar.core.instr.testing.TestResult;
 import com.gzoltar.core.spectra.Spectra;
@@ -455,11 +456,4 @@ public class FaultLocalizer {
     //
     // }
 
-    /**
-     * date: Mar 4, 2022
-     * @param gz
-     */
-    public void getMethodRanking(GZoltar gz) {
-
-    }
 }

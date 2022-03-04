@@ -92,12 +92,10 @@ public class Main {
         startTime = System.currentTimeMillis();
         fl.calculateSusp(gz);
         Globals.outputData.put("time_cost_calculate_susp_3", FileUtil.countTime(startTime));
-        
-        fl.getMethodRanking(gz);
 
-//        startTime = System.currentTimeMillis();
-//        fl.calculateSuspAgain(gz);
-//        Globals.outputData.put("time_cost_calculate_susp_again_4", FileUtil.countTime(startTime));
+        // startTime = System.currentTimeMillis();
+        // fl.calculateSuspAgain(gz);
+        // Globals.outputData.put("time_cost_calculate_susp_again_4", FileUtil.countTime(startTime));
     }
 
     /*
@@ -172,7 +170,7 @@ public class Main {
         Globals.rankListPathAgain = Paths.get(toolOutputDir, "rank_list_again.txt").toString();
 
         Globals.outputDataPath = Paths.get(toolOutputDir, "output_data.yaml").toString();
-        
+
         // clear outputDir
         logger.info("clear outputdir: {}", Globals.outputDir);
         try {
