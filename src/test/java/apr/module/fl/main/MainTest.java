@@ -37,7 +37,7 @@ public class MainTest {
 
     @Test
     public void testChart6() {
-        String mainArgs = "--externalProjPath /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../patch_validator/patch_validator/versions/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar \\\n"
+        String mainArgs = " --externalProjPath /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../patch_validator/patch_validator/versions/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar \\\n"
                 +
                 "                --srcJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/source/ \\\n"
                 +

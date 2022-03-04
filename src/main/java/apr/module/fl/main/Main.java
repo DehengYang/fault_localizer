@@ -2,9 +2,7 @@ package apr.module.fl.main;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -92,6 +90,8 @@ public class Main {
         startTime = System.currentTimeMillis();
         fl.calculateSusp(gz);
         Globals.outputData.put("time_cost_calculate_susp_3", FileUtil.countTime(startTime));
+        
+        fl.getMethodRanking(gz);
 
 //        startTime = System.currentTimeMillis();
 //        fl.calculateSuspAgain(gz);
