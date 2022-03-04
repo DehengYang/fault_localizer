@@ -44,7 +44,7 @@ public class FaultLocalizer {
     private Set<String> srcClasses = new HashSet<>();
     private String savePath;
 
-    private List<String> matrixList = new ArrayList<>();
+    // private List<String> matrixList = new ArrayList<>();
 
     public FaultLocalizer(String savePath, Set<String> testClasses, Set<String> srcClasses) {
         this.savePath = savePath;
@@ -143,6 +143,125 @@ public class FaultLocalizer {
         return gz;
     }
 
+    /**
+     * old version: saving matrix 
+     * date: Mar 4, 2022
+     * @param gz
+     */
+    // public void calculateSusp(GZoltar gz) {
+    // Spectra spectra = gz.getSpectra();
+    //
+    // // get test result
+    // List<TestResult> testResults = spectra.getTestResults();
+    // logger.info("Total tests executed: {}, total componenets (stmts) obtained: {}", testResults.size(),
+    // spectra.getNumberOfComponents());
+    //
+    // // init matrix
+    // char[][] matrix = new char[testResults.size()][spectra.getComponents().size() + 1];
+    // // int[][] matrix = new int[testResults.size()][spectra.getComponents().size() + 1];
+    // for (int i = 0; i < testResults.size(); i++) {
+    // for (int j = 0; j < spectra.getComponents().size() + 1; j++) {
+    // matrix[i][j] = '0';
+    // }
+    // }
+    //
+    // for (int index = 0; index < testResults.size(); index++) {
+    // TestResult tr = testResults.get(index);
+    // String methodName = tr.getName();
+    //
+    // testList.add(methodName);
+    // testResultList.add(String.format("%s,%s", methodName, tr.wasSuccessful()));
+    //
+    // if (tr.wasSuccessful()) {
+    // totalPassed++;
+    // matrix[index][spectra.getComponents().size()] = '1'; // '1';
+    // } else {
+    // totalFailed++;
+    // matrix[index][spectra.getComponents().size()] = '0'; // '0';
+    // failedMethods.add(methodName);
+    //
+    // if (!Globals.oriFailedTestList.contains(methodName.split("#")[0])) {
+    // extraFailedMethods.add(methodName);
+    // extraFailedMethodsIndices.add(index);
+    // } else {
+    // expectedFailedMethod.add(methodName);
+    // }
+    // }
+    // }
+    //
+    // // for each component (suspicious stmt)
+    // for (int index = 0; index < spectra.getComponents().size(); index++) {
+    // Component component = spectra.getComponents().get(index);
+    // Statement stmt = (Statement) component;
+    // String className = stmt.getClazz().getLabel();
+    // int lineNo = stmt.getLineNumber();
+    // BitSet coverage = stmt.getCoverage();
+    //
+    // int execPassed = 0;
+    // int execFailed = 0;
+    // List<String> execPassedMethods = new ArrayList<>();
+    // List<String> execFailedMethods = new ArrayList<>();
+    //
+    // // traverse bitset coverage
+    // // this loop is based on the nextSetBit() javadoc
+    // for (int i = coverage.nextSetBit(0); i >= 0; i = coverage.nextSetBit(i + 1)) {
+    // if (i == Integer.MAX_VALUE) {
+    // logger.error("i == Integer.MAX_VALUE now.");
+    // break; // or (i+1) would overflow
+    // }
+    //
+    // // operate on index i here
+    // TestResult tr = testResults.get(i);
+    // if (tr.wasSuccessful()) {
+    // execPassed++;
+    // execPassedMethods.add(tr.getName());
+    // matrix[i][index] = '1'; // '1'; // means covered
+    // } else {
+    // matrix[i][index] = '1';// '1';
+    // execFailed++;
+    // execFailedMethods.add(tr.getName());
+    // }
+    // }
+    //
+    // SuspiciousLocation sl = new SuspiciousLocation(className, lineNo, execPassed, execFailed,
+    // totalPassed, totalFailed, execPassedMethods, execFailedMethods);
+    // suspList.add(sl);
+    // stmtList.add(String.format("%s:%s", className, lineNo));
+    // }
+    //
+    // Collections.sort(suspList, new Comparator<SuspiciousLocation>() {
+    // @Override
+    // public int compare(SuspiciousLocation o1, SuspiciousLocation o2) {
+    // // descending order
+    // return Double.compare(o2.getSuspValue(), o1.getSuspValue());
+    // }
+    // });
+    //
+    // FileUtil.writeToFile(savePath, "", false);
+    // for (SuspiciousLocation sl : suspList) {
+    // FileUtil.writeToFile(savePath, sl.toString() + "\n");
+    // }
+    //
+    // long startTime = System.currentTimeMillis();
+    // int row_size = matrix.length;
+    // for (int row = 0; row < row_size; row++) { // row. Test result
+    // matrixList.add(new String(matrix[row]));
+    // // matrixList.add(Arrays.toString(matrix[row]));
+    // }
+    // FileUtil.writeMatrixFile(matrixList, testResultList, stmtList);
+    // Globals.outputData.put("time_cost_save_matrix", FileUtil.countTime(startTime));
+    // logger.info("FL ends.");
+    //
+    // Globals.outputData.put("extra_failed_methods", extraFailedMethods);
+    // Globals.outputData.put("expected_failed_classes", Globals.oriFailedTestList);
+    // Globals.outputData.put("expected_failed_methods", expectedFailedMethod);
+    // }
+
+    /**
+     * save bitset rather than matrix
+     * date: Mar 4, 2022
+     * @param gz
+     */
     public void calculateSusp(GZoltar gz) {
         Spectra spectra = gz.getSpectra();
 
@@ -151,46 +270,18 @@ public class FaultLocalizer {
         logger.info("Total tests executed: {}, total componenets (stmts) obtained: {}", testResults.size(),
                 spectra.getNumberOfComponents());
 
-        // init matrix
-        char[][] matrix = new char[testResults.size()][spectra.getComponents().size() + 1];
-        // int[][] matrix = new int[testResults.size()][spectra.getComponents().size() + 1];
-        for (int i = 0; i < testResults.size(); i++) {
-            for (int j = 0; j < spectra.getComponents().size() + 1; j++) {
-                matrix[i][j] = '0';
-            }
-        }
-
-        for (int index = 0; index < testResults.size(); index++) {
-            TestResult tr = testResults.get(index);
-            String methodName = tr.getName();
-
-            testList.add(methodName);
-            testResultList.add(String.format("%s,%s", methodName, tr.wasSuccessful()));
-
-            if (tr.wasSuccessful()) {
-                totalPassed++;
-                matrix[index][spectra.getComponents().size()] = '1'; // '1';
-            } else {
-                totalFailed++;
-                matrix[index][spectra.getComponents().size()] = '0'; // '0';
-                failedMethods.add(methodName);
-
-                if (!Globals.oriFailedTestList.contains(methodName.split("#")[0])) {
-                    extraFailedMethods.add(methodName);
-                    extraFailedMethodsIndices.add(index);
-                } else {
-                    expectedFailedMethod.add(methodName);
-                }
-            }
-        }
+        // collect test info
+        collectTestInfo(testResults);
 
         // for each component (suspicious stmt)
+        List<String> bitSets = new ArrayList<>();
         for (int index = 0; index < spectra.getComponents().size(); index++) {
             Component component = spectra.getComponents().get(index);
             Statement stmt = (Statement) component;
             String className = stmt.getClazz().getLabel();
             int lineNo = stmt.getLineNumber();
             BitSet coverage = stmt.getCoverage();
+            bitSets.add(coverage.toString());
 
             int execPassed = 0;
             int execFailed = 0;
@@ -210,9 +301,7 @@ public class FaultLocalizer {
                 if (tr.wasSuccessful()) {
                     execPassed++;
                     execPassedMethods.add(tr.getName());
-                    matrix[i][index] = '1'; // '1'; // means covered
                 } else {
-                    matrix[i][index] = '1';// '1';
                     execFailed++;
                     execFailedMethods.add(tr.getName());
                 }
@@ -237,19 +326,40 @@ public class FaultLocalizer {
             FileUtil.writeToFile(savePath, sl.toString() + "\n");
         }
 
-        long startTime = System.currentTimeMillis();
-        int row_size = matrix.length;
-        for (int row = 0; row < row_size; row++) { // row. Test result
-            matrixList.add(new String(matrix[row]));
-            // matrixList.add(Arrays.toString(matrix[row]));
-        }
-        FileUtil.writeMatrixFile(matrixList, testResultList, stmtList);
-        Globals.outputData.put("time_cost_save_matrix", FileUtil.countTime(startTime));
+        FileUtil.writeMatrixFile(bitSets, testResultList, stmtList);
         logger.info("FL ends.");
 
         Globals.outputData.put("extra_failed_methods", extraFailedMethods);
         Globals.outputData.put("expected_failed_classes", Globals.oriFailedTestList);
         Globals.outputData.put("expected_failed_methods", expectedFailedMethod);
+    }
+
+    /**
+     * date: Mar 4, 2022
+     * @param testResults
+     */
+    private void collectTestInfo(List<TestResult> testResults) {
+        for (int index = 0; index < testResults.size(); index++) {
+            TestResult tr = testResults.get(index);
+            String methodName = tr.getName();
+
+            testList.add(methodName);
+            testResultList.add(String.format("%s,%s", methodName, tr.wasSuccessful()));
+
+            if (tr.wasSuccessful()) {
+                totalPassed++;
+            } else {
+                totalFailed++;
+                failedMethods.add(methodName);
+
+                if (!Globals.oriFailedTestList.contains(methodName.split("#")[0])) {
+                    extraFailedMethods.add(methodName);
+                    extraFailedMethodsIndices.add(index);
+                } else {
+                    expectedFailedMethod.add(methodName);
+                }
+            }
+        }
     }
 
     public List<String> getFailedMethods() {
@@ -267,194 +377,89 @@ public class FaultLocalizer {
      * date: Aug 16, 2021
      * @param gz
      */
-    public void calculateSuspAgain(GZoltar gz) {
-        if (extraFailedMethodsIndices.isEmpty())
-            return;
-
-        List<String> matrixListAgain = new ArrayList<>();
-        List<String> testListAgain = new ArrayList<>();
-
-        for (int index = 0; index < matrixList.size(); index++) {
-            String line = matrixList.get(index);
-            if (!extraFailedMethodsIndices.contains(index)) {
-                matrixListAgain.add(line);
-                testListAgain.add(testList.get(index));
-            }
-        }
-
-        FileUtil.writeLinesToFile(Globals.testListPathAgain, testListAgain);
-        FileUtil.writeLinesToFile(Globals.matrixPathAgain, matrixListAgain);
-
-        // recalculate: 1)&2)
-        // 1) revise data
-        totalFailed = totalFailed - extraFailedMethodsIndices.size();
-        Spectra spectra = gz.getSpectra();
-        List<TestResult> testResults = spectra.getTestResults();
-        List<SuspiciousLocation> suspListAgain = new ArrayList<>();
-        savePath = Globals.rankListPathAgain;
-
-        // 2) copied code
-        for (int index = 0; index < spectra.getComponents().size(); index++) {
-            Component component = spectra.getComponents().get(index);
-            Statement stmt = (Statement) component;
-            String className = stmt.getClazz().getLabel();
-            int lineNo = stmt.getLineNumber();
-            BitSet coverage = stmt.getCoverage();
-
-            int execPassed = 0;
-            int execFailed = 0;
-            List<String> execPassedMethods = new ArrayList<>();
-            List<String> execFailedMethods = new ArrayList<>();
-
-            for (int i = coverage.nextSetBit(0); i >= 0; i = coverage.nextSetBit(i + 1)) {
-                if (i == Integer.MAX_VALUE) {
-                    logger.error("i == Integer.MAX_VALUE now.");
-                    break; // or (i+1) would overflow
-                }
-
-                // operate on index i here
-                TestResult tr = testResults.get(i);
-                if (tr.wasSuccessful()) {
-                    execPassed++;
-                    execPassedMethods.add(tr.getName());
-                } else {
-                    if (!extraFailedMethodsIndices.contains(i)) {
-                        execFailed++;
-                        execFailedMethods.add(tr.getName());
-                    }
-                }
-            }
-
-            SuspiciousLocation sl = new SuspiciousLocation(className, lineNo, execPassed, execFailed,
-                    totalPassed, totalFailed, execPassedMethods, execFailedMethods);
-            suspListAgain.add(sl);
-        }
-
-        Collections.sort(suspListAgain, new Comparator<SuspiciousLocation>() {
-            @Override
-            public int compare(SuspiciousLocation o1, SuspiciousLocation o2) {
-                // descending order
-                return Double.compare(o2.getSuspValue(), o1.getSuspValue());
-            }
-        });
-
-        FileUtil.writeToFile(savePath, "", false);
-        for (SuspiciousLocation sl : suspListAgain) {
-            FileUtil.writeToFile(savePath, sl.toString() + "\n");
-        }
-
-    }
+    // public void calculateSuspAgain(GZoltar gz) {
+    // if (extraFailedMethodsIndices.isEmpty())
+    // return;
+    //
+    // List<String> matrixListAgain = new ArrayList<>();
+    // List<String> testListAgain = new ArrayList<>();
+    //
+    // for (int index = 0; index < matrixList.size(); index++) {
+    // String line = matrixList.get(index);
+    // if (!extraFailedMethodsIndices.contains(index)) {
+    // matrixListAgain.add(line);
+    // testListAgain.add(testList.get(index));
+    // }
+    // }
+    //
+    // FileUtil.writeLinesToFile(Globals.testListPathAgain, testListAgain);
+    // FileUtil.writeLinesToFile(Globals.matrixPathAgain, matrixListAgain);
+    //
+    // // recalculate: 1)&2)
+    // // 1) revise data
+    // totalFailed = totalFailed - extraFailedMethodsIndices.size();
+    // Spectra spectra = gz.getSpectra();
+    // List<TestResult> testResults = spectra.getTestResults();
+    // List<SuspiciousLocation> suspListAgain = new ArrayList<>();
+    // savePath = Globals.rankListPathAgain;
+    //
+    // // 2) copied code
+    // for (int index = 0; index < spectra.getComponents().size(); index++) {
+    // Component component = spectra.getComponents().get(index);
+    // Statement stmt = (Statement) component;
+    // String className = stmt.getClazz().getLabel();
+    // int lineNo = stmt.getLineNumber();
+    // BitSet coverage = stmt.getCoverage();
+    //
+    // int execPassed = 0;
+    // int execFailed = 0;
+    // List<String> execPassedMethods = new ArrayList<>();
+    // List<String> execFailedMethods = new ArrayList<>();
+    //
+    // for (int i = coverage.nextSetBit(0); i >= 0; i = coverage.nextSetBit(i + 1)) {
+    // if (i == Integer.MAX_VALUE) {
+    // logger.error("i == Integer.MAX_VALUE now.");
+    // break; // or (i+1) would overflow
+    // }
+    //
+    // // operate on index i here
+    // TestResult tr = testResults.get(i);
+    // if (tr.wasSuccessful()) {
+    // execPassed++;
+    // execPassedMethods.add(tr.getName());
+    // } else {
+    // if (!extraFailedMethodsIndices.contains(i)) {
+    // execFailed++;
+    // execFailedMethods.add(tr.getName());
+    // }
+    // }
+    // }
+    //
+    // SuspiciousLocation sl = new SuspiciousLocation(className, lineNo, execPassed, execFailed,
+    // totalPassed, totalFailed, execPassedMethods, execFailedMethods);
+    // suspListAgain.add(sl);
+    // }
+    //
+    // Collections.sort(suspListAgain, new Comparator<SuspiciousLocation>() {
+    // @Override
+    // public int compare(SuspiciousLocation o1, SuspiciousLocation o2) {
+    // // descending order
+    // return Double.compare(o2.getSuspValue(), o1.getSuspValue());
+    // }
+    // });
+    //
+    // FileUtil.writeToFile(savePath, "", false);
+    // for (SuspiciousLocation sl : suspListAgain) {
+    // FileUtil.writeToFile(savePath, sl.toString() + "\n");
+    // }
+    //
+    // }
 
     /**
      * date: Mar 4, 2022
      * @param gz
      */
     public void getMethodRanking(GZoltar gz) {
-        Spectra spectra = gz.getSpectra();
 
-        // get test result
-        List<TestResult> testResults = spectra.getTestResults();
-        logger.info("Total tests executed: {}, total componenets (stmts) obtained: {}", testResults.size(),
-                spectra.getNumberOfComponents());
-
-        // init matrix
-        char[][] matrix = new char[testResults.size()][spectra.getComponents().size() + 1];
-        // int[][] matrix = new int[testResults.size()][spectra.getComponents().size() + 1];
-        for (int i = 0; i < testResults.size(); i++) {
-            for (int j = 0; j < spectra.getComponents().size() + 1; j++) {
-                matrix[i][j] = '0';
-            }
-        }
-
-        for (int index = 0; index < testResults.size(); index++) {
-            TestResult tr = testResults.get(index);
-            String methodName = tr.getName();
-
-            testList.add(methodName);
-            testResultList.add(String.format("%s,%s", methodName, tr.wasSuccessful()));
-
-            if (tr.wasSuccessful()) {
-                totalPassed++;
-                matrix[index][spectra.getComponents().size()] = '1'; // '1';
-            } else {
-                totalFailed++;
-                matrix[index][spectra.getComponents().size()] = '0'; // '0';
-                failedMethods.add(methodName);
-
-                if (!Globals.oriFailedTestList.contains(methodName.split("#")[0])) {
-                    extraFailedMethods.add(methodName);
-                    extraFailedMethodsIndices.add(index);
-                } else {
-                    expectedFailedMethod.add(methodName);
-                }
-            }
-        }
-
-        // for each component (suspicious stmt)
-        for (int index = 0; index < spectra.getComponents().size(); index++) {
-            Component component = spectra.getComponents().get(index);
-            Statement stmt = (Statement) component;
-            String className = stmt.getClazz().getLabel();
-            int lineNo = stmt.getLineNumber();
-            BitSet coverage = stmt.getCoverage();
-
-            int execPassed = 0;
-            int execFailed = 0;
-            List<String> execPassedMethods = new ArrayList<>();
-            List<String> execFailedMethods = new ArrayList<>();
-
-            // traverse bitset coverage
-            // this loop is based on the nextSetBit() javadoc
-            for (int i = coverage.nextSetBit(0); i >= 0; i = coverage.nextSetBit(i + 1)) {
-                if (i == Integer.MAX_VALUE) {
-                    logger.error("i == Integer.MAX_VALUE now.");
-                    break; // or (i+1) would overflow
-                }
-
-                // operate on index i here
-                TestResult tr = testResults.get(i);
-                if (tr.wasSuccessful()) {
-                    execPassed++;
-                    execPassedMethods.add(tr.getName());
-                    matrix[i][index] = '1'; // '1'; // means covered
-                } else {
-                    matrix[i][index] = '1';// '1';
-                    execFailed++;
-                    execFailedMethods.add(tr.getName());
-                }
-            }
-
-            SuspiciousLocation sl = new SuspiciousLocation(className, lineNo, execPassed, execFailed,
-                    totalPassed, totalFailed, execPassedMethods, execFailedMethods);
-            suspList.add(sl);
-            stmtList.add(String.format("%s:%s", className, lineNo));
-        }
-
-        Collections.sort(suspList, new Comparator<SuspiciousLocation>() {
-            @Override
-            public int compare(SuspiciousLocation o1, SuspiciousLocation o2) {
-                // descending order
-                return Double.compare(o2.getSuspValue(), o1.getSuspValue());
-            }
-        });
-
-        FileUtil.writeToFile(savePath, "", false);
-        for (SuspiciousLocation sl : suspList) {
-            FileUtil.writeToFile(savePath, sl.toString() + "\n");
-        }
-
-        long startTime = System.currentTimeMillis();
-        int row_size = matrix.length;
-        for (int row = 0; row < row_size; row++) { // row. Test result
-            matrixList.add(new String(matrix[row]));
-            // matrixList.add(Arrays.toString(matrix[row]));
-        }
-        FileUtil.writeMatrixFile(matrixList, testResultList, stmtList);
-        Globals.outputData.put("time_cost_save_matrix", FileUtil.countTime(startTime));
-        logger.info("FL ends.");
-
-        Globals.outputData.put("extra_failed_methods", extraFailedMethods);
-        Globals.outputData.put("expected_failed_classes", Globals.oriFailedTestList);
-        Globals.outputData.put("expected_failed_methods", expectedFailedMethod);
     }
 }

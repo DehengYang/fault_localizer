@@ -338,10 +338,10 @@ public class FileUtil {
         return testsList;
     }
 
-    public static void writeMatrixFile(List<String> matrixList, List<String> testList, List<String> stmtList) {
+    public static void writeMatrixFile(List<String> bitSets, List<String> testList, List<String> stmtList) {
         FileUtil.writeLinesToFile(Globals.testListPath, testList);
         FileUtil.writeLinesToFile(Globals.stmtListPath, stmtList);
-        FileUtil.writeLinesToFile(Globals.matrixPath, matrixList);
+        FileUtil.writeLinesToFile(Globals.coveragePath, bitSets);
     }
 
     public static List<Pair<List<Integer>, String>> readMatrixFile(String path, int specSize,

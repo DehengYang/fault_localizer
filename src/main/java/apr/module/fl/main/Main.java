@@ -1,6 +1,7 @@
 package apr.module.fl.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -160,7 +162,8 @@ public class Main {
         Globals.rankListPath = Paths.get(toolOutputDir, "ranking_list.txt").toString();
         FileUtil.writeToFile(Globals.flLogPath, "", false);
 
-        Globals.matrixPath = Paths.get(toolOutputDir, "matrix.txt").toString();
+        // Globals.matrixPath = Paths.get(toolOutputDir, "matrix.txt").toString();
+        Globals.coveragePath = Paths.get(toolOutputDir, "coverage.txt").toString();
         Globals.testListPath = Paths.get(toolOutputDir, "test_method_list.txt").toString();
         Globals.stmtListPath = Paths.get(toolOutputDir, "stmt_list.txt").toString();
 
@@ -169,5 +172,13 @@ public class Main {
         Globals.rankListPathAgain = Paths.get(toolOutputDir, "rank_list_again.txt").toString();
 
         Globals.outputDataPath = Paths.get(toolOutputDir, "output_data.yaml").toString();
+        
+        // clear outputDir
+        logger.info("clear outputdir: {}", Globals.outputDir);
+        try {
+            FileUtils.cleanDirectory(new File(Globals.outputDir));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

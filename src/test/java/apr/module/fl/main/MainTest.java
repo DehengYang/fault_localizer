@@ -15,41 +15,41 @@ import org.junit.Test;
  *
  */
 public class MainTest {
-    /**
-     * parse main args
-     * date: Dec 2, 2021
-     * @param mainArgs
-     * @return
-     */
-    public static String[] parseStringArgs(String mainArgs) {
-        String[] args = mainArgs.split("\\\n");
-        List<String> argsList = new ArrayList<>();
-        for (String arg : args) {
-            arg = arg.trim();
-            if (arg.endsWith("\\")) {
-                arg = arg.substring(0, arg.length() - 1);
-            }
-            String[] argArray = arg.split("\\s+");
-            argsList.addAll(Arrays.asList(argArray));
-        }
-        return argsList.toArray(String[]::new);
-    }
-
-    @Test
-    public void testChart6() {
-        String mainArgs = " --externalProjPath /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../patch_validator/patch_validator/versions/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar \\\n" + 
-                "                --srcJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/source/ \\\n" + 
-                "                --binJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/ \\\n" + 
-                "                --binTestDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/ \\\n" + 
-                "                --jvmPath /home/apr/env/jdk1.7.0_80/bin/ \\\n" + 
-                "                --failedTests org.jfree.chart.util.junit.ShapeListTests \\\n" + 
-                "                --dependencies /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/junit.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/servlet.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/itext-2.0.6.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/datasets/defects4j/framework/projects/lib/junit-4.11.jar \\\n" + 
-                "                --outputDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../results_defects4j/defects4j_Chart_6/dataset/../gzoltar \\\n" + 
-                "                --workingDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6";
-
-        String[] args = parseStringArgs(mainArgs);
-        Main.main(args);
-    }
+    // /**
+    // * parse main args
+    // * date: Dec 2, 2021
+    // * @param mainArgs
+    // * @return
+    // */
+    // public static String[] parseStringArgs(String mainArgs) {
+    // String[] args = mainArgs.split("\\\n");
+    // List<String> argsList = new ArrayList<>();
+    // for (String arg : args) {
+    // arg = arg.trim();
+    // if (arg.endsWith("\\")) {
+    // arg = arg.substring(0, arg.length() - 1);
+    // }
+    // String[] argArray = arg.split("\\s+");
+    // argsList.addAll(Arrays.asList(argArray));
+    // }
+    // return argsList.toArray(String[]::new);
+    // }
+    //
+    // @Test
+    // public void testChart6() {
+    // String mainArgs = " --externalProjPath /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../patch_validator/patch_validator/versions/PatchTest-0.0.1-SNAPSHOT-jar-with-dependencies.jar \\\n" +
+    // " --srcJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/source/ \\\n" +
+    // " --binJavaDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/ \\\n" +
+    // " --binTestDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/ \\\n" +
+    // " --jvmPath /home/apr/env/jdk1.7.0_80/bin/ \\\n" +
+    // " --failedTests org.jfree.chart.util.junit.ShapeListTests \\\n" +
+    // " --dependencies /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/build-tests/:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/junit.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/servlet.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6/lib/itext-2.0.6.jar:/mnt/data/2021_11_multi_chunk_repair/APRConfig/datasets/defects4j/framework/projects/lib/junit-4.11.jar \\\n" +
+    // " --outputDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/APRConfig/../results_defects4j/defects4j_Chart_6/dataset/../gzoltar \\\n" +
+    // " --workingDir /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6";
+    //
+    // String[] args = parseStringArgs(mainArgs);
+    // Main.main(args);
+    // }
 
     /**
      * 1) Bears_pippo-java-pippo_446336779-446341967

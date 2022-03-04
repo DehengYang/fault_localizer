@@ -40,7 +40,8 @@ public class Globals {
     public static String rankListPath;
 
     // matrix
-    public static String matrixPath;
+    public static String coveragePath;
+    // public static String matrixPath;
     public static String testListPath;
     public static String stmtListPath;
 

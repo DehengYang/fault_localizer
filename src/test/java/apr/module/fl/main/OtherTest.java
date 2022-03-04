@@ -33,10 +33,7 @@ public class OtherTest {
         System.out.println("bs1: " + bs1);
         System.out.println("bs2: " + bs2);
 
-        boolean status = bs1.intersects(bs2);
         bs1.and(bs2);
         System.out.println(bs1);
-
-        // System.out.println("bs1.intersects(bs2): " + status);
     }
 }

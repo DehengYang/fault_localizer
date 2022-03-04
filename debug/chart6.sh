@@ -1,4 +1,5 @@
 debug="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y"
+#debug=""
 
 cd /mnt/data/2021_11_multi_chunk_repair/APRConfig/results_defects4j/defects4j_Chart_6/defects4j_Chart_6;
             export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8 -Duser.language=en-US -Duser.country=US -Duser.language=en";
