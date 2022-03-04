@@ -22,7 +22,8 @@ import apr.module.fl.global.Globals;
 import apr.module.fl.utils.FileUtil;
 
 public class FaultLocalizer {
-    private String workDir = System.getProperty("user.dir");
+    // not used.
+    // private String workDir = System.getProperty("user.dir");
     final static Logger logger = LogManager.getLogger(FaultLocalizer.class);
 
     private int totalPassed = 0;
@@ -97,7 +98,8 @@ public class FaultLocalizer {
 
         GZoltar gz = null;
         try {
-            gz = new GZoltar(workDir);
+            // gz = new GZoltar(workDir);
+            gz = new GZoltar(Globals.workingDir);
         } catch (IOException e) {
             e.printStackTrace();
         }
